@@ -10,7 +10,7 @@ setup(
     author_email='mathieu.leplatre@makina-corpus.com',
     url='https://github.com/makinacorpus/django-geojson',
     download_url = "http://pypi.python.org/pypi/django-geojson/",
-    description="",
+    description="Serve vectorial map layers with Django",
     long_description=open(os.path.join(here, 'README.rst')).read() + '\n\n' + 
                      open(os.path.join(here, 'CHANGES')).read(),
     license='LPGL, see LICENSE file.',

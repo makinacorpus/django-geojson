@@ -14,7 +14,7 @@ USAGE
 =====
 
 GeoJSON layer view
-------------------
+==================
 
 Very useful for web mapping :
 
@@ -44,7 +44,7 @@ Consume the vector layer as usual, for example, with Leaflet :
 
 
 GeoJSON template filter
------------------------
+=======================
 
 Will work either for a model, a geometry field or a queryset.
 
@@ -60,7 +60,7 @@ Will work either for a model, a geometry field or a queryset.
 
 
 Dump GIS models
----------------
+===============
 
 Register the serializer in your project :
 
@@ -89,7 +89,7 @@ AUTHORS
     * Mathieu Leplatre <mathieu.leplatre@makina-corpus.com>
     * Daniel Sokolowski, author of original serializer snippet
 
-Relies massively on Sean Gillies' `geojson <>`_ python module.
+Relies massively on Sean Gillies' `geojson <http://pypi.python.org/pypi/geojson>`_ python module.
 
 |makinacom|_
 
