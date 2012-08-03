@@ -52,14 +52,14 @@ class Serializer(JsonSerializer):
         geomattrs = [field for field in obj._meta.fields if isinstance(field, GeometryField)]
         if not geomattrs:
             raise ValueError("No GeometryField found in object")
-        geomattr = geomattrs.pop()
+        geomattr = geomattrs.pop(0)
         if geomattrs:
             logging.warn(_("More than one GeometryField found in object, used %s" % geomattr.name))
         geomfield = getattr(obj, geomattr.name)
         return geomfield
 
     def _preparegeom(self, geomfield):
-        """ Geometry processing, depending on options """
+        """ Geometry processing (in place), depending on options """
         # Optional geometry simplification
         simplify = self.options.get('simplify')
         if simplify is not None:
@@ -81,12 +81,17 @@ class Serializer(JsonSerializer):
 
     def end_object(self, obj):
         pk = smart_unicode(obj._get_pk_val(), strings_only=True)
-        geomfield = self._geomfield(obj)
-        self._preparegeom(geomfield)
-        
-        # Load Django geojson representation as dict
-        geometry = simplejson.loads(geomfield.geojson)
-        
+        if isinstance(obj, GeometryField):
+            geomfield = obj
+        else:
+            geomfield = self._geomfield(obj)
+
+        geometry = None
+        if geomfield is not None:
+            self._preparegeom(geomfield)
+            # Load Django geojson representation as dict
+            geometry = simplejson.loads(geomfield.geojson)
+
         properties = self._properties()
         # Add extra-info for deserializing
         properties['model'] = smart_unicode(obj._meta)

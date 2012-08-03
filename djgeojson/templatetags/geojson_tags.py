@@ -2,6 +2,7 @@ from django import template
 from django.conf import settings
 from django.utils import simplejson
 from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.gis.db.models.fields import GeometryField
 
 import geojson
 
@@ -19,7 +20,7 @@ def geojsonfeature(obj, srid=None):
     if srid is None:
         srid = getattr(settings, 'MAP_SRID', getattr(settings, 'SRID', 4326))
     geojsonvalue = ''
-    if isinstance(obj, GEOSGeometry):
+    if isinstance(obj, (GEOSGeometry, GeometryField)):
         obj.transform(settings.MAP_SRID)
         feature = geojson.Feature(geometry=simplejson.loads(obj.geojson))
         geojsonvalue = geojson.dumps(feature)
