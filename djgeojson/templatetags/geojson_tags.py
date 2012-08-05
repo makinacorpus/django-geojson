@@ -18,10 +18,12 @@ def geojsonfeature(obj, srid=None):
         return 'null'
 
     if srid is None:
+        # Try to guess SRID from potential settings
         srid = getattr(settings, 'MAP_SRID', getattr(settings, 'SRID', 4326))
     geojsonvalue = ''
     if isinstance(obj, (GEOSGeometry, GeometryField)):
-        obj.transform(settings.MAP_SRID)
+        if obj.srid != srid:
+            obj.transform(srid)
         feature = geojson.Feature(geometry=simplejson.loads(obj.geojson))
         geojsonvalue = geojson.dumps(feature)
     else:
