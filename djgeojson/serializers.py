@@ -23,7 +23,6 @@ from django.core.serializers.json import (Serializer as JsonSerializer,
                                           DateTimeAwareJSONEncoder)
 from django.utils import simplejson
 from django.utils.translation import gettext as _
-from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.db.models.fields import GeometryField
 from django.core.serializers.python import Deserializer as PythonDeserializer
 from django.utils.encoding import smart_unicode
@@ -50,14 +49,13 @@ class Serializer(JsonSerializer):
         return dump
 
     def _geomfield(self, obj):
-        tryfields = ['geom', 'the_geom',] + [field.name for field in obj._meta.fields]
-        valuefields = [getattr(obj, fieldname, False) for fieldname in tryfields]
-        geomfields = [value for value in valuefields if isinstance(value, (GEOSGeometry, GeometryField))]
-        if not geomfields:
+        geomattrs = [field for field in obj._meta.fields if isinstance(field, GeometryField)]
+        if not geomattrs:
             raise ValueError("No GeometryField found in object")
-        geomfield = geomfields.pop(0)
-        if geomfields:
-            logging.warn(_("More than one GeometryField found in object, used %s" % geomfield))
+        geomattr = geomattrs.pop(0)
+        if geomattrs:
+            logging.warn(_("More than one GeometryField found in object, used %s" % geomattr.name))
+        geomfield = getattr(obj, geomattr.name)
         return geomfield
 
     def _preparegeom(self, geomfield):
