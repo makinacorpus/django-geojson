@@ -19,7 +19,9 @@ def geojsonfeature(obj, srid=None):
 
     if srid is None:
         # Try to guess SRID from potential settings
-        srid = getattr(settings, 'MAP_SRID', getattr(settings, 'SRID', 4326))
+        srid = getattr(settings, 'API_SRID', 
+                       getattr(settings, 'MAP_SRID', 
+                               getattr(settings, 'SRID', 4326)))
     geojsonvalue = ''
     if isinstance(obj, (GEOSGeometry, GeometryField)):
         if obj.srid != srid:
@@ -28,5 +30,5 @@ def geojsonfeature(obj, srid=None):
         geojsonvalue = geojson.dumps(feature)
     else:
         serializer = Serializer()
-        geojsonvalue = serializer.serialize([obj], fields=[], srid=settings.MAP_SRID)
+        geojsonvalue = serializer.serialize([obj], fields=[], srid=srid)
     return geojsonvalue

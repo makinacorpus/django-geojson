@@ -35,6 +35,7 @@ from shapely.geometry import asShape
 def hasattr_lazy(obj, name):
     return any(name in d for d in (obj.__dict__, obj.__class__.__dict__))
 
+
 class Serializer(JsonSerializer):
     def __init__(self, *args, **kwargs):
         super(Serializer, self).__init__(*args, **kwargs)
