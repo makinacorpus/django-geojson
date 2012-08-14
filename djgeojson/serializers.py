@@ -61,7 +61,7 @@ class Serializer(JsonSerializer):
             geomfield = obj.geom
         elif hasattr_lazy(obj, 'the_geom'):
             geomfield = obj.the_geom
-        if geomfield is None or not is_geom(geomfield):
+        else:
             geomattrs = [field for field in obj._meta.fields if is_geom(field)]
             if not geomattrs:
                 raise ValueError("No GeometryField found in object")
