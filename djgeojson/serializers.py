@@ -26,6 +26,7 @@ from django.utils.translation import gettext as _
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.db.models.fields import GeometryField
 from django.core.serializers.python import Deserializer as PythonDeserializer
+from django.core.serializers.python import _get_model
 from django.utils.encoding import smart_unicode
 
 import geojson
@@ -109,6 +110,11 @@ class Serializer(JsonSerializer):
         # Add extra-info for deserializing
         properties['model'] = smart_unicode(obj._meta)
         properties['pk'] = pk
+        # Add information from dynamic properties
+        is_prop = lambda o, f: type(o.__class__.__dict__[f]) == property
+        for f in self.selected_fields:
+            if f not in properties and is_prop(obj, f):
+                properties[f] = getattr(obj, f)
         # Build pure geojson object
         feature = geojson.Feature(id=pk,
                                   properties=properties,
@@ -133,10 +139,18 @@ def Deserializer(stream_or_string, **options):
     """
     def FeatureToPython(dictobj):
         properties = dictobj['properties']
+        model_name = properties.pop('model')
+        # Deserialize concrete fields only (bypass dynamic properties)
+        model = _get_model(model_name)
+        field_names = [f.name for f in model._meta.fields]
+        fields = {}
+        for k, v in properties.iteritems():
+            if k in field_names:
+                fields[k] = v
         obj = {
-            "model"  : properties.pop("model"),
+            "model"  : model_name,
             "pk"     : dictobj['id'],
-            "fields" : properties
+            "fields" : fields
         }
         shape = asShape(dictobj['geometry'])
         obj['geom'] = shape.wkt
