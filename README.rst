@@ -12,19 +12,7 @@ INSTALL
 =====
 USAGE
 =====
-::
 
-  # settings.py
-
-    add djgeojson to your applications:
-    INSTALLED_APPS = (
-     'djgeojson',
-    )
-    
-
-    SERIALIZATION_MODULES = {
-        'geojson' : 'djgeojson.serializers'
-    }
 GeoJSON layer view
 ==================
 
@@ -74,6 +62,16 @@ Will work either for a model, a geometry field or a queryset.
 Dump GIS models
 ===============
 
+Add djgeojson to your applications :
+
+::
+
+    # settings.py
+
+    INSTALLED_APPS += (
+        'djgeojson',
+    )
+
 Register the serializer in your project :
 
 ::
@@ -100,6 +98,7 @@ AUTHORS
 
     * Mathieu Leplatre <mathieu.leplatre@makina-corpus.com>
     * Daniel Sokolowski, author of original serializer snippet
+    * ozzmo, python 2.6 compatibility
 
 Relies massively on Sean Gillies' `geojson <http://pypi.python.org/pypi/geojson>`_ python module.
 
