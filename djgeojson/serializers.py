@@ -88,9 +88,7 @@ class Serializer(JsonSerializer):
         """ Build properties from object fields """
         properties = dict(self._current.iteritems())
         if self.selected_fields is not None:
-            for k,v in properties.items():
-                if k in self.selected_fields:
-                    properties[k] = v
+            properties = dict((k, v) for (k, v) in properties.items() if k in self.selected_fields)
         # Properties are expected to be serializable, force it brutally
         properties = simplejson.loads(simplejson.dumps(properties, cls=DateTimeAwareJSONEncoder))
         return properties
