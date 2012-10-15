@@ -12,7 +12,19 @@ INSTALL
 =====
 USAGE
 =====
+::
 
+  # settings.py
+
+    add djgeojson to your applications:
+    INSTALLED_APPS = (
+     'djgeojson',
+    )
+    
+
+    SERIALIZATION_MODULES = {
+        'geojson' : 'djgeojson.serializers'
+    }
 GeoJSON layer view
 ==================
 
