@@ -13,6 +13,18 @@ INSTALL
 USAGE
 =====
 
+Add ``djgeojson`` to your applications :
+
+::
+
+    # settings.py
+
+    INSTALLED_APPS += (
+        'djgeojson',
+    )
+
+*(not required for views)*
+
 GeoJSON layer view
 ==================
 
@@ -61,16 +73,6 @@ Will work either for a model, a geometry field or a queryset.
 
 Dump GIS models
 ===============
-
-Add djgeojson to your applications :
-
-::
-
-    # settings.py
-
-    INSTALLED_APPS += (
-        'djgeojson',
-    )
 
 Register the serializer in your project :
 
