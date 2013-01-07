@@ -112,9 +112,10 @@ class Serializer(JsonSerializer):
         properties['pk'] = pk
         # Add information from dynamic properties
         is_prop = lambda o, f: type(o.__class__.__dict__[f]) == property
-        for f in self.selected_fields:
-            if f not in properties and is_prop(obj, f):
-                properties[f] = getattr(obj, f)
+        if self.selected_fields is not None:
+            for f in self.selected_fields:
+                if f not in properties and is_prop(obj, f):
+                    properties[f] = getattr(obj, f)
         # Build pure geojson object
         feature = geojson.Feature(id=pk,
                                   properties=properties,
@@ -127,7 +128,7 @@ class Serializer(JsonSerializer):
         If field is of GeometryField than encode otherwise call parent's method
         """
         value = field._get_val_from_obj(obj)
-        if isinstance(field, GeometryField):
+        if not isinstance(field, GeometryField):
             self._current[field.name] = value
         else:
             super(Serializer, self).handle_field(obj, field)
