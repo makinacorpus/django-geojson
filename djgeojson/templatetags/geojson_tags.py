@@ -1,4 +1,3 @@
-from django.db.models import Model
 from django import template
 from django.conf import settings
 from django.utils import simplejson
@@ -29,10 +28,10 @@ def geojsonfeature(obj, srid=None):
             obj.transform(srid)
         feature = geojson.Feature(geometry=simplejson.loads(obj.geojson))
         geojsonvalue = geojson.dumps(feature)
-    elif isinstance(obj, Model):
-        serializer = Serializer()
-        geojsonvalue = serializer.serialize([obj], fields=[], srid=srid)
-    else:
+    elif hasattr(obj, '__iter__'):
         serializer = Serializer()
         geojsonvalue = serializer.serialize(obj, fields=[], srid=srid)
+    else:
+        serializer = Serializer()
+        geojsonvalue = serializer.serialize([obj], fields=[], srid=srid)
     return geojsonvalue
