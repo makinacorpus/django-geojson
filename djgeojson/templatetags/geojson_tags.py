@@ -28,6 +28,9 @@ def geojsonfeature(obj, srid=None):
             obj.transform(srid)
         feature = geojson.Feature(geometry=simplejson.loads(obj.geojson))
         geojsonvalue = geojson.dumps(feature)
+    elif hasattr(obj, '__iter__'):
+        serializer = Serializer()
+        geojsonvalue = serializer.serialize(obj, fields=[], srid=srid)
     else:
         serializer = Serializer()
         geojsonvalue = serializer.serialize([obj], fields=[], srid=srid)
