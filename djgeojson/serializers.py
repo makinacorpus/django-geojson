@@ -111,7 +111,7 @@ class Serializer(JsonSerializer):
         properties['model'] = smart_unicode(obj._meta)
         properties['pk'] = pk
         # Add information from dynamic properties
-        is_prop = lambda o, f: type(o.__class__.__dict__[f]) == property
+        is_prop = lambda o, f: f in dir(obj)
         for f in self.selected_fields:
             if f not in properties and is_prop(obj, f):
                 properties[f] = getattr(obj, f)
