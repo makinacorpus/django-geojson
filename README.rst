@@ -32,16 +32,8 @@ Very useful for web mapping :
 
 ::
 
-    from djgeojson.views import GeoJSONLayerView
-
-
-    class MeetingLayer(GeoJSONLayerView):
-        model = Meeting
-        fields = ('title', 'datetime',)
-        # Options
-        srid = 4326     # projection
-        precision = 4   # float
-        simplify = 0.5  # generalization
+    # urls.py
+    url(r'^data.geojson$', 'djgeoson.view.GeoJSONLayerView', {'model': 'MushroomSpot'}, name='data'),
 
 
 Consume the vector layer as usual, for example, with Leaflet :
@@ -50,9 +42,33 @@ Consume the vector layer as usual, for example, with Leaflet :
 
     var layer = L.GeoJSON();
     map.addLayer(layer);
-    $.getJSON('{% url viewname %}', function (data){
+    $.getJSON("{% url 'data' %}", function (data) {
         layer.addData(data);
     });
+
+
+Inherit **only** if you need a reusable set of options :
+
+::
+
+    # views.py
+    from djgeojson.views import GeoJSONLayerView
+
+    class MapLayer(GeoJSONLayerView):
+        # Options
+        srid = 4326     # projection
+        precision = 4   # float
+        simplify = 0.5  # generalization
+
+
+    # urls.py
+    from .views import MapLayer, MeetingLayer
+    ...
+    url(r'^mushrooms.geojson$', MapLayer.as_view(model=MushroomSpot, fields=('name',)), name='mushrooms')
+    
+
+
+Most common use-cases are low-fi precision, common list of fields, etc.
 
 
 GeoJSON template filter
