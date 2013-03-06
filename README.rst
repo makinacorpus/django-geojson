@@ -33,7 +33,9 @@ Very useful for web mapping :
 ::
 
     # urls.py
-    url(r'^data.geojson$', 'djgeoson.view.GeoJSONLayerView', {'model': 'MushroomSpot'}, name='data'),
+    from djgeojson.views import GeoJSONLayerView
+    ...
+    url(r'^data.geojson$', GeoJSONLayerView.as_view(model=MushroomSpot), name='data'),
 
 
 Consume the vector layer as usual, for example, with Leaflet :
