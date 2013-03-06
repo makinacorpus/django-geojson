@@ -56,7 +56,6 @@ Inherit **only** if you need a reusable set of options :
 
     class MapLayer(GeoJSONLayerView):
         # Options
-        srid = 4326     # projection
         precision = 4   # float
         simplify = 0.5  # generalization
 
