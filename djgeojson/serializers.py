@@ -12,16 +12,15 @@
     Extends django's built in JSON serializer to support GEOJSON encoding
 """
 import logging
+import json
 try:
     from cStringIO import StringIO
 except ImportError:
     from StringIO import StringIO
-from simplejson import encoder
 
 from django.core.serializers.base import DeserializationError
 from django.core.serializers.json import (Serializer as JsonSerializer,
-                                          DateTimeAwareJSONEncoder)
-from django.utils import simplejson
+                                          DjangoJSONEncoder)
 from django.utils.translation import gettext as _
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.db.models.fields import GeometryField
@@ -41,17 +40,21 @@ class Serializer(JsonSerializer):
     def __init__(self, *args, **kwargs):
         super(Serializer, self).__init__(*args, **kwargs)
         self.collection = None
+        self.objects = []
+
+    def start_serialization(self):
+        pass  # parent's method writes to stream !
 
     def end_serialization(self):
         precision = self.options.get('precision')
-        floatrepr = encoder.FLOAT_REPR
+        floatrepr = json.encoder.FLOAT_REPR
         if precision is not None:
             # Monkey patch for float precision!
-            encoder.FLOAT_REPR = lambda o: format(o, '.%sf' % precision)
+            json.encoder.FLOAT_REPR = lambda o: format(o, '.%sf' % precision)
 
         self.collection = geojson.FeatureCollection(features=self.objects)
         dump = geojson.dump(self.collection, self.stream)
-        encoder.FLOAT_REPR = floatrepr  # Restore
+        json.encoder.FLOAT_REPR = floatrepr  # Restore
         return dump
 
     def _geomfield(self, obj):
@@ -90,7 +93,7 @@ class Serializer(JsonSerializer):
         if self.selected_fields is not None:
             properties = dict((k, v) for (k, v) in properties.items() if k in self.selected_fields)
         # Properties are expected to be serializable, force it brutally
-        properties = simplejson.loads(simplejson.dumps(properties, cls=DateTimeAwareJSONEncoder))
+        properties = json.loads(json.dumps(properties, cls=DjangoJSONEncoder))
         return properties
 
     def end_object(self, obj):
@@ -104,7 +107,7 @@ class Serializer(JsonSerializer):
         if geomfield is not None:
             geomfield = self._preparegeom(geomfield)
             # Load Django geojson representation as dict
-            geometry = simplejson.loads(geomfield.geojson)
+            geometry = json.loads(geomfield.geojson)
 
         properties = self._properties()
         # Add extra-info for deserializing
@@ -161,7 +164,7 @@ def Deserializer(stream_or_string, **options):
     else:
         stream = stream_or_string
     try:
-        collection = simplejson.load(stream)
+        collection = json.load(stream)
         objects = map(FeatureToPython, collection['features'])
         for obj in PythonDeserializer(objects, **options):
             yield obj
