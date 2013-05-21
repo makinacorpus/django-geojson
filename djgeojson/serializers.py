@@ -107,7 +107,7 @@ class Serializer(JsonSerializer):
         if geomfield is not None:
             geomfield = self._preparegeom(geomfield)
             # Load Django geojson representation as dict
-            geometry = json.loads(geomfield.geojson)
+            geometry = dict(type=geomfield.geom_type, coordinates=geomfield.coords)
 
         properties = self._properties()
         # Add extra-info for deserializing

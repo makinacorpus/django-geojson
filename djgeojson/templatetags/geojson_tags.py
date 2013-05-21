@@ -1,6 +1,5 @@
 from django import template
 from django.conf import settings
-from django.utils import simplejson
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.db.models.fields import GeometryField
 
@@ -26,7 +25,8 @@ def geojsonfeature(obj, srid=None):
     if isinstance(obj, (GEOSGeometry, GeometryField)):
         if obj.srid != srid:
             obj.transform(srid)
-        feature = geojson.Feature(geometry=simplejson.loads(obj.geojson))
+        geometry = dict(type=obj.geom_type, coordinates=obj.coords)
+        feature = geojson.Feature(geometry=geometry)
         geojsonvalue = geojson.dumps(feature)
     else:
         serializer = Serializer()
