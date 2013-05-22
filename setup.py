@@ -15,6 +15,7 @@ setup(
                      open(os.path.join(here, 'CHANGES')).read(),
     license='LPGL, see LICENSE file.',
     install_requires=[
+        'Django',
         'geojson == 1.0.1',
         'shapely',
     ],
