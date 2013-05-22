@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-1.2.0 (unreleased)
+1.2.0 (2013-05-22)
 ==================
 
 - Shapely is now optional (used for deserialization only)
