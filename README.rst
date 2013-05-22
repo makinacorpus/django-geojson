@@ -9,6 +9,12 @@ INSTALL
 
     pip install django-geojson
 
+
+If you need to load data from GeoJSON files (deserialize), you'll also need shapely ::
+
+    pip install "django-geojson [shapely]"
+
+
 =====
 USAGE
 =====

@@ -17,8 +17,10 @@ setup(
     install_requires=[
         'Django',
         'geojson == 1.0.1',
-        'shapely',
     ],
+    extras_require={
+        'shapely': ['shapely'],
+    },
     packages=find_packages(),
     include_package_data = True,
     zip_safe = False,

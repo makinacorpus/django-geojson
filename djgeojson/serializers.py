@@ -29,7 +29,10 @@ from django.core.serializers.python import _get_model
 from django.utils.encoding import smart_unicode
 
 import geojson
-from shapely.geometry import asShape
+try:
+    from shapely.geometry import asShape
+except ImportError:
+    asShape = lambda s: s
 
 
 def hasattr_lazy(obj, name):
