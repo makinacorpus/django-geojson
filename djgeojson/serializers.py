@@ -32,7 +32,7 @@ import geojson
 try:
     from shapely.geometry import asShape
 except ImportError:
-    asShape = lambda s: s
+    asShape = None
 
 
 def hasattr_lazy(obj, name):
@@ -158,6 +158,8 @@ def Deserializer(stream_or_string, **options):
             "pk"     : dictobj['id'],
             "fields" : fields
         }
+        if shape is None:
+            raise DeserializationError('shapely is not installed')
         shape = asShape(dictobj['geometry'])
         obj['geom'] = shape.wkt
         return obj
