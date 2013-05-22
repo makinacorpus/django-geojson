@@ -2,10 +2,12 @@
 CHANGELOG
 =========
 
-1.1.1 (unreleased)
+1.2.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Shapely is now optional (used for deserialization only)
+- Add Django to requirements
+- Skip a step in GeoJSON conversion of geometries (fixes #6)
 
 
 1.1.0 (2013-03-06)
