@@ -122,10 +122,9 @@ AUTHORS
 =======
 
     * Mathieu Leplatre <mathieu.leplatre@makina-corpus.com>
-    * Daniel Sokolowski, author of original serializer snippet
+    * @jeffkistler's author of geojson serializer at: https://gist.github.com/967274
+    * Glen Robertson author of django-geojson-tiles at: https://github.com/glenrobertson/django-geojson-tiles/
     * ozzmo, python 2.6 compatibility
-
-Relies massively on Sean Gillies' `geojson <http://pypi.python.org/pypi/geojson>`_ python module.
 
 |makinacom|_
 

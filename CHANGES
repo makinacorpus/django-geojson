@@ -2,10 +2,15 @@
 CHANGELOG
 =========
 
-1.2.1 (unreleased)
+2.0.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Complete rewrite
+
+** Incompatible changes **
+
+- Geom field is not guessed automatically
+- no more pk in properties : use id
 
 
 1.2.0 (2013-05-22)
