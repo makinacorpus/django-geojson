@@ -83,6 +83,9 @@ class GeoJSONSerializer(PythonSerializer):
             self._current['id'] = primary_key
 
     def end_object(self, obj):
+        # Add extra-info for deserializing
+        self._current['properties']['model'] = smart_unicode(obj._meta)
+
         self.feature_collection["features"].append(self._current)
         self._current = None
 
@@ -95,7 +98,16 @@ class GeoJSONSerializer(PythonSerializer):
         self.options.pop('crs', None)
         self.options.pop('srid', None)
 
+        # Optional float precision control
+        precision = self.options.pop('precision', None)
+        floatrepr = json.encoder.FLOAT_REPR
+        if precision is not None:
+            # Monkey patch for float precision!
+            json.encoder.FLOAT_REPR = lambda o: format(o, '.%sf' % precision)
+
         json.dump(self.feature_collection, self.stream, cls=DjangoGeoJSONEncoder, **self.options)
+
+        json.encoder.FLOAT_REPR = floatrepr  # Restore
 
     def _handle_geom(self, geometry):
         """ Geometry processing (in place), depending on options """
@@ -139,8 +151,6 @@ class GeoJSONSerializer(PythonSerializer):
 
         elif not self.properties:
             self._current['properties'][field_name] = value
-        # Add extra-info for deserializing
-        self._current['properties']['model'] = smart_unicode(obj._meta)
 
     def getvalue(self):
         if callable(getattr(self.stream, 'getvalue', None)):
