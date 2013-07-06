@@ -29,6 +29,10 @@ except ImportError:
 from . import GEOJSON_DEFAULT_SRID
 
 
+def hasattr_lazy(obj, name):
+    return any(name in d for d in (obj.__dict__, obj.__class__.__dict__))
+
+
 class DjangoGeoJSONEncoder(DjangoJSONEncoder):
 
     def default(self, o):
@@ -85,6 +89,11 @@ class GeoJSONSerializer(PythonSerializer):
     def end_object(self, obj):
         # Add extra-info for deserializing
         self._current['properties']['model'] = smart_unicode(obj._meta)
+
+        # If geometry not in model fields, may be a @property
+        if 'geometry' not in self._current and hasattr_lazy(obj, self.geometry_field):
+            geometry = getattr(obj, self.geometry_field)
+            self._current['geometry'] = self._handle_geom(geometry)
 
         self.feature_collection["features"].append(self._current)
         self._current = None
