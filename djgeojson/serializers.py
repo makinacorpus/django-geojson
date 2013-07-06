@@ -46,7 +46,7 @@ class DjangoGeoJSONEncoder(DjangoJSONEncoder):
             return super(DjangoGeoJSONEncoder, self).default(o)
 
 
-class GeoJSONSerializer(PythonSerializer):
+class Serializer(PythonSerializer):
     def start_serialization(self):
         self.feature_collection = {"type": "FeatureCollection", "features": []}
         self.feature_collection["crs"] = self.get_crs()
@@ -285,6 +285,9 @@ def Deserializer(stream_or_string, **options):
     """
     Deserialize a stream or string of JSON data.
     """
+
+    geometry_field = options.get("geometry_field", "geom")
+
     def FeatureToPython(dictobj):
         properties = dictobj['properties']
         model_name = properties.pop('model')
@@ -303,7 +306,7 @@ def Deserializer(stream_or_string, **options):
         if asShape is None:
             raise DeserializationError('shapely is not installed')
         shape = asShape(dictobj['geometry'])
-        obj['geom'] = shape.wkt
+        obj['fields'][geometry_field] = shape.wkt
         return obj
 
     if isinstance(stream_or_string, basestring):
