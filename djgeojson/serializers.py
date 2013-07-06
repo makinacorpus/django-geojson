@@ -10,6 +10,7 @@ try:
 except ImportError:
     from StringIO import StringIO
 import json
+import logging
 
 from django.db.models.base import Model
 from django.db.models.query import QuerySet, ValuesQuerySet
@@ -27,6 +28,9 @@ except ImportError:
     asShape = None
 
 from . import GEOJSON_DEFAULT_SRID
+
+
+logger = logging.getLogger(__name__)
 
 
 def hasattr_lazy(obj, name):
@@ -87,13 +91,26 @@ class GeoJSONSerializer(PythonSerializer):
             self._current['id'] = primary_key
 
     def end_object(self, obj):
+        # Add extra properties from dynamic attributes
+        if isinstance(self.properties, dict):
+            for field, name in self.properties.items():
+                if name not in self._current['properties'] and hasattr_lazy(obj, field):
+                    self._current['properties'][name] = getattr(obj, field)
+        elif isinstance(self.properties, list):
+            for field in self.properties:
+                if field not in self._current['properties'] and hasattr_lazy(obj, field):
+                    self._current['properties'][field] = getattr(obj, field)
+
         # Add extra-info for deserializing
         self._current['properties']['model'] = smart_unicode(obj._meta)
 
-        # If geometry not in model fields, may be a @property
-        if 'geometry' not in self._current and hasattr_lazy(obj, self.geometry_field):
-            geometry = getattr(obj, self.geometry_field)
-            self._current['geometry'] = self._handle_geom(geometry)
+        # If geometry not in model fields, may be a dynamic attribute
+        if 'geometry' not in self._current:
+            if hasattr_lazy(obj, self.geometry_field):
+                geometry = getattr(obj, self.geometry_field)
+                self._current['geometry'] = self._handle_geom(geometry)
+            else:
+                logger.warn("No GeometryField found in object")
 
         self.feature_collection["features"].append(self._current)
         self._current = None
