@@ -26,6 +26,8 @@ try:
 except ImportError:
     asShape = None
 
+from . import GEOJSON_DEFAULT_SRID
+
 
 class DjangoGeoJSONEncoder(DjangoJSONEncoder):
 
@@ -51,11 +53,10 @@ class GeoJSONSerializer(PythonSerializer):
         if self.crs is False:
             return None
         crs = {}
-        srid = self.options.get("srid", "4326")
 
         crs["type"] = "link"
         properties = {}
-        properties["href"] = "http://spatialreference.org/ref/epsg/%s/" % (str(srid))
+        properties["href"] = "http://spatialreference.org/ref/epsg/%s/" % (str(self.srid))
         properties["type"] = "proj4"
         crs["properties"] = properties
         return crs
@@ -96,6 +97,17 @@ class GeoJSONSerializer(PythonSerializer):
 
         json.dump(self.feature_collection, self.stream, cls=DjangoGeoJSONEncoder, **self.options)
 
+    def _handle_geom(self, geometry):
+        """ Geometry processing (in place), depending on options """
+        # Optional geometry simplification
+        simplify = self.options.get('simplify')
+        if simplify is not None:
+            geometry = geometry.simplify(tolerance=simplify, preserve_topology=True)
+        # Optional geometry reprojection
+        if self.srid != geometry.srid:
+            geometry.transform(self.srid)
+        return geometry
+
     def handle_field(self, obj, field_name):
         if isinstance(obj, Model):
             value = getattr(obj, field_name)
@@ -109,12 +121,13 @@ class GeoJSONSerializer(PythonSerializer):
         if field_name == self.geometry_field:
             # this will handle GEOSGeometry objects and string representations (e.g. ewkt, bwkt)
             try:
-                self._current['geometry'] = GEOSGeometry(value)
+                geometry = GEOSGeometry(value)
             # if the geometry couldn't be parsed, we can't generate valid geojson
             except ValueError:
                 raise SerializationError('The field ["%s", "%s"] could not be parsed as a valid geometry' % (
                     self.geometry_field, value
                 ))
+            self._current['geometry'] = self._handle_geom(geometry)
 
         elif self.properties and field_name in self.properties:
             # set the field name to the key's value mapping in self.properties
@@ -217,6 +230,7 @@ class GeoJSONSerializer(PythonSerializer):
         self.geometry_field = options.get("geometry_field", "geom")
         self.use_natural_keys = options.get("use_natural_keys", False)
         self.bbox = options.get("bbox", None)
+        self.srid = options.get("srid", GEOJSON_DEFAULT_SRID)
         self.crs = options.get("crs", True)
 
         self.start_serialization()
