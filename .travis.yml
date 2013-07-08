@@ -12,13 +12,13 @@ env:
   - DJANGO_VERSION=1.5
 
 install:
-  - pip install shapely
-  - sudo apt-get install -y libproj-dev libgeos-dev 
-  - wget http://pysqlite.googlecode.com/files/pysqlite-2.6.3.tar.gz
-  - tar -zxvf pysqlite-2.6.3.tar.gz
-  - cd pysqlite-2.6.3
-  - sed -i s/define=SQLITE_OMIT_LOAD_EXTENSION/#define=SQLITE_OMIT_LOAD_EXTENSION/g setup.cfg
-  - python setup.py install
+ - pip install shapely
+ - sudo apt-get install -y libproj-dev libgeos-dev 
+ - wget http://pysqlite.googlecode.com/files/pysqlite-2.6.3.tar.gz
+ - tar -zxvf pysqlite-2.6.3.tar.gz
+ - cd pysqlite-2.6.3
+ - sed -i "s/define=SQLITE_OMIT_LOAD_EXTENSION//g" setup.cfg
+ - python setup.py install
 
    # This is a dependency of our Django test script
  - pip install argparse --use-mirrors
@@ -33,7 +33,7 @@ before_script:
  - flake8 djgeojson
 
 script:
-    - coverage run quicktest.py djgeojson
+ - coverage run quicktest.py djgeojson
 
 after_success:
  - pip install coveralls
