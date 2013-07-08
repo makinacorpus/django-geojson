@@ -20,6 +20,7 @@ from django.core.serializers.python import (_get_model,
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.serializers.base import SerializationError, DeserializationError
 from django.utils.encoding import smart_unicode
+from django.contrib.gis.geos import WKBWriter
 from django.contrib.gis.geos.geometry import GEOSGeometry
 from django.contrib.gis.db.models.fields import GeometryField
 try:
@@ -122,6 +123,7 @@ class Serializer(PythonSerializer):
         self.options.pop('use_natural_keys', None)
         self.options.pop('crs', None)
         self.options.pop('srid', None)
+        self.options.pop('force2d', None)
 
         # Optional float precision control
         precision = self.options.pop('precision', None)
@@ -136,6 +138,11 @@ class Serializer(PythonSerializer):
 
     def _handle_geom(self, geometry):
         """ Geometry processing (in place), depending on options """
+        # Optional force 2D
+        if self.options.get('force2d'):
+            wkb_w = WKBWriter()
+            wkb_w.outdim = 2
+            geometry = GEOSGeometry(wkb_w.write(geometry), srid=geometry.srid)
         # Optional geometry simplification
         simplify = self.options.get('simplify')
         if simplify is not None:

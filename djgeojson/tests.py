@@ -2,10 +2,11 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.core import serializers
 from django.contrib.gis.db import models
-from django.contrib.gis.geos import LineString
+from django.contrib.gis.geos import LineString, Point
 
 
 from .templatetags.geojson_tags import geojsonfeature
+from .serializers import Serializer
 
 
 TEST_SETTINGS = dict(SERIALIZATION_MODULES={'geojson': 'djgeojson.serializers'})
@@ -85,6 +86,11 @@ class GeoJsonSerializerTest(TestCase):
         # Did it work?
         self.assertEqual(actual_geojson, expect_geojson)
         self.assertEqual(actual_geojson_with_prop, expect_geojson_with_prop)
+
+    def test_force2d(self):
+        serializer = Serializer()
+        features2d = serializer.serialize([{'geom': 'SRID=4326;POINT Z (1 2 3)'}], force2d=True, crs=False)
+        self.assertEqual(features2d, '{"type": "FeatureCollection", "features": [{"geometry": {"type": "Point", "coordinates": [1.0, 2.0]}, "type": "Feature", "properties": {}}]}')
 
 
 class GeoJsonTemplateTagTest(TestCase):
