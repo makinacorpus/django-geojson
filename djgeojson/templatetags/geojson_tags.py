@@ -2,7 +2,6 @@ import json
 
 from django import template
 from django.db.models import Model
-from django.forms.models import model_to_dict
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.db.models.fields import GeometryField
 
@@ -30,11 +29,7 @@ def geojsonfeature(source, geometry_field='geom', properties=None, srid=GEOJSON_
 
     serializer = Serializer()
 
-    if isinstance(source, Model):
-        objdict = model_to_dict(source)
-        # In case geometry is not a DB field
-        if geometry_field not in objdict:
-            objdict[objdict] = getattr(objdict, geometry_field)
-        source = [objdict]
+    if not hasattr(source, '__iter__'):
+        source = [source]
 
     return serializer.serialize(source, properties=properties, geometry_field=geometry_field, srid=srid)

@@ -14,6 +14,7 @@ import logging
 
 from django.db.models.base import Model
 from django.db.models.query import QuerySet, ValuesQuerySet
+from django.forms.models import model_to_dict
 from django.core.serializers.python import (_get_model,
                                             Serializer as PythonSerializer,
                                             Deserializer as PythonDeserializer)
@@ -211,6 +212,23 @@ class Serializer(PythonSerializer):
             self._current['properties'][field.name] = [m2m_value(related)
                                                        for related in getattr(obj, field.name).iterator()]
 
+    def serialize_object_list(self, objects):
+        if len(objects) == 0:
+            return
+
+        # Transform to list of dicts instead of objects
+        if not isinstance(objects[0], dict):
+            values = []
+            for obj in objects:
+                objdict = model_to_dict(obj)
+                # In case geometry is not a DB field
+                if self.geometry_field not in objdict:
+                    objdict[self.geometry_field] = getattr(obj, self.geometry_field)
+                values.append(objdict)
+            objects = values
+
+        self.serialize_values_queryset(objects)
+
     def serialize_values_queryset(self, queryset):
         for obj in queryset:
             self.start_object(obj)
@@ -277,8 +295,11 @@ class Serializer(PythonSerializer):
 
         self.start_serialization()
 
-        if isinstance(queryset, (ValuesQuerySet, list)):
+        if isinstance(queryset, ValuesQuerySet):
             self.serialize_values_queryset(queryset)
+
+        elif isinstance(queryset, list):
+            self.serialize_object_list(queryset)
 
         elif isinstance(queryset, QuerySet):
             self.serialize_queryset(queryset)
