@@ -8,7 +8,7 @@
 try:
     from cStringIO import StringIO
 except ImportError:
-    from StringIO import StringIO
+    from StringIO import StringIO  # NOQA
 import json
 import logging
 
@@ -27,7 +27,7 @@ from django.contrib.gis.db.models.fields import GeometryField
 try:
     from shapely.geometry import asShape
 except ImportError:
-    asShape = None
+    asShape = None  # NOQA
 
 from . import GEOJSON_DEFAULT_SRID
 

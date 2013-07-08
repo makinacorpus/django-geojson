@@ -1,7 +1,6 @@
 import json
 
 from django import template
-from django.db.models import Model
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.db.models.fields import GeometryField
 

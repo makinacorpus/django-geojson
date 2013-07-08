@@ -31,7 +31,7 @@ install:
  - pip install flake8 --use-mirrors
 
 before_script:
- - flake8 djgeojson
+ - flake8 --ignore=E501 djgeojson
 
 script:
  - coverage run quicktest.py djgeojson

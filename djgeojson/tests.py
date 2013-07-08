@@ -92,7 +92,6 @@ class GeoJsonSerializerTest(TestCase):
         features2d = serializer.serialize([{'geom': 'SRID=4326;POINT Z (1 2 3)'}], force2d=True, crs=False)
         self.assertEqual(features2d, '{"type": "FeatureCollection", "features": [{"geometry": {"type": "Point", "coordinates": [1.0, 2.0]}, "type": "Feature", "properties": {}}]}')
 
-
     def test_geometry_property(self):
         class Basket(models.Model):
             @property
@@ -101,6 +100,7 @@ class GeoJsonSerializerTest(TestCase):
         serializer = Serializer()
         features = serializer.serialize([Basket()], crs=False, force2d=True)
         self.assertEqual(features, '{"type": "FeatureCollection", "features": [{"geometry": {"type": "GeometryCollection", "geometries": [{"type": "LineString", "coordinates": [[-1.363063925443132, -5.98383036525906], [-1.363046296706177, -5.983810648949802]]}, {"type": "Point", "coordinates": [-1.363075677929551, -5.98384350946429]}]}, "type": "Feature", "properties": {"id": null}}]}')
+
 
 class GeoJsonTemplateTagTest(TestCase):
     def test_single(self):
