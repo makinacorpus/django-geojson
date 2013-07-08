@@ -1,0 +1,54 @@
+language: python
+
+python:
+  - 2.6
+  - 2.7
+  - 3.2
+  - 3.3
+
+env:
+  - DJANGO_VERSION=1.3
+  - DJANGO_VERSION=1.4
+  - DJANGO_VERSION=1.5
+
+install:
+  - pip install shapely
+  - sudo apt-get install -y libproj-dev libgeos-dev 
+  - wget http://pysqlite.googlecode.com/files/pysqlite-2.6.3.tar.gz
+  - tar -zxvf pysqlite-2.6.3.tar.gz
+  - cd pysqlite-2.6.3
+  - sed -i s/define=SQLITE_OMIT_LOAD_EXTENSION/#define=SQLITE_OMIT_LOAD_EXTENSION/g setup.cfg
+  - python setup.py install
+
+   # This is a dependency of our Django test script
+ - pip install argparse --use-mirrors
+
+ - pip install -q Django==$DJANGO_VERSION --use-mirrors
+
+ - pip install coverage
+
+ - pip install flake8 --use-mirrors
+
+before_script:
+ - flake8 djgeojson
+
+script:
+    - coverage run quicktest.py djgeojson
+
+after_success:
+ - pip install coveralls
+ - coveralls
+
+
+# We need to exclude old versions of Django for tests with python 3.
+matrix:
+    exclude:
+        - python: 3.2
+          env: DJANGO_VERSION=1.3
+        - python: 3.3
+          env: DJANGO_VERSION=1.3
+        - python: 3.2
+          env: DJANGO_VERSION=1.4
+        - python: 3.3
+          env: DJANGO_VERSION=1.4
+
