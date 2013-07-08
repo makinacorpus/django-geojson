@@ -102,7 +102,8 @@ class Serializer(PythonSerializer):
                     self._current['properties'][field] = getattr(obj, field)
 
         # Add extra-info for deserializing
-        self._current['properties']['model'] = smart_unicode(obj._meta)
+        if hasattr(obj, '_meta'):
+            self._current['properties']['model'] = smart_unicode(obj._meta)
 
         # If geometry not in model fields, may be a dynamic attribute
         if 'geometry' not in self._current:
@@ -271,7 +272,7 @@ class Serializer(PythonSerializer):
 
         self.start_serialization()
 
-        if isinstance(queryset, ValuesQuerySet):
+        if isinstance(queryset, (ValuesQuerySet, list)):
             self.serialize_values_queryset(queryset)
 
         elif isinstance(queryset, QuerySet):

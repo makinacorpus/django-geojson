@@ -5,6 +5,9 @@ from django.contrib.gis.db import models
 from django.contrib.gis.geos import LineString
 
 
+from .templatetags.geojson_tags import geojsonfeature
+
+
 TEST_SETTINGS = dict(SERIALIZATION_MODULES={'geojson': 'djgeojson.serializers'})
 
 
@@ -82,3 +85,23 @@ class GeoJsonSerializerTest(TestCase):
         # Did it work?
         self.assertEqual(actual_geojson, expect_geojson)
         self.assertEqual(actual_geojson_with_prop, expect_geojson_with_prop)
+
+
+class GeoJsonTemplateTagTest(TestCase):
+    def test_single(self):
+        r = Route(name='red', geom="LINESTRING (0 0, 1 1)")
+        feature = geojsonfeature(r)
+        self.assertEqual(feature, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {}}]}')
+
+    def test_queryset(self):
+        Route(name='green', geom="LINESTRING (0 0, 1 1)").save()
+        Route(name='blue', geom="LINESTRING (0 0, 1 1)").save()
+        Route(name='red', geom="LINESTRING (0 0, 1 1)").save()
+
+        feature = geojsonfeature(Route.objects.all())
+        self.assertEqual(feature, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route"}, "id": 1}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route"}, "id": 2}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route"}, "id": 3}]}')
+
+    def test_feature(self):
+        r = Route(name='red', geom="LINESTRING (0 0, 1 1)")
+        feature = geojsonfeature(r.geom)
+        self.assertEqual(feature, '{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {}}')
