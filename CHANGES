@@ -5,13 +5,20 @@ CHANGELOG
 2.0.0 (unreleased)
 ==================
 
-- Complete rewrite
+- Complete rewrite using @jeffkistler and @glenrobertson code
+- CRS is added to GeoJSON ouput by default
+- Ability to build ``pk`` dynamically by passing a lambda
+- Ability to provide a ``bbox``
+- Ability to use Django natural keys
+- Support of *ValuesQuerySet*
+- Support of *ForeignKey* and *ManyToMany*
+- Added ``force2d`` option
 
-** Incompatible changes **
+** Backwards incompatible changes **
 
-- Geom field is not guessed automatically
-- no more pk in properties : use id
-
+- Geom field is not guessed automatically : Use ``geometry_field`` option, default is ``'geom'``.
+- no more ``pk`` in properties : use feature ``id``, or list ``pk`` in properties explicitly.
+- ``fields`` list in ``GeoJSONLayer`` was renamed ``properties``.
 
 1.2.0 (2013-05-22)
 ==================
