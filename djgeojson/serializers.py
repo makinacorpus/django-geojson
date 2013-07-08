@@ -49,7 +49,8 @@ class DjangoGeoJSONEncoder(DjangoJSONEncoder):
 class Serializer(PythonSerializer):
     def start_serialization(self):
         self.feature_collection = {"type": "FeatureCollection", "features": []}
-        self.feature_collection["crs"] = self.get_crs()
+        if self.crs is not False:
+            self.feature_collection["crs"] = self.get_crs()
 
         bbox = self.options.pop('bbox', None)
         if bbox:
@@ -58,10 +59,7 @@ class Serializer(PythonSerializer):
         self._current = None
 
     def get_crs(self):
-        if self.crs is False:
-            return None
         crs = {}
-
         crs["type"] = "link"
         properties = {}
         properties["href"] = "http://spatialreference.org/ref/epsg/%s/" % (str(self.srid))
