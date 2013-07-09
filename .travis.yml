@@ -1,0 +1,40 @@
+language: python
+
+python:
+  - 2.7
+
+env:
+  - DJANGO_VERSION=1.4.5
+  - DJANGO_VERSION=1.5.1
+
+install:
+ - pip install shapely
+ - sudo apt-get install -y python-software-properties
+ - sudo apt-add-repository -y ppa:ubuntugis/ppa
+ - sudo apt-get update > /dev/null
+ - sudo apt-get install -y libgdal-dev libproj-dev libgeos-dev libspatialite-dev
+ - wget http://pysqlite.googlecode.com/files/pysqlite-2.6.3.tar.gz
+ - tar -zxvf pysqlite-2.6.3.tar.gz
+ - cd pysqlite-2.6.3
+ - sed -i "s/define=SQLITE_OMIT_LOAD_EXTENSION//g" setup.cfg
+ - python setup.py install
+ - cd ..
+
+   # This is a dependency of our Django test script
+ - pip install argparse --use-mirrors
+
+ - pip install -q Django==$DJANGO_VERSION --use-mirrors
+
+ - pip install coverage
+
+ - pip install flake8 --use-mirrors
+
+before_script:
+ - flake8 --ignore=E501 djgeojson
+
+script:
+ - coverage run quicktest.py djgeojson
+
+after_success:
+ - pip install coveralls
+ - coveralls

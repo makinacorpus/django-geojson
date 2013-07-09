@@ -1,4 +1,11 @@
-*django-geojson* 
+*django-geojson* is a collection of helpers to serialize GeoDjango objects
+into GeoJSON.
+
+.. image:: https://travis-ci.org/makinacorpus/django-geojson.png
+    :target: https://travis-ci.org/makinacorpus/django-geojson
+
+.. image:: https://coveralls.io/repos/makinacorpus/django-geojson/badge.png
+    :target: https://coveralls.io/r/makinacorpus/django-geojson
 
 
 =======
@@ -31,6 +38,7 @@ Add ``djgeojson`` to your applications :
 
 *(not required for views)*
 
+
 GeoJSON layer view
 ==================
 
@@ -44,11 +52,11 @@ Very useful for web mapping :
     url(r'^data.geojson$', GeoJSONLayerView.as_view(model=MushroomSpot), name='data'),
 
 
-Consume the vector layer as usual, for example, with Leaflet :
+Consume the vector layer as usual, for example, with Leaflet loaded in Ajax:
 
 ::
 
-    var layer = L.GeoJSON();
+    var layer = L.geoJson();
     map.addLayer(layer);
     $.getJSON("{% url 'data' %}", function (data) {
         layer.addData(data);
@@ -72,14 +80,28 @@ Inherit **only** if you need a reusable set of options :
     from .views import MapLayer, MeetingLayer
     ...
     url(r'^mushrooms.geojson$', MapLayer.as_view(model=MushroomSpot, fields=('name',)), name='mushrooms')
-    
 
+Most common use-cases of sub-classing are low-fi precision, common list of fields between several views, etc.
 
-Most common use-cases are low-fi precision, common list of fields, etc.
+Options are :
+
+* **properties** : ``list`` of properties names, or ``dict`` for mapping field names and properties
+* **simplify** : generalization of geometries (See ``simplify()``)
+* **precision** : number of digit after comma
+* **geometry_field** : name of geometry field (*default*: ``geom``)
+* **srid** : projection (*default*: 4326, for WGS84)
 
 
 GeoJSON template filter
 =======================
+
+Mainly useful to dump features in HTML output and bypass AJAX call :
+
+::
+
+    // For example, with Leaflet
+    L.geoJson({{ object_list|geojsonfeature|safe}}).addTo(map);
+
 
 Will work either for a model, a geometry field or a queryset.
 
@@ -87,15 +109,26 @@ Will work either for a model, a geometry field or a queryset.
 
     {% load geojson_tags %}
     
-    var feature = {{ object|geojsonfeature }};
+    var feature = {{ object|geojsonfeature|safe }};
     
-    var geom = {{ object.geom|geojsonfeature }};
+    var geom = {{ object.geom|geojsonfeature|safe }};
 
-    var collection = {{ object_list|geojsonfeature }};
+    var collection = {{ object_list|geojsonfeature|safe }};
 
 
-Dump GIS models
-===============
+Basic serializer
+================
+
+::
+
+    from djgeojson.serializers import Serializer as GeoJSONSerializer
+
+    GeoJSONSerializer().serialize(Restaurants.objects.all(), use_natural_keys=True)
+
+
+
+Dump GIS models, or fixtures
+============================
 
 Register the serializer in your project :
 
@@ -122,10 +155,14 @@ AUTHORS
 =======
 
     * Mathieu Leplatre <mathieu.leplatre@makina-corpus.com>
-    * Daniel Sokolowski, author of original serializer snippet
-    * ozzmo, python 2.6 compatibility
+    * Glen Robertson author of django-geojson-tiles at: https://github.com/glenrobertson/django-geojson-tiles/
+    * @jeffkistler's author of geojson serializer at: https://gist.github.com/967274
+    * Ben Welsh and Lukasz Dziedzia for `quick test script <http://datadesk.latimes.com/posts/2012/06/test-your-django-app-with-travisci/>`_
 
-Relies massively on Sean Gillies' `geojson <http://pypi.python.org/pypi/geojson>`_ python module.
+Version 1.X:
+
+    * Daniel Sokolowski, serializer snippet
+    * ozzmo, python 2.6 compatibility
 
 |makinacom|_
 
