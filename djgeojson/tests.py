@@ -100,6 +100,13 @@ class GeoJsonSerializerTest(TestCase):
         features2d = serializer.serialize([{'geom': 'SRID=4326;POINT Z (1 2 3)'}], force2d=True, crs=False)
         self.assertEqual(features2d, '{"type": "FeatureCollection", "features": [{"geometry": {"type": "Point", "coordinates": [1.0, 2.0]}, "type": "Feature", "properties": {}}]}')
 
+    def test_pk_property(self):
+        r = Route(name='red', geom="LINESTRING (0 0, 1 1)")
+        r.save()
+        serializer = Serializer()
+        features2d = serializer.serialize(Route.objects.all(), properties=['id'], crs=False)
+        self.assertEqual(features2d, '{"type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "id": 1}, "id": 1}]}')
+
     def test_geometry_property(self):
         class Basket(models.Model):
             @property

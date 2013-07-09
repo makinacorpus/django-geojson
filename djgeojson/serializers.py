@@ -36,6 +36,8 @@ logger = logging.getLogger(__name__)
 
 
 def hasattr_lazy(obj, name):
+    if isinstance(obj, dict):
+        return name in obj
     return any(name in d for d in (obj.__dict__, obj.__class__.__dict__))
 
 
@@ -260,7 +262,9 @@ class Serializer(PythonSerializer):
             for field in local_fields:
                 # don't include the pk in the properties
                 # as it is in the id of the feature
-                if field.name == queryset.model._meta.pk.name:
+                # except if explicitly listed in properties
+                if field.name == queryset.model._meta.pk.name and \
+                   (self.properties is None or 'id' not in self.properties):
                     continue
                 # ignore other geometries
                 if isinstance(field, GeometryField):

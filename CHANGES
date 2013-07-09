@@ -7,6 +7,7 @@ CHANGELOG
 
 - Fix usage of simplify.
 - Expose ``force2d`` option in view
+- Allow to have ``pk`` or ``id`` in properties if explicitly listed
 
 2.0.0 (2013-07-09)
 ==================
