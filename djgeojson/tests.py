@@ -1,5 +1,5 @@
 from django.test import TestCase
-from django.test.utils import override_settings
+from django.conf import settings
 from django.core import serializers
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import LineString, Point, GeometryCollection
@@ -9,7 +9,7 @@ from .templatetags.geojson_tags import geojsonfeature
 from .serializers import Serializer
 
 
-TEST_SETTINGS = dict(SERIALIZATION_MODULES={'geojson': 'djgeojson.serializers'})
+settings.SERIALIZATION_MODULES = {'geojson': 'djgeojson.serializers'}
 
 
 class Route(models.Model):
@@ -24,7 +24,6 @@ class Route(models.Model):
 
 
 class GeoJsonDeSerializerTest(TestCase):
-    @override_settings(**TEST_SETTINGS)
     def test_basic(self):
         # Input text
         input_geojson = """
@@ -67,7 +66,6 @@ class GeoJsonDeSerializerTest(TestCase):
 
 
 class GeoJsonSerializerTest(TestCase):
-    @override_settings(**TEST_SETTINGS)
     def test_basic(self):
         # Stuff to serialize
         Route(name='green', geom="LINESTRING (0 0, 1 1)").save()
