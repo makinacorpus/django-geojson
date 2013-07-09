@@ -1,4 +1,4 @@
-*django-geojson* is a collection of helpers to serialize GeoDjango objects
+*django-geojson* is a collection of helpers to (de)serialize (Geo)Django objects
 into GeoJSON.
 
 .. image:: https://travis-ci.org/makinacorpus/django-geojson.png
@@ -56,6 +56,7 @@ Consume the vector layer as usual, for example, with Leaflet loaded in Ajax:
 
 ::
 
+    # Leaflet JS
     var layer = L.geoJson();
     map.addLayer(layer);
     $.getJSON("{% url 'data' %}", function (data) {
@@ -63,7 +64,7 @@ Consume the vector layer as usual, for example, with Leaflet loaded in Ajax:
     });
 
 
-Inherit **only** if you need a reusable set of options :
+Inherit generic views **only** if you need a reusable set of options :
 
 ::
 
@@ -81,7 +82,7 @@ Inherit **only** if you need a reusable set of options :
     ...
     url(r'^mushrooms.geojson$', MapLayer.as_view(model=MushroomSpot, fields=('name',)), name='mushrooms')
 
-Most common use-cases of sub-classing are low-fi precision, common list of fields between several views, etc.
+Most common use-cases of reusable options are: low-fi precision, common list of fields between several views, etc.
 
 Options are :
 
@@ -99,7 +100,7 @@ Mainly useful to dump features in HTML output and bypass AJAX call :
 
 ::
 
-    // For example, with Leaflet
+    // Leaflet JS
     L.geoJson({{ object_list|geojsonfeature|safe}}).addTo(map);
 
 
@@ -116,8 +117,8 @@ Will work either for a model, a geometry field or a queryset.
     var collection = {{ object_list|geojsonfeature|safe }};
 
 
-Basic serializer
-================
+Low-level serializer
+====================
 
 ::
 
