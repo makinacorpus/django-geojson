@@ -18,7 +18,7 @@ install:
  - cd pysqlite-2.6.3
  - sed -i "s/define=SQLITE_OMIT_LOAD_EXTENSION//g" setup.cfg
  - python setup.py install
- - cd ..
+ - cd .. 
 
    # This is a dependency of our Django test script
  - pip install argparse --use-mirrors
@@ -28,6 +28,8 @@ install:
  - pip install coverage
 
  - pip install flake8 --use-mirrors
+
+ - python setup.py develop
 
 before_script:
  - flake8 --ignore=E501 djgeojson
