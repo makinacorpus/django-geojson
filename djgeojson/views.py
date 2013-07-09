@@ -21,6 +21,8 @@ class GeoJSONResponseMixin(object):
     srid = None
     """ Geometry field to serialize """
     geometry_field = 'geom'
+    """ Force 2D """
+    force2d = False
 
     def render_to_response(self, context, **response_kwargs):
         """
@@ -28,11 +30,14 @@ class GeoJSONResponseMixin(object):
         """
         serializer = GeoJSONSerializer()
         response = self.response_class(**response_kwargs)
-        serializer.serialize(self.get_queryset(), stream=response,
-                             properties=self.properties, simplify=self.simplify,
-                             srid=self.srid, precision=self.precision,
-                             geometry_field=self.geometry_field,
-                             ensure_ascii=False)
+        options = dict(properties=self.properties,
+                       precision=self.precision,
+                       simplify=self.simplify,
+                       srid=self.srid,
+                       geometry_field=self.geometry_field,
+                       force2d=self.force2d)
+        serializer.serialize(self.get_queryset(), stream=response, ensure_ascii=False,
+                             **options)
         return response
 
 
