@@ -125,6 +125,7 @@ class Serializer(PythonSerializer):
         self.options.pop('crs', None)
         self.options.pop('srid', None)
         self.options.pop('force2d', None)
+        self.options.pop('simplify', None)
 
         # Optional float precision control
         precision = self.options.pop('precision', None)
