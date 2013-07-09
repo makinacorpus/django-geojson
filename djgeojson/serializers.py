@@ -169,13 +169,17 @@ class Serializer(PythonSerializer):
         if field_name == self.geometry_field:
             # this will handle GEOSGeometry objects and string representations (e.g. ewkt, bwkt)
             try:
-                geometry = GEOSGeometry(value)
+                # if the geometry is None (or NULL in DB)
+                if value is not None:
+                    geometry = self._handle_geom(GEOSGeometry(value))
+                else:
+                    geometry = None
             # if the geometry couldn't be parsed, we can't generate valid geojson
             except ValueError:
                 raise SerializationError('The field ["%s", "%s"] could not be parsed as a valid geometry' % (
                     self.geometry_field, value
                 ))
-            self._current['geometry'] = self._handle_geom(geometry)
+            self._current['geometry'] = geometry
 
         elif self.properties and field_name in self.properties:
             # set the field name to the key's value mapping in self.properties

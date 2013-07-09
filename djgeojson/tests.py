@@ -116,6 +116,13 @@ class GeoJsonSerializerTest(TestCase):
         features = serializer.serialize([Basket()], crs=False, force2d=True)
         self.assertEqual(features, '{"type": "FeatureCollection", "features": [{"geometry": {"type": "GeometryCollection", "geometries": [{"type": "LineString", "coordinates": [[-1.363063925443132, -5.98383036525906], [-1.363046296706177, -5.983810648949802]]}, {"type": "Point", "coordinates": [-1.363075677929551, -5.98384350946429]}]}, "type": "Feature", "properties": {"id": null}}]}')
 
+    def test_none_geometry(self):
+        class Empty(models.Model):
+            geom = None
+        serializer = Serializer()
+        features = serializer.serialize([Empty()], crs=False)
+        self.assertEqual(features, '{"type": "FeatureCollection", "features": [{"geometry": null, "type": "Feature", "properties": {"id": null}}]}')
+
 
 class GeoJsonTemplateTagTest(TestCase):
     def test_single(self):
