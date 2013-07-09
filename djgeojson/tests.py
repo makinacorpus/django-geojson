@@ -14,7 +14,7 @@ TEST_SETTINGS = dict(SERIALIZATION_MODULES={'geojson': 'djgeojson.serializers'})
 
 class Route(models.Model):
     name = models.CharField(max_length=20)
-    geom = models.LineStringField(spatial_index=False)
+    geom = models.LineStringField(spatial_index=False, srid=4326)
 
     @property
     def upper_name(self):
