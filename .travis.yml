@@ -11,7 +11,10 @@ env:
 
 install:
  - pip install shapely
- - sudo apt-get install -y libproj-dev libgeos-dev libspatialite-dev
+ - sudo apt-get install -y python-software-properties
+ - sudo apt-add-repository -y ppa:ubuntugis/ppa
+ - sudo apt-get update > /dev/null
+ - sudo apt-get install -y libgdal-dev libproj-dev libgeos-dev libspatialite-dev
  - wget http://pysqlite.googlecode.com/files/pysqlite-2.6.3.tar.gz
  - tar -zxvf pysqlite-2.6.3.tar.gz
  - cd pysqlite-2.6.3
