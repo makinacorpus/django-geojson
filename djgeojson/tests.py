@@ -87,6 +87,11 @@ class GeoJsonSerializerTest(TestCase):
         self.assertEqual(actual_geojson, expect_geojson)
         self.assertEqual(actual_geojson_with_prop, expect_geojson_with_prop)
 
+    def test_precision(self):
+        serializer = Serializer()
+        features = serializer.serialize([{'geom': 'SRID=2154;POINT (1 1)'}], precision=2, crs=False)
+        self.assertEqual(features, '{"type": "FeatureCollection", "features": [{"geometry": {"type": "Point", "coordinates": [-1.36, -5.98]}, "type": "Feature", "properties": {}}]}')
+
     def test_force2d(self):
         serializer = Serializer()
         features2d = serializer.serialize([{'geom': 'SRID=4326;POINT Z (1 2 3)'}], force2d=True, crs=False)
