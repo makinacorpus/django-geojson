@@ -6,7 +6,7 @@ CHANGELOG
 ==================
 
 - Support empty geometries (None or NULL in Db)
-
+- Fix serializing property in upper class
 
 2.0.1 (2013-07-10)
 ==================

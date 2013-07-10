@@ -12,7 +12,13 @@ from .serializers import Serializer
 settings.SERIALIZATION_MODULES = {'geojson': 'djgeojson.serializers'}
 
 
-class Route(models.Model):
+class PictureMixin(object):
+    @property
+    def picture(self):
+        return 'image.png'
+
+
+class Route(PictureMixin, models.Model):
     name = models.CharField(max_length=20)
     geom = models.LineStringField(spatial_index=False, srid=4326)
 
@@ -72,18 +78,12 @@ class GeoJsonSerializerTest(TestCase):
         Route(name='blue', geom="LINESTRING (0 0, 1 1)").save()
         Route(name='red', geom="LINESTRING (0 0, 1 1)").save()
 
-        # Expected output
-        expect_geojson = """{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "name": "green"}, "id": 1}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "name": "blue"}, "id": 2}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "name": "red"}, "id": 3}]}"""
-        expect_geojson_with_prop = """{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "upper_name": "GREEN", "name": "green"}, "id": 1}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "upper_name": "BLUE", "name": "blue"}, "id": 2}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "upper_name": "RED", "name": "red"}, "id": 3}]}"""
-        # Do the serialization
         actual_geojson = serializers.serialize('geojson', Route.objects.all(),
                                                properties=['name'])
+        self.assertEqual(actual_geojson, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "name": "green"}, "id": 1}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "name": "blue"}, "id": 2}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "name": "red"}, "id": 3}]}')
         actual_geojson_with_prop = serializers.serialize('geojson', Route.objects.all(),
-                                                         properties=['name', 'upper_name'])
-
-        # Did it work?
-        self.assertEqual(actual_geojson, expect_geojson)
-        self.assertEqual(actual_geojson_with_prop, expect_geojson_with_prop)
+                                                         properties=['name', 'upper_name', 'picture'])
+        self.assertEqual(actual_geojson_with_prop, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"picture": "image.png", "model": "djgeojson.route", "upper_name": "GREEN", "name": "green"}, "id": 1}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"picture": "image.png", "model": "djgeojson.route", "upper_name": "BLUE", "name": "blue"}, "id": 2}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"picture": "image.png", "model": "djgeojson.route", "upper_name": "RED", "name": "red"}, "id": 3}]}')
 
     def test_precision(self):
         serializer = Serializer()

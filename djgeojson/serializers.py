@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 def hasattr_lazy(obj, name):
     if isinstance(obj, dict):
         return name in obj
-    return any(name in d for d in (obj.__dict__, obj.__class__.__dict__))
+    return name in dir(obj)
 
 
 class DjangoGeoJSONEncoder(DjangoJSONEncoder):
