@@ -222,6 +222,14 @@ class Serializer(PythonSerializer):
             self._current['properties'][field.name] = [m2m_value(related)
                                                        for related in getattr(obj, field.name).iterator()]
 
+    def handle_reverse_field(self, obj, field, field_name):
+        if self.use_natural_keys and hasattr(field.model, 'natural_key'):
+            reverse_value = lambda value: value.natural_key()
+        else:
+            reverse_value = lambda value: smart_unicode(value._get_pk_val(), strings_only=True)
+        values = [reverse_value(related) for related in getattr(obj, field_name).iterator()]
+        self._current['properties'][field_name] = values
+
     def serialize_object_list(self, objects):
         if len(objects) == 0:
             return
@@ -255,8 +263,11 @@ class Serializer(PythonSerializer):
             self.end_object(obj)
 
     def serialize_queryset(self, queryset):
-        local_fields = queryset.model._meta.local_fields
-        many_to_many_fields = queryset.model._meta.many_to_many
+        opts = queryset.model._meta
+        local_fields = opts.local_fields
+        many_to_many_fields = opts.many_to_many
+        reversed_fields = [obj.field for obj in opts.get_all_related_objects()]
+        reversed_fields += [obj.field for obj in opts.get_all_related_many_to_many_objects()]
 
         # populate each queryset obj as a feature
         for obj in queryset:
@@ -270,7 +281,7 @@ class Serializer(PythonSerializer):
                 # don't include the pk in the properties
                 # as it is in the id of the feature
                 # except if explicitly listed in properties
-                if field.name == queryset.model._meta.pk.name and \
+                if field.name == opts.pk.name and \
                    (self.properties is None or 'id' not in self.properties):
                     continue
                 # ignore other geometries
@@ -284,10 +295,17 @@ class Serializer(PythonSerializer):
                     else:
                         if self.properties is None or field.attname[:-3] in self.properties:
                             self.handle_fk_field(obj, field)
+
             for field in many_to_many_fields:
                 if field.serialize:
                     if self.properties is None or field.attname in self.properties:
                         self.handle_m2m_field(obj, field)
+
+            for field in reversed_fields:
+                if field.serialize:
+                    field_name = field.rel.related_name or opts.object_name.lower()
+                    if self.properties is None or field_name in self.properties:
+                        self.handle_reverse_field(obj, field, field_name)
             self.end_object(obj)
 
     def serialize(self, queryset, **options):

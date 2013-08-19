@@ -2,9 +2,10 @@
 CHANGELOG
 =========
 
-2.0.2 (unreleased)
+2.1.0 (unreleased)
 ==================
 
+- Serialize reversed relations using natural keys (fixes #8)
 - Support empty geometries (None or NULL in Db)
 - Fix serializing property in upper class
 

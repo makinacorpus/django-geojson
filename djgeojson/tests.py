@@ -29,6 +29,14 @@ class Route(PictureMixin, models.Model):
     objects = models.GeoManager()
 
 
+class Sign(models.Model):
+    label = models.CharField(max_length=20)
+    route = models.ForeignKey(Route, related_name='signs')
+
+    def natural_key(self):
+        return self.label
+
+
 class GeoJsonDeSerializerTest(TestCase):
     def test_basic(self):
         # Input text
@@ -122,6 +130,29 @@ class GeoJsonSerializerTest(TestCase):
         serializer = Serializer()
         features = serializer.serialize([Empty()], crs=False)
         self.assertEqual(features, '{"type": "FeatureCollection", "features": [{"geometry": null, "type": "Feature", "properties": {"id": null}}]}')
+
+
+
+class ReverseForeignkeyTest(TestCase):
+    def setUp(self):
+        self.route = Route(name='green', geom="LINESTRING (0 0, 1 1)")
+        self.route.save()
+        sign1 = Sign(label='A', route=self.route).save()
+        sign2 = Sign(label='B', route=self.route).save()
+        sign3 = Sign(label='C', route=self.route).save()
+
+    def test_relation_set(self):
+        self.assertEqual(len(self.route.signs.all()), 3)
+
+    def test_serialize_reverse(self):
+        serializer = Serializer()
+        features = serializer.serialize(Route.objects.all(), properties=['signs'])
+        self.assertEqual(features, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "signs": [1, 2, 3]}, "id": 1}]}')
+
+    def test_serialize_reverse_natural(self):
+        serializer = Serializer()
+        features = serializer.serialize(Route.objects.all(), use_natural_keys=True, properties=['signs'])
+        self.assertEqual(features, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "signs": ["A", "B", "C"]}, "id": 1}]}')
 
 
 class GeoJsonTemplateTagTest(TestCase):
