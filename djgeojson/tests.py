@@ -23,6 +23,9 @@ class Route(PictureMixin, models.Model):
     geom = models.LineStringField(spatial_index=False, srid=4326)
     countries = models.ManyToManyField('Country')
 
+    def natural_key(self):
+        return self.name
+
     @property
     def upper_name(self):
         return self.name.upper()
@@ -36,6 +39,10 @@ class Sign(models.Model):
 
     def natural_key(self):
         return self.label
+
+    @property
+    def geom(self):
+        return self.route.geom.centroid
 
 
 class Country(models.Model):
@@ -139,6 +146,23 @@ class GeoJsonSerializerTest(TestCase):
         serializer = Serializer()
         features = serializer.serialize([Empty()], crs=False)
         self.assertEqual(features, '{"type": "FeatureCollection", "features": [{"geometry": null, "type": "Feature", "properties": {"id": null}}]}')
+
+
+class ForeignKeyTest(TestCase):
+    def setUp(self):
+        route = Route(name='green', geom="LINESTRING (0 0, 1 1)")
+        route.save()
+        Sign(label='A', route=route).save()
+
+    def test_serialize_foreign(self):
+        serializer = Serializer()
+        features = serializer.serialize(Sign.objects.all(), properties=['route'])
+        self.assertEqual(features, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "Point", "coordinates": [0.5, 0.5]}, "type": "Feature", "properties": {"route": 1, "model": "djgeojson.sign"}, "id": 1}]}')
+
+    def test_serialize_foreign_natural(self):
+        serializer = Serializer()
+        features = serializer.serialize(Sign.objects.all(), use_natural_keys=True, properties=['route'])
+        self.assertEqual(features, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "Point", "coordinates": [0.5, 0.5]}, "type": "Feature", "properties": {"route": "green", "model": "djgeojson.sign"}, "id": 1}]}')
 
 
 class ManyToManyTest(TestCase):
