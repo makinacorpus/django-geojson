@@ -94,14 +94,17 @@ class Serializer(PythonSerializer):
 
     def end_object(self, obj):
         # Add extra properties from dynamic attributes
+        extras = []
         if isinstance(self.properties, dict):
-            for field, name in self.properties.items():
-                if name not in self._current['properties'] and hasattr_lazy(obj, field):
-                    self._current['properties'][name] = getattr(obj, field)
+            extras = [field for field, name in self.properties.items()
+                      if name not in self._current['properties']]
         elif isinstance(self.properties, list):
-            for field in self.properties:
-                if field not in self._current['properties'] and hasattr_lazy(obj, field):
-                    self._current['properties'][field] = getattr(obj, field)
+            extras = [field for field in self.properties
+                      if field not in self._current['properties']]
+
+        for field in extras:
+            if hasattr_lazy(obj, field):
+                self.handle_field(obj, field)
 
         # Add extra-info for deserializing
         if hasattr(obj, '_meta'):
