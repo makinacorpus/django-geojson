@@ -282,7 +282,7 @@ class Serializer(PythonSerializer):
                 # as it is in the id of the feature
                 # except if explicitly listed in properties
                 if field.name == opts.pk.name and \
-                   (self.properties is None or 'id' not in self.properties):
+                        self.properties is None or 'id' not in self.properties:
                     continue
                 # ignore other geometries
                 if isinstance(field, GeometryField):

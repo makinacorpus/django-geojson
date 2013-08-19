@@ -196,9 +196,9 @@ class ReverseForeignkeyTest(TestCase):
     def setUp(self):
         self.route = Route(name='green', geom="LINESTRING (0 0, 1 1)")
         self.route.save()
-        sign1 = Sign(label='A', route=self.route).save()
-        sign2 = Sign(label='B', route=self.route).save()
-        sign3 = Sign(label='C', route=self.route).save()
+        Sign(label='A', route=self.route).save()
+        Sign(label='B', route=self.route).save()
+        Sign(label='C', route=self.route).save()
 
     def test_relation_set(self):
         self.assertEqual(len(self.route.signs.all()), 3)
