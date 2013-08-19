@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-2.1.0 (unreleased)
+2.1.0 (2013-08-19)
 ==================
 
 - Serialize reversed relations using natural keys (fixes #8)
