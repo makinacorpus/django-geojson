@@ -21,6 +21,7 @@ class PictureMixin(object):
 class Route(PictureMixin, models.Model):
     name = models.CharField(max_length=20)
     geom = models.LineStringField(spatial_index=False, srid=4326)
+    countries = models.ManyToManyField('Country')
 
     @property
     def upper_name(self):
@@ -32,6 +33,14 @@ class Route(PictureMixin, models.Model):
 class Sign(models.Model):
     label = models.CharField(max_length=20)
     route = models.ForeignKey(Route, related_name='signs')
+
+    def natural_key(self):
+        return self.label
+
+
+class Country(models.Model):
+    label = models.CharField(max_length=20)
+    geom = models.PolygonField(spatial_index=False, srid=4326)
 
     def natural_key(self):
         return self.label
@@ -131,6 +140,32 @@ class GeoJsonSerializerTest(TestCase):
         features = serializer.serialize([Empty()], crs=False)
         self.assertEqual(features, '{"type": "FeatureCollection", "features": [{"geometry": null, "type": "Feature", "properties": {"id": null}}]}')
 
+
+class ManyToManyTest(TestCase):
+    def setUp(self):
+        country1 = Country(label='C1', geom="POLYGON ((0 0,1 1,0 2,0 0))")
+        country1.save()
+        country2 = Country(label='C2', geom="POLYGON ((0 0,1 1,0 2,0 0))")
+        country2.save()
+
+        Route(name='green', geom="LINESTRING (0 0, 1 1)").save()
+        route1 = Route(name='blue', geom="LINESTRING (0 0, 1 1)")
+        route1.save()
+        route1.countries.add(country1)
+        route2 = Route(name='red', geom="LINESTRING (0 0, 1 1)")
+        route2.save()
+        route2.countries.add(country1)
+        route2.countries.add(country2)
+
+    def test_serialize_manytomany(self):
+        serializer = Serializer()
+        features = serializer.serialize(Route.objects.all(), properties=['countries'])
+        self.assertEqual(features, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "countries": []}, "id": 1}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "countries": [1]}, "id": 2}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "countries": [1, 2]}, "id": 3}]}')
+
+    def test_serialize_manytomany_natural(self):
+        serializer = Serializer()
+        features = serializer.serialize(Route.objects.all(), use_natural_keys=True, properties=['countries'])
+        self.assertEqual(features, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "countries": []}, "id": 1}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "countries": ["C1"]}, "id": 2}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "countries": ["C1", "C2"]}, "id": 3}]}')
 
 
 class ReverseForeignkeyTest(TestCase):
