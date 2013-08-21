@@ -4,6 +4,7 @@ from django.views.decorators.gzip import gzip_page
 
 from .http import HttpJSONResponse
 from .serializers import Serializer as GeoJSONSerializer
+from . import GEOJSON_DEFAULT_SRID
 
 
 class GeoJSONResponseMixin(object):
@@ -18,7 +19,7 @@ class GeoJSONResponseMixin(object):
     """ Simplify geometries """
     simplify = None
     """ Change projection of geometries """
-    srid = None
+    srid = GEOJSON_DEFAULT_SRID
     """ Geometry field to serialize """
     geometry_field = 'geom'
     """ Force 2D """
