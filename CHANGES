@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-2.1.1 (unreleased)
+2.1.1 (2013-08-21)
 ==================
 
 - Set default SRID to 4326 in generic GeoJSON views.
