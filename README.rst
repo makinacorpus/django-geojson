@@ -145,7 +145,7 @@ Command-line ``dumpdata`` can export files, viewable in GIS software like QGis :
 
 ::
 
-    django dumpdata --format=geojson yourapp.Model > export.geojson
+    python manage.py dumpdata --format=geojson yourapp.Model > export.geojson
 
 Works with ``loaddata`` as well, which can now import GeoJSON files.
 
