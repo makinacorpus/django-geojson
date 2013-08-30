@@ -131,6 +131,8 @@ class Serializer(PythonSerializer):
         self.options.pop('srid', None)
         self.options.pop('force2d', None)
         self.options.pop('simplify', None)
+        self.options.pop('bbox', None)
+        self.options.pop('bbox_auto', None)
 
         # Optional float precision control
         precision = self.options.pop('precision', None)
