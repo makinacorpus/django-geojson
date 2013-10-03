@@ -1,6 +1,12 @@
 *django-geojson* is a collection of helpers to (de)serialize (Geo)Django objects
 into GeoJSON.
 
+.. image:: https://pypip.in/v/django-geojson/badge.png
+        :target: https://pypi.python.org/pypi/django-geojson
+
+.. image:: https://pypip.in/d/django-geojson/badge.png
+        :target: https://pypi.python.org/pypi/django-geojson
+
 .. image:: https://travis-ci.org/makinacorpus/django-geojson.png
     :target: https://travis-ci.org/makinacorpus/django-geojson
 
