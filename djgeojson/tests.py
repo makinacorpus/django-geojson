@@ -98,16 +98,16 @@ class GeoJsonDeSerializerTest(TestCase):
 class GeoJsonSerializerTest(TestCase):
     def test_basic(self):
         # Stuff to serialize
-        Route(name='green', geom="LINESTRING (0 0, 1 1)").save()
-        Route(name='blue', geom="LINESTRING (0 0, 1 1)").save()
-        Route(name='red', geom="LINESTRING (0 0, 1 1)").save()
+        route1 = Route.objects.create(name='green', geom="LINESTRING (0 0, 1 1)")
+        route2 = Route.objects.create(name='blue', geom="LINESTRING (0 0, 1 1)")
+        route3 = Route.objects.create(name='red', geom="LINESTRING (0 0, 1 1)")
 
         actual_geojson = serializers.serialize('geojson', Route.objects.all(),
                                                properties=['name'])
-        self.assertEqual(actual_geojson, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "name": "green"}, "id": 1}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "name": "blue"}, "id": 2}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "name": "red"}, "id": 3}]}')
+        self.assertEqual(actual_geojson, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "name": "green"}, "id": %s}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "name": "blue"}, "id": %s}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "name": "red"}, "id": %s}]}' % (route1.pk, route2.pk, route3.pk))
         actual_geojson_with_prop = serializers.serialize('geojson', Route.objects.all(),
                                                          properties=['name', 'upper_name', 'picture'])
-        self.assertEqual(actual_geojson_with_prop, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"picture": "image.png", "model": "djgeojson.route", "upper_name": "GREEN", "name": "green"}, "id": 1}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"picture": "image.png", "model": "djgeojson.route", "upper_name": "BLUE", "name": "blue"}, "id": 2}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"picture": "image.png", "model": "djgeojson.route", "upper_name": "RED", "name": "red"}, "id": 3}]}')
+        self.assertEqual(actual_geojson_with_prop, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"picture": "image.png", "model": "djgeojson.route", "upper_name": "GREEN", "name": "green"}, "id": %s}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"picture": "image.png", "model": "djgeojson.route", "upper_name": "BLUE", "name": "blue"}, "id": %s}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"picture": "image.png", "model": "djgeojson.route", "upper_name": "RED", "name": "red"}, "id": %s}]}' % (route1.pk, route2.pk, route3.pk))
 
     def test_precision(self):
         serializer = Serializer()
@@ -125,11 +125,10 @@ class GeoJsonSerializerTest(TestCase):
         self.assertEqual(features2d, '{"type": "FeatureCollection", "features": [{"geometry": {"type": "Point", "coordinates": [1.0, 2.0]}, "type": "Feature", "properties": {}}]}')
 
     def test_pk_property(self):
-        r = Route(name='red', geom="LINESTRING (0 0, 1 1)")
-        r.save()
+        route = Route.objects.create(name='red', geom="LINESTRING (0 0, 1 1)")
         serializer = Serializer()
         features2d = serializer.serialize(Route.objects.all(), properties=['id'], crs=False)
-        self.assertEqual(features2d, '{"type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "id": 1}, "id": 1}]}')
+        self.assertEqual(features2d, '{"type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "id": %s}, "id": %s}]}' % (route.pk, route.pk))
 
     def test_geometry_property(self):
         class Basket(models.Model):
@@ -150,19 +149,18 @@ class GeoJsonSerializerTest(TestCase):
 
 class ForeignKeyTest(TestCase):
     def setUp(self):
-        route = Route(name='green', geom="LINESTRING (0 0, 1 1)")
-        route.save()
-        Sign(label='A', route=route).save()
+        self.route = Route.objects.create(name='green', geom="LINESTRING (0 0, 1 1)")
+        Sign(label='A', route=self.route).save()
 
     def test_serialize_foreign(self):
         serializer = Serializer()
         features = serializer.serialize(Sign.objects.all(), properties=['route'])
-        self.assertEqual(features, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "Point", "coordinates": [0.5, 0.5]}, "type": "Feature", "properties": {"route": 1, "model": "djgeojson.sign"}, "id": 1}]}')
+        self.assertEqual(features, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "Point", "coordinates": [0.5, 0.5]}, "type": "Feature", "properties": {"route": 1, "model": "djgeojson.sign"}, "id": %s}]}' % self.route.pk)
 
     def test_serialize_foreign_natural(self):
         serializer = Serializer()
         features = serializer.serialize(Sign.objects.all(), use_natural_keys=True, properties=['route'])
-        self.assertEqual(features, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "Point", "coordinates": [0.5, 0.5]}, "type": "Feature", "properties": {"route": "green", "model": "djgeojson.sign"}, "id": 1}]}')
+        self.assertEqual(features, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "Point", "coordinates": [0.5, 0.5]}, "type": "Feature", "properties": {"route": "green", "model": "djgeojson.sign"}, "id": %s}]}' % self.route.pk)
 
 
 class ManyToManyTest(TestCase):
@@ -172,33 +170,31 @@ class ManyToManyTest(TestCase):
         country2 = Country(label='C2', geom="POLYGON ((0 0,1 1,0 2,0 0))")
         country2.save()
 
-        Route(name='green', geom="LINESTRING (0 0, 1 1)").save()
-        route1 = Route(name='blue', geom="LINESTRING (0 0, 1 1)")
-        route1.save()
-        route1.countries.add(country1)
-        route2 = Route(name='red', geom="LINESTRING (0 0, 1 1)")
-        route2.save()
-        route2.countries.add(country1)
-        route2.countries.add(country2)
+        self.route1 = Route.objects.create(name='green', geom="LINESTRING (0 0, 1 1)")
+        self.route2 = Route.objects.create(name='blue', geom="LINESTRING (0 0, 1 1)")
+        self.route2.countries.add(country1)
+        self.route3 = Route.objects.create(name='red', geom="LINESTRING (0 0, 1 1)")
+        self.route3.countries.add(country1)
+        self.route3.countries.add(country2)
 
     def test_serialize_manytomany(self):
         serializer = Serializer()
         features = serializer.serialize(Route.objects.all(), properties=['countries'])
-        self.assertEqual(features, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "countries": []}, "id": 1}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "countries": [1]}, "id": 2}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "countries": [1, 2]}, "id": 3}]}')
+        self.assertEqual(features, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "countries": []}, "id": %s}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "countries": [1]}, "id": %s}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "countries": [1, 2]}, "id": %s}]}' % (self.route1.pk, self.route2.pk, self.route3.pk))
 
     def test_serialize_manytomany_natural(self):
         serializer = Serializer()
         features = serializer.serialize(Route.objects.all(), use_natural_keys=True, properties=['countries'])
-        self.assertEqual(features, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "countries": []}, "id": 1}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "countries": ["C1"]}, "id": 2}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "countries": ["C1", "C2"]}, "id": 3}]}')
+        self.assertEqual(features, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "countries": []}, "id": %s}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "countries": ["C1"]}, "id": %s}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "countries": ["C1", "C2"]}, "id": %s}]}' % (self.route1.pk, self.route2.pk, self.route3.pk))
 
 
 class ReverseForeignkeyTest(TestCase):
     def setUp(self):
         self.route = Route(name='green', geom="LINESTRING (0 0, 1 1)")
         self.route.save()
-        Sign(label='A', route=self.route).save()
-        Sign(label='B', route=self.route).save()
-        Sign(label='C', route=self.route).save()
+        self.sign1 = Sign.objects.create(label='A', route=self.route)
+        self.sign2 = Sign.objects.create(label='B', route=self.route)
+        self.sign3 = Sign.objects.create(label='C', route=self.route)
 
     def test_relation_set(self):
         self.assertEqual(len(self.route.signs.all()), 3)
@@ -206,12 +202,12 @@ class ReverseForeignkeyTest(TestCase):
     def test_serialize_reverse(self):
         serializer = Serializer()
         features = serializer.serialize(Route.objects.all(), properties=['signs'])
-        self.assertEqual(features, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "signs": [1, 2, 3]}, "id": 1}]}')
+        self.assertEqual(features, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "signs": [%s, %s, %s]}, "id": %s}]}' % (self.sign1.pk, self.sign2.pk, self.sign3.pk, self.route.pk))
 
     def test_serialize_reverse_natural(self):
         serializer = Serializer()
         features = serializer.serialize(Route.objects.all(), use_natural_keys=True, properties=['signs'])
-        self.assertEqual(features, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "signs": ["A", "B", "C"]}, "id": 1}]}')
+        self.assertEqual(features, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route", "signs": ["A", "B", "C"]}, "id": %s}]}' % self.route.pk)
 
 
 class GeoJsonTemplateTagTest(TestCase):
@@ -221,12 +217,12 @@ class GeoJsonTemplateTagTest(TestCase):
         self.assertEqual(feature, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {}}]}')
 
     def test_queryset(self):
-        Route(name='green', geom="LINESTRING (0 0, 1 1)").save()
-        Route(name='blue', geom="LINESTRING (0 0, 1 1)").save()
-        Route(name='red', geom="LINESTRING (0 0, 1 1)").save()
+        route1 = Route.objects.create(name='green', geom="LINESTRING (0 0, 1 1)")
+        route2 = Route.objects.create(name='blue', geom="LINESTRING (0 0, 1 1)")
+        route3 = Route.objects.create(name='red', geom="LINESTRING (0 0, 1 1)")
 
         feature = geojsonfeature(Route.objects.all())
-        self.assertEqual(feature, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route"}, "id": 1}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route"}, "id": 2}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route"}, "id": 3}]}')
+        self.assertEqual(feature, '{"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route"}, "id": %s}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route"}, "id": %s}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"model": "djgeojson.route"}, "id": %s}]}' % (route1.pk, route2.pk, route3.pk))
 
     def test_feature(self):
         r = Route(name='red', geom="LINESTRING (0 0, 1 1)")
