@@ -174,7 +174,10 @@ class Serializer(PythonSerializer):
             try:
                 # if the geometry is None (or NULL in DB)
                 if value is not None:
-                    geometry = self._handle_geom(GEOSGeometry(value))
+                    geos_geometry = GEOSGeometry(value)
+                    # explicity set srid, it might not be present in the WKT
+                    geos_geometry.srid = value.srid
+                    geometry = self._handle_geom(geos_geometry)
                 else:
                     geometry = None
             # if the geometry couldn't be parsed, we can't generate valid geojson
