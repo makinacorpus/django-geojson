@@ -347,7 +347,9 @@ def Deserializer(stream_or_string, **options):
 
     def FeatureToPython(dictobj):
         properties = dictobj['properties']
-        model_name = properties.pop('model')
+        model_name = options.get("model_name")
+        if not(model_name):
+            model_name = properties.pop('model')
         # Deserialize concrete fields only (bypass dynamic properties)
         model = _get_model(model_name)
         field_names = [f.name for f in model._meta.fields]
