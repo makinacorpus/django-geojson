@@ -379,4 +379,4 @@ def Deserializer(stream_or_string, **options):
         raise
     except Exception, e:
         # Map to deserializer error
-        raise DeserializationError(e)
+        raise DeserializationError(repr(e))
