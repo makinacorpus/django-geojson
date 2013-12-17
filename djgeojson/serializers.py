@@ -357,7 +357,7 @@ def Deserializer(stream_or_string, **options):
                 fields[k] = v
         obj = {
             "model": model_name,
-            "pk": dictobj['id'],
+            "pk": dictobj.get('id', properties.get('id')),
             "fields": fields
         }
         if asShape is None:
