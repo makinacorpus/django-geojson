@@ -56,7 +56,6 @@ class Country(models.Model):
 
 class GeoJsonDeSerializerTest(TestCase):
     def test_basic(self):
-        # Input text
         input_geojson = """
         {"type": "FeatureCollection",
          "features": [
@@ -94,6 +93,27 @@ class GeoJsonDeSerializerTest(TestCase):
         self.assertEqual(objects[1].object.name, "blue")
         self.assertEqual(objects[0].object.upper_name, "GREEN")
         self.assertEqual(objects[0].object.geom, LineString((0.0, 0.0), (1.0, 1.0)))
+
+    def test_with_model_name_passed_as_argument(self):
+        input_geojson = """
+        {"type": "FeatureCollection",
+         "features": [
+            { "type": "Feature",
+                "properties": {"name": "bleh"},
+                "id": 24,
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [1, 2],
+                        [42, 3]
+                    ]
+                }
+            }
+        ]}"""
+
+        my_object = list(serializers.deserialize('geojson', input_geojson, model_name='djgeojson.route'))[0].object
+
+        self.assertEqual(my_object.name, "bleh")
 
 
 class GeoJsonSerializerTest(TestCase):
