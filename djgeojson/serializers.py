@@ -347,9 +347,7 @@ def Deserializer(stream_or_string, **options):
 
     def FeatureToPython(dictobj):
         properties = dictobj['properties']
-        model_name = options.get("model_name")
-        if not(model_name):
-            model_name = properties.pop('model')
+        model_name = options.get("model_name") or properties.pop('model')
         # Deserialize concrete fields only (bypass dynamic properties)
         model = _get_model(model_name)
         field_names = [f.name for f in model._meta.fields]
@@ -359,7 +357,7 @@ def Deserializer(stream_or_string, **options):
                 fields[k] = v
         obj = {
             "model": model_name,
-            "pk": dictobj.get('id', properties.get('id')),
+            "pk": dictobj.get('id') or properties.get('id'),
             "fields": fields
         }
         if asShape is None:
