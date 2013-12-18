@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-2.2.0 (unreleased)
+2.2.0 (2013-12-18)
 ==================
 
 - Deserialization: add ability to specify model name as option (thanks @Vross)
