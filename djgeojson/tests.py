@@ -1,3 +1,4 @@
+import json
 from django.test import TestCase
 from django.conf import settings
 from django.core import serializers
@@ -134,10 +135,12 @@ class GeoJsonSerializerTest(TestCase):
         class Basket(models.Model):
             @property
             def geom(self):
-                return GeometryCollection(LineString((3, 4, 5), (6, 7, 8)), Point(1, 2, 3), srid=2154)
+                return GeometryCollection(LineString((3, 4, 5), (6, 7, 8)), Point(1, 2, 3), srid=4326)
+
         serializer = Serializer()
         features = serializer.serialize([Basket()], crs=False, force2d=True)
-        self.assertEqual(features, '{"type": "FeatureCollection", "features": [{"geometry": {"type": "GeometryCollection", "geometries": [{"type": "LineString", "coordinates": [[-1.363063925443132, -5.98383036525906], [-1.363046296706177, -5.983810648949802]]}, {"type": "Point", "coordinates": [-1.363075677929551, -5.98384350946429]}]}, "type": "Feature", "properties": {"id": null}}]}')
+        expected_content = '{"type": "FeatureCollection", "features": [{"geometry": {"type": "GeometryCollection", "geometries": [{"type": "LineString", "coordinates": [[3.0, 4.0], [6.0, 7.0]]}, {"type": "Point", "coordinates": [1.0, 2.0]}]}, "type": "Feature", "properties": {"id": null}}]}'
+        self.assertEqual(features, expected_content)
 
     def test_none_geometry(self):
         class Empty(models.Model):
