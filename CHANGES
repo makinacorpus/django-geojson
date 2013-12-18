@@ -2,10 +2,11 @@
 CHANGELOG
 =========
 
-2.1.2 (unreleased)
+2.2.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Deserialization: add ability to specify model name as option (thanks @Vross)
+- Deserialization: look-up ``ìd`` value in properties whe missing at feature level: (thanks @Vross)
 
 
 2.1.1 (2013-08-21)
