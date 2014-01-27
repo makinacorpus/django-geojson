@@ -2,3 +2,4 @@
 /build/
 /dist/
 /django_geojson.egg-info/
+.tox
