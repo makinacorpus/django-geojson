@@ -1,3 +1,5 @@
+import json
+
 from django.test import TestCase
 from django.conf import settings
 from django.core import serializers
@@ -7,6 +9,7 @@ from django.contrib.gis.geos import LineString, Point, GeometryCollection
 
 from .templatetags.geojson_tags import geojsonfeature
 from .serializers import Serializer
+from .views import GeoJSONLayerView
 
 
 settings.SERIALIZATION_MODULES = {'geojson': 'djgeojson.serializers'}
@@ -250,3 +253,27 @@ class GeoJsonTemplateTagTest(TestCase):
         r = Route(name='red', geom="LINESTRING (0 0, 1 1)")
         feature = geojsonfeature(r.geom)
         self.assertEqual(feature, '{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {}}')
+
+
+class ViewsTest(TestCase):
+    def setUp(self):
+        self.route = Route(name='green', geom="LINESTRING (0 0, 1 1)")
+        self.route.save()
+
+    def test_view_default_options(self):
+        view = GeoJSONLayerView(model=Route)
+        view.object_list = []
+        response = view.render_to_response(context={})
+        geojson = json.loads(unicode(response.content))
+        self.assertEqual(geojson['features'][0]['geometry']['coordinates'],
+                         [[0.0, 0.0], [1.0, 1.0]])
+
+    def test_view_can_control_properties(self):
+        klass = type('FullGeoJSON', (GeoJSONLayerView,),
+                     {'properties': ['name']})
+        view = klass(model=Route)
+        view.object_list = []
+        response = view.render_to_response(context={})
+        geojson = json.loads(unicode(response.content))
+        self.assertEqual(geojson['features'][0]['properties']['name'],
+                         'green')
