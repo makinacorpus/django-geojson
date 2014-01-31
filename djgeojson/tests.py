@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core import serializers
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import LineString, Point, GeometryCollection
+from django.utils.encoding import smart_text
 
 
 from .templatetags.geojson_tags import geojsonfeature
@@ -417,7 +418,7 @@ class ViewsTest(TestCase):
         view = GeoJSONLayerView(model=Route)
         view.object_list = []
         response = view.render_to_response(context={})
-        geojson = json.loads(unicode(response.content))
+        geojson = json.loads(smart_text(response.content))
         self.assertEqual(geojson['features'][0]['geometry']['coordinates'],
                          [[0.0, 0.0], [1.0, 1.0]])
 
@@ -427,6 +428,6 @@ class ViewsTest(TestCase):
         view = klass(model=Route)
         view.object_list = []
         response = view.render_to_response(context={})
-        geojson = json.loads(unicode(response.content))
+        geojson = json.loads(smart_text(response.content))
         self.assertEqual(geojson['features'][0]['properties']['name'],
                          'green')
