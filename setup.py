@@ -16,6 +16,7 @@ setup(
     license='LPGL, see LICENSE file.',
     install_requires=[
         'Django',
+        'six',
     ],
     extras_require={
         'shapely': ['shapely'],
