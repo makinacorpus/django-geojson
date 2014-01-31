@@ -23,7 +23,7 @@ from django.core.serializers.python import (_get_model,
                                             Deserializer as PythonDeserializer)
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.serializers.base import SerializationError, DeserializationError
-from django.utils.encoding import smart_unicode
+from django.utils.encoding import smart_text
 from django.contrib.gis.geos import WKBWriter
 from django.contrib.gis.geos.geometry import GEOSGeometry
 from django.contrib.gis.db.models.fields import GeometryField
@@ -111,7 +111,7 @@ class Serializer(PythonSerializer):
 
         # Add extra-info for deserializing
         if hasattr(obj, '_meta'):
-            self._current['properties']['model'] = smart_unicode(obj._meta)
+            self._current['properties']['model'] = smart_text(obj._meta)
 
         # If geometry not in model fields, may be a dynamic attribute
         if 'geometry' not in self._current:
@@ -213,7 +213,7 @@ class Serializer(PythonSerializer):
                     related = related._get_pk_val()
                 else:
                     # Related to remote object via other field
-                    related = smart_unicode(getattr(related, field.rel.field_name), strings_only=True)
+                    related = smart_text(getattr(related, field.rel.field_name), strings_only=True)
         self._current['properties'][field.name] = related
 
     def handle_m2m_field(self, obj, field):
@@ -221,7 +221,7 @@ class Serializer(PythonSerializer):
             if self.use_natural_keys and hasattr(field.rel.to, 'natural_key'):
                 m2m_value = lambda value: value.natural_key()
             else:
-                m2m_value = lambda value: smart_unicode(value._get_pk_val(), strings_only=True)
+                m2m_value = lambda value: smart_text(value._get_pk_val(), strings_only=True)
             self._current['properties'][field.name] = [m2m_value(related)
                                                        for related in getattr(obj, field.name).iterator()]
 
@@ -229,7 +229,7 @@ class Serializer(PythonSerializer):
         if self.use_natural_keys and hasattr(field.model, 'natural_key'):
             reverse_value = lambda value: value.natural_key()
         else:
-            reverse_value = lambda value: smart_unicode(value._get_pk_val(), strings_only=True)
+            reverse_value = lambda value: smart_text(value._get_pk_val(), strings_only=True)
         values = [reverse_value(related) for related in getattr(obj, field_name).iterator()]
         self._current['properties'][field_name] = values
 
