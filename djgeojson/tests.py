@@ -187,7 +187,7 @@ class GeoJsonSerializerTest(TestCase):
         serializer = Serializer()
         features = json.loads(
             serializer.serialize([Basket()], crs=False, force2d=True))
-        expected_content = {"type": "FeatureCollection", "features": [{"geometry": {"type": "GeometryCollection", "geometries": [{"type": "LineString", "coordinates": [[3.0, 4.0], [6.0, 7.0]]}, {"type": "Point", "coordinates": [1.0, 2.0]}]}, "type": "Feature", "properties": {"id": null}}]}
+        expected_content = {"type": "FeatureCollection", "features": [{"geometry": {"type": "GeometryCollection", "geometries": [{"type": "LineString", "coordinates": [[3.0, 4.0], [6.0, 7.0]]}, {"type": "Point", "coordinates": [1.0, 2.0]}]}, "type": "Feature", "properties": {"id": None}}]}
         self.assertEqual(features, expected_content)
 
     def test_none_geometry(self):

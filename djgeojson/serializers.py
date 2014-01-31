@@ -15,7 +15,7 @@ except ImportError:
 import json
 import logging
 
-from six import string_types
+from six import string_types, iteritems
 
 from django.db.models.base import Model
 from django.db.models.query import QuerySet, ValuesQuerySet
@@ -357,7 +357,7 @@ def Deserializer(stream_or_string, **options):
         model = _get_model(model_name)
         field_names = [f.name for f in model._meta.fields]
         fields = {}
-        for k, v in properties.iteritems():
+        for k, v in iteritems(properties):
             if k in field_names:
                 fields[k] = v
         obj = {
