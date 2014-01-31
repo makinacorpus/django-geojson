@@ -83,7 +83,7 @@ class Serializer(PythonSerializer):
         primary_key = None
         if self.primary_key and hasattr(self.primary_key, '__call__'):
             primary_key = self.primary_key(obj)
-        elif self.primary_key and isinstance(self.primary_key, basestring):
+        elif self.primary_key and isinstance(self.primary_key, string_types):
             if isinstance(obj, Model):
                 primary_key = getattr(obj, self.primary_key)
             else:
