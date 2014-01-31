@@ -15,6 +15,8 @@ except ImportError:
 import json
 import logging
 
+from six import string_types
+
 from django.db.models.base import Model
 from django.db.models.query import QuerySet, ValuesQuerySet
 from django.forms.models import model_to_dict
@@ -369,7 +371,7 @@ def Deserializer(stream_or_string, **options):
         obj['fields'][geometry_field] = shape.wkt
         return obj
 
-    if isinstance(stream_or_string, basestring):
+    if isinstance(stream_or_string, string_types):
         stream = StringIO(stream_or_string)
     else:
         stream = stream_or_string
