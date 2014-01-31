@@ -8,11 +8,14 @@ env:
   - DJANGO_VERSION=1.4.5
   - DJANGO_VERSION=1.5.1
 
-install:
- - pip install shapely
+before_install:
+ - sudo apt-get update > /dev/null
  - sudo apt-get install -y python-software-properties
  - sudo apt-add-repository -y ppa:ubuntugis/ppa
  - sudo apt-get update > /dev/null
+
+install:
+ - pip install shapely
  - sudo apt-get install -y libgdal-dev libproj-dev libgeos-dev libspatialite-dev
  - pip install git+git://github.com/tinio/pysqlite.git@extension-enabled#egg=pysqlite
 
