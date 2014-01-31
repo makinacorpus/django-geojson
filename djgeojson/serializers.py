@@ -8,10 +8,7 @@
 try:
     from cStringIO import StringIO
 except ImportError:
-    try:
-        from StringIO import StringIO  # NOQA
-    except ImportError:
-        from io import StringIO
+    from six import StringIO  # NOQA
 import json
 import logging
 
