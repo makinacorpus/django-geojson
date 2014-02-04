@@ -2,3 +2,7 @@
 /build/
 /dist/
 /django_geojson.egg-info/
+# Intellij
+.idea/
+*.iml
+*.iws
