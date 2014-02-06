@@ -5,8 +5,9 @@ python:
   - 3.3
 
 env:
-  - DJANGO_VERSION=1.4.5
-  - DJANGO_VERSION=1.5.1
+  - DJANGO_VERSION=1.4.10
+  - DJANGO_VERSION=1.5.5
+  - DJANGO_VERSION=1.6.1
 
 before_install:
  - sudo apt-get update > /dev/null
@@ -38,3 +39,8 @@ script:
 after_success:
  - pip install coveralls
  - coveralls
+
+matrix:
+    exclude:
+        - python: 3.3
+          env: DJANGO_VERSION=1.4.10
