@@ -2,10 +2,10 @@
 CHANGELOG
 =========
 
-2.2.1 (unreleased)
+2.3.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Python 3 support (thanks @amarandon)
 
 
 2.2.0 (2013-12-18)
