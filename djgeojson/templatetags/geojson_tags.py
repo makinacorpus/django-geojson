@@ -1,5 +1,7 @@
 import json
 
+from six import string_types
+
 from django import template
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.db.models.fields import GeometryField
@@ -13,7 +15,7 @@ register = template.Library()
 
 @register.filter
 def geojsonfeature(source, geometry_field='geom', properties=None, srid=GEOJSON_DEFAULT_SRID):
-    if source is None or isinstance(source, basestring):
+    if source is None or isinstance(source, string_types):
         return 'null'
 
     properties = properties or []

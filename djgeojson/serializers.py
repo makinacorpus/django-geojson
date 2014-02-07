@@ -8,9 +8,11 @@
 try:
     from cStringIO import StringIO
 except ImportError:
-    from StringIO import StringIO  # NOQA
+    from six import StringIO  # NOQA
 import json
 import logging
+
+from six import string_types, iteritems
 
 from django.db.models.base import Model
 from django.db.models.query import QuerySet, ValuesQuerySet
@@ -20,7 +22,7 @@ from django.core.serializers.python import (_get_model,
                                             Deserializer as PythonDeserializer)
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.serializers.base import SerializationError, DeserializationError
-from django.utils.encoding import smart_unicode
+from django.utils.encoding import smart_text
 from django.contrib.gis.geos import WKBWriter
 from django.contrib.gis.geos.geometry import GEOSGeometry
 from django.contrib.gis.db.models.fields import GeometryField
@@ -81,7 +83,7 @@ class Serializer(PythonSerializer):
         primary_key = None
         if self.primary_key and hasattr(self.primary_key, '__call__'):
             primary_key = self.primary_key(obj)
-        elif self.primary_key and isinstance(self.primary_key, basestring):
+        elif self.primary_key and isinstance(self.primary_key, string_types):
             if isinstance(obj, Model):
                 primary_key = getattr(obj, self.primary_key)
             else:
@@ -108,7 +110,7 @@ class Serializer(PythonSerializer):
 
         # Add extra-info for deserializing
         if hasattr(obj, '_meta'):
-            self._current['properties']['model'] = smart_unicode(obj._meta)
+            self._current['properties']['model'] = smart_text(obj._meta)
 
         # If geometry not in model fields, may be a dynamic attribute
         if 'geometry' not in self._current:
@@ -210,7 +212,7 @@ class Serializer(PythonSerializer):
                     related = related._get_pk_val()
                 else:
                     # Related to remote object via other field
-                    related = smart_unicode(getattr(related, field.rel.field_name), strings_only=True)
+                    related = smart_text(getattr(related, field.rel.field_name), strings_only=True)
         self._current['properties'][field.name] = related
 
     def handle_m2m_field(self, obj, field):
@@ -218,7 +220,7 @@ class Serializer(PythonSerializer):
             if self.use_natural_keys and hasattr(field.rel.to, 'natural_key'):
                 m2m_value = lambda value: value.natural_key()
             else:
-                m2m_value = lambda value: smart_unicode(value._get_pk_val(), strings_only=True)
+                m2m_value = lambda value: smart_text(value._get_pk_val(), strings_only=True)
             self._current['properties'][field.name] = [m2m_value(related)
                                                        for related in getattr(obj, field.name).iterator()]
 
@@ -226,7 +228,7 @@ class Serializer(PythonSerializer):
         if self.use_natural_keys and hasattr(field.model, 'natural_key'):
             reverse_value = lambda value: value.natural_key()
         else:
-            reverse_value = lambda value: smart_unicode(value._get_pk_val(), strings_only=True)
+            reverse_value = lambda value: smart_text(value._get_pk_val(), strings_only=True)
         values = [reverse_value(related) for related in getattr(obj, field_name).iterator()]
         self._current['properties'][field_name] = values
 
@@ -352,7 +354,7 @@ def Deserializer(stream_or_string, **options):
         model = _get_model(model_name)
         field_names = [f.name for f in model._meta.fields]
         fields = {}
-        for k, v in properties.iteritems():
+        for k, v in iteritems(properties):
             if k in field_names:
                 fields[k] = v
         obj = {
@@ -366,7 +368,7 @@ def Deserializer(stream_or_string, **options):
         obj['fields'][geometry_field] = shape.wkt
         return obj
 
-    if isinstance(stream_or_string, basestring):
+    if isinstance(stream_or_string, string_types):
         stream = StringIO(stream_or_string)
     else:
         stream = stream_or_string
@@ -377,6 +379,6 @@ def Deserializer(stream_or_string, **options):
             yield obj
     except GeneratorExit:
         raise
-    except Exception, e:
+    except Exception as e:
         # Map to deserializer error
         raise DeserializationError(repr(e))
