@@ -6,6 +6,7 @@ CHANGELOG
 ==================
 
 - Python 3 support (thanks @amarandon)
+- Add bbox at feature level (thanks @7wonders)
 
 
 2.2.0 (2013-12-18)

@@ -133,6 +133,8 @@ class Serializer(PythonSerializer):
         self.options.pop('srid', None)
         self.options.pop('force2d', None)
         self.options.pop('simplify', None)
+        self.options.pop('bbox', None)
+        self.options.pop('bbox_auto', None)
 
         # Optional float precision control
         precision = self.options.pop('precision', None)
@@ -184,6 +186,8 @@ class Serializer(PythonSerializer):
                 raise SerializationError('The field ["%s", "%s"] could not be parsed as a valid geometry' % (
                     self.geometry_field, value
                 ))
+            if self.options.get('bbox_auto'):
+                self._current['bbox'] = geometry.extent
             self._current['geometry'] = geometry
 
         elif self.properties and field_name in self.properties:
@@ -322,6 +326,7 @@ class Serializer(PythonSerializer):
         self.geometry_field = options.get("geometry_field", "geom")
         self.use_natural_keys = options.get("use_natural_keys", False)
         self.bbox = options.get("bbox", None)
+        self.bbox_auto = options.get("bbox_auto", None)
         self.srid = options.get("srid", GEOJSON_DEFAULT_SRID)
         self.crs = options.get("crs", True)
 

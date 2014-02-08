@@ -202,6 +202,21 @@ class GeoJsonSerializerTest(TestCase):
                     "properties": {"id": None}}]
             })
 
+    def test_bbox_auto(self):
+        serializer = Serializer()
+        features = json.loads(serializer.serialize([{'geom': 'SRID=4326;LINESTRING (1 1, 3 3)'}],
+                                                   bbox_auto=True, crs=False))
+        self.assertEqual(
+            features, {
+                "type": "FeatureCollection",
+                "features": [{
+                    "geometry": {"type": "LineString", "coordinates": [[1.0, 1.0], [3.0, 3.0]]},
+                    "type": "Feature",
+                    "properties": {},
+                    "bbox": [1.0, 1.0, 3.0, 3.0]
+                }]
+            })
+
 
 class ForeignKeyTest(TestCase):
 

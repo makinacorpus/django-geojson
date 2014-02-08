@@ -3,3 +3,7 @@
 /dist/
 /django_geojson.egg-info/
 .tox
+# Intellij
+.idea/
+*.iml
+*.iws
