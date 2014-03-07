@@ -10,3 +10,9 @@ if HAS_JSON_FIELD:
 
     class GeoJSONField(JSONField):
         description = _("Geometry as GeoJSON")
+
+    try:
+        from south.modelsinspector import add_introspection_rules
+        add_introspection_rules([], ["^djgeojson\.fields\.GeoJSONField"])
+    except ImportError:
+        pass
