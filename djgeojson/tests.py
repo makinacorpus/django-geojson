@@ -11,6 +11,7 @@ from django.utils.encoding import smart_text
 from .templatetags.geojson_tags import geojsonfeature
 from .serializers import Serializer
 from .views import GeoJSONLayerView
+from .fields import GeoJSONField
 
 
 settings.SERIALIZATION_MODULES = {'geojson': 'djgeojson.serializers'}
@@ -444,3 +445,16 @@ class ViewsTest(TestCase):
         geojson = json.loads(smart_text(response.content))
         self.assertEqual(geojson['features'][0]['properties']['name'],
                          'green')
+
+
+class Address(models.Model):
+    geom = GeoJSONField()
+
+
+class ModelFieldTest(TestCase):
+    def test_models_can_have_geojson_fields(self):
+        address = Address()
+        address.geom = {'type': 'Point', 'coordinates': [0, 0]}
+        address.save()
+        saved = Address.objects.get(id=address.id)
+        self.assertDictEqual(saved.geom, address.geom)
