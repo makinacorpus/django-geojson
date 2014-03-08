@@ -7,11 +7,10 @@ from django.contrib.gis.db import models
 from django.contrib.gis.geos import LineString, Point, GeometryCollection
 from django.utils.encoding import smart_text
 
-
 from .templatetags.geojson_tags import geojsonfeature
 from .serializers import Serializer
 from .views import GeoJSONLayerView
-from .fields import GeoJSONField
+from .fields import GeoJSONField, GeoJSONFormField
 
 
 settings.SERIALIZATION_MODULES = {'geojson': 'djgeojson.serializers'}
@@ -452,9 +451,15 @@ class Address(models.Model):
 
 
 class ModelFieldTest(TestCase):
+    def setUp(self):
+        self.address = Address()
+
     def test_models_can_have_geojson_fields(self):
-        address = Address()
-        address.geom = {'type': 'Point', 'coordinates': [0, 0]}
-        address.save()
-        saved = Address.objects.get(id=address.id)
-        self.assertDictEqual(saved.geom, address.geom)
+        self.address.geom = {'type': 'Point', 'coordinates': [0, 0]}
+        self.address.save()
+        saved = Address.objects.get(id=self.address.id)
+        self.assertDictEqual(saved.geom, self.address.geom)
+
+    def test_default_form_field_is_geojsonfield(self):
+        field = self.address._meta.get_field('geom').formfield()
+        self.assertTrue(isinstance(field, GeoJSONFormField))

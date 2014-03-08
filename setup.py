@@ -20,7 +20,7 @@ setup(
     ],
     extras_require={
         'shapely': ['shapely'],
-        'jsonfield': ['django-jsonfield'],
+        'jsonfield': ['jsonfield'],
     },
     packages=find_packages(),
     include_package_data=True,
