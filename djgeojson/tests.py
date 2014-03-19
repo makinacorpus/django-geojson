@@ -453,13 +453,30 @@ class Address(models.Model):
 class ModelFieldTest(TestCase):
     def setUp(self):
         self.address = Address()
-
-    def test_models_can_have_geojson_fields(self):
         self.address.geom = {'type': 'Point', 'coordinates': [0, 0]}
         self.address.save()
+
+    def test_models_can_have_geojson_fields(self):
         saved = Address.objects.get(id=self.address.id)
         self.assertDictEqual(saved.geom, self.address.geom)
 
     def test_default_form_field_is_geojsonfield(self):
         field = self.address._meta.get_field('geom').formfield()
         self.assertTrue(isinstance(field, GeoJSONFormField))
+
+    def test_field_can_be_serialized(self):
+        serializer = Serializer()
+        geojson = serializer.serialize(Address.objects.all(), crs=False)
+        features = json.loads(geojson)
+        self.assertEqual(
+            features, {
+                u'type': u'FeatureCollection',
+                u'features': [{
+                    u'id': self.address.id,
+                    u'type': u'Feature',
+                    u'geometry': {u'type': u'Point', u'coordinates': [0, 0]},
+                    u'properties': {
+                        u'model': u'djgeojson.address'
+                    }
+                }]
+            })

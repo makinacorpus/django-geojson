@@ -116,7 +116,7 @@ class Serializer(PythonSerializer):
         if 'geometry' not in self._current:
             if hasattr_lazy(obj, self.geometry_field):
                 geometry = getattr(obj, self.geometry_field)
-                self._current['geometry'] = self._handle_geom(geometry)
+                self._handle_geom(geometry)
             else:
                 logger.warn("No GeometryField found in object")
 
@@ -147,21 +147,42 @@ class Serializer(PythonSerializer):
 
         json.encoder.FLOAT_REPR = floatrepr  # Restore
 
-    def _handle_geom(self, geometry):
+    def _handle_geom(self, value):
         """ Geometry processing (in place), depending on options """
-        # Optional force 2D
-        if self.options.get('force2d'):
-            wkb_w = WKBWriter()
-            wkb_w.outdim = 2
-            geometry = GEOSGeometry(wkb_w.write(geometry), srid=geometry.srid)
-        # Optional geometry simplification
-        simplify = self.options.get('simplify')
-        if simplify is not None:
-            geometry = geometry.simplify(tolerance=simplify, preserve_topology=True)
-        # Optional geometry reprojection
-        if self.srid != geometry.srid:
-            geometry.transform(self.srid)
-        return geometry
+        if value is None:
+            geometry = None
+        elif isinstance(value, dict) and 'type' in value:
+            geometry = value
+        else:
+            try:
+                # this will handle GEOSGeometry objects
+                # and string representations (e.g. ewkt, bwkt)
+                geometry = GEOSGeometry(value)
+            except ValueError:
+                # if the geometry couldn't be parsed.
+                # we can't generate valid geojson
+                error_msg = 'The field ["%s", "%s"] could not be parsed as a valid geometry' % (
+                    self.geometry_field, value
+                )
+                raise SerializationError(error_msg)
+
+            # Optional force 2D
+            if self.options.get('force2d'):
+                wkb_w = WKBWriter()
+                wkb_w.outdim = 2
+                geometry = GEOSGeometry(wkb_w.write(geometry), srid=geometry.srid)
+            # Optional geometry simplification
+            simplify = self.options.get('simplify')
+            if simplify is not None:
+                geometry = geometry.simplify(tolerance=simplify, preserve_topology=True)
+            # Optional geometry reprojection
+            if self.srid != geometry.srid:
+                geometry.transform(self.srid)
+            # Optional bbox
+            if self.options.get('bbox_auto'):
+                self._current['bbox'] = geometry.extent
+
+        self._current['geometry'] = geometry
 
     def handle_field(self, obj, field_name):
         if isinstance(obj, Model):
@@ -171,24 +192,9 @@ class Serializer(PythonSerializer):
         else:
             # Only supports dicts and models, not lists (e.g. values_list)
             return
-
-        # ignore other geometries, only one geometry per feature
+        
         if field_name == self.geometry_field:
-            # this will handle GEOSGeometry objects and string representations (e.g. ewkt, bwkt)
-            try:
-                # if the geometry is None (or NULL in DB)
-                if value is not None:
-                    geometry = self._handle_geom(GEOSGeometry(value))
-                else:
-                    geometry = None
-            # if the geometry couldn't be parsed, we can't generate valid geojson
-            except ValueError:
-                raise SerializationError('The field ["%s", "%s"] could not be parsed as a valid geometry' % (
-                    self.geometry_field, value
-                ))
-            if self.options.get('bbox_auto'):
-                self._current['bbox'] = geometry.extent
-            self._current['geometry'] = geometry
+            self._handle_geom(value)
 
         elif self.properties and field_name in self.properties:
             # set the field name to the key's value mapping in self.properties
