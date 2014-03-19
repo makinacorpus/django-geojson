@@ -32,6 +32,7 @@ except ImportError:
     asShape = None  # NOQA
 
 from . import GEOJSON_DEFAULT_SRID
+from .fields import GeoJSONField
 
 
 logger = logging.getLogger(__name__)
@@ -192,7 +193,7 @@ class Serializer(PythonSerializer):
         else:
             # Only supports dicts and models, not lists (e.g. values_list)
             return
-        
+
         if field_name == self.geometry_field:
             self._handle_geom(value)
 
@@ -373,10 +374,13 @@ def Deserializer(stream_or_string, **options):
             "pk": dictobj.get('id') or properties.get('id'),
             "fields": fields
         }
-        if asShape is None:
-            raise DeserializationError('shapely is not installed')
-        shape = asShape(dictobj['geometry'])
-        obj['fields'][geometry_field] = shape.wkt
+        if isinstance(model._meta.get_field(geometry_field), GeoJSONField):
+            obj['fields'][geometry_field] = dictobj['geometry']
+        else:
+            if asShape is None:
+                raise DeserializationError('shapely is not installed')
+            shape = asShape(dictobj['geometry'])
+            obj['fields'][geometry_field] = shape.wkt
         return obj
 
     if isinstance(stream_or_string, string_types):

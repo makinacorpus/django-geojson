@@ -480,3 +480,20 @@ class ModelFieldTest(TestCase):
                     }
                 }]
             })
+
+    def test_field_can_be_deserialized(self):
+        input_geojson = """
+        {"type": "FeatureCollection",
+         "features": [
+            { "type": "Feature",
+                "properties": {"model": "djgeojson.address"},
+                "id": 1,
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [0.0, 0.0]
+                }
+            }
+        ]}"""
+        objects = list(serializers.deserialize('geojson', input_geojson))
+        self.assertEqual(objects[0].object.geom,
+                         {'type': 'Point', 'coordinates': [0, 0]})

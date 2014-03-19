@@ -19,6 +19,7 @@ except ImportError:
     JSONField = Missing
     JSONFormField = Missing
 
+
 class GeoJSONFormField(JSONFormField):
     widget = LeafletWidget if HAS_LEAFLET else HiddenInput
 
