@@ -27,6 +27,8 @@ class GeoJSONFormField(JSONFormField):
 class GeoJSONField(JSONField):
     description = _("Geometry as GeoJSON")
     form_class = GeoJSONFormField
+    geom_type = 'GEOMETRY'
+    dim = 2
 
 try:
     from south.modelsinspector import add_introspection_rules
