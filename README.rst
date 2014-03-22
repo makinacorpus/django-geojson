@@ -28,9 +28,19 @@ INSTALL
     pip install django-geojson
 
 
-If you need to load data from GeoJSON files (deserialize), you'll also need shapely ::
+This package has **optional** `extra dependencies <http://pythonhosted.org/setuptools/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies>`_.
 
-    pip install "django-geojson [shapely]"
+
+If you need GeoJSON fields with map widgets :
+
+::
+
+    pip install "django-geojson [field]"
+
+
+If you also need to load data from GeoJSON files (deserialize), you'll also need shapely ::
+
+    pip install "django-geojson [field,shapely]"
 
 
 =====
@@ -134,6 +144,7 @@ Model and forms fields
 ======================
 
 GeoJSON fields are based on Brad Jasper's `JSONField <https://pypi.python.org/pypi/jsonfield>`_.
+See `INSTALL`_ to install extra dependencies.
 
 They are useful to avoid usual GIS stacks (GEOS, GDAL, PostGIS...)
 for very simple use-cases (no spatial operation yet).
@@ -153,12 +164,6 @@ for very simple use-cases (no spatial operation yet).
 Form widgets are rendered with Leaflet maps automatically if
 `django-leaflet <https://github.com/makinacorpus/django-leaflet>`_
 is available.
-
-Install with `extra dependencies <http://pythonhosted.org/setuptools/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies>`_:
-
-::
-
-    pip install "django-geosjon[field]"
 
 
 Low-level serializer
