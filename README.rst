@@ -1,5 +1,10 @@
-*django-geojson* is a collection of helpers to (de)serialize (Geo)Django objects
-into GeoJSON.
+*django-geojson* is a set of tools to manipulate GeoJSON with Django :
+
+* (De)Serializer for (Geo)Django objects, querysets and lists
+* Base views to serve GeoJSON map layers from models
+* GeoJSON model and form fields to avoid spatial database backends
+  (compatible with *django-leaflet* for map widgets)
+
 
 .. image:: https://pypip.in/v/django-geojson/badge.png
         :target: https://pypi.python.org/pypi/django-geojson
@@ -123,6 +128,37 @@ Will work either for a model, a geometry field or a queryset.
     var geom = {{ object.geom|geojsonfeature|safe }};
 
     var collection = {{ object_list|geojsonfeature|safe }};
+
+
+Model and forms fields
+======================
+
+GeoJSON fields are based on Brad Jasper's `JSONField <https://pypi.python.org/pypi/jsonfield>`_.
+
+They are useful to avoid usual GIS stacks (GEOS, GDAL, PostGIS...)
+for very simple use-cases (no spatial operation yet).
+
+::
+
+    from .fields import GeoJSONField
+
+    class Address(models.Model):
+        geom = GeoJSONField()
+
+    address = Address()
+    address.geom = {'type': 'Point', 'coordinates': [0, 0]}
+    address.save()
+
+
+Form widgets are rendered with Leaflet maps automatically if
+`django-leaflet <https://github.com/makinacorpus/django-leaflet>`_
+is available.
+
+Install with `extra dependencies <http://pythonhosted.org/setuptools/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies>`_:
+
+::
+
+    pip install "django-geosjon[field]"
 
 
 Low-level serializer

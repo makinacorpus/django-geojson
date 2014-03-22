@@ -3,14 +3,15 @@ import json
 from django.test import TestCase
 from django.conf import settings
 from django.core import serializers
+from django.core.exceptions import ValidationError
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import LineString, Point, GeometryCollection
 from django.utils.encoding import smart_text
 
-
 from .templatetags.geojson_tags import geojsonfeature
 from .serializers import Serializer
 from .views import GeoJSONLayerView
+from .fields import GeoJSONField, GeoJSONFormField, geojson_geometry
 
 
 settings.SERIALIZATION_MODULES = {'geojson': 'djgeojson.serializers'}
@@ -444,3 +445,70 @@ class ViewsTest(TestCase):
         geojson = json.loads(smart_text(response.content))
         self.assertEqual(geojson['features'][0]['properties']['name'],
                          'green')
+
+
+class Address(models.Model):
+    geom = GeoJSONField()
+
+
+class ModelFieldTest(TestCase):
+    def setUp(self):
+        self.address = Address()
+        self.address.geom = {'type': 'Point', 'coordinates': [0, 0]}
+        self.address.save()
+
+    def test_models_can_have_geojson_fields(self):
+        saved = Address.objects.get(id=self.address.id)
+        self.assertDictEqual(saved.geom, self.address.geom)
+
+    def test_default_form_field_is_geojsonfield(self):
+        field = self.address._meta.get_field('geom').formfield()
+        self.assertTrue(isinstance(field, GeoJSONFormField))
+
+    def test_default_form_field_has_geojson_validator(self):
+        field = self.address._meta.get_field('geom').formfield()
+        self.assertEqual(field.validators, [geojson_geometry])
+
+    def test_form_field_raises_if_invalid_type(self):
+        field = self.address._meta.get_field('geom').formfield()
+        self.assertRaises(ValidationError, field.clean,
+                          {'type': 'FeatureCollection', 'foo': 'bar'})
+
+    def test_form_field_raises_if_type_missing(self):
+        field = self.address._meta.get_field('geom').formfield()
+        self.assertRaises(ValidationError, field.clean,
+                          {'foo': 'bar'})
+
+    def test_field_can_be_serialized(self):
+        serializer = Serializer()
+        geojson = serializer.serialize(Address.objects.all(), crs=False)
+        features = json.loads(geojson)
+        self.assertEqual(
+            features, {
+                u'type': u'FeatureCollection',
+                u'features': [{
+                    u'id': self.address.id,
+                    u'type': u'Feature',
+                    u'geometry': {u'type': u'Point', u'coordinates': [0, 0]},
+                    u'properties': {
+                        u'model': u'djgeojson.address'
+                    }
+                }]
+            })
+
+    def test_field_can_be_deserialized(self):
+        input_geojson = """
+        {"type": "FeatureCollection",
+         "features": [
+            { "type": "Feature",
+                "properties": {"model": "djgeojson.address"},
+                "id": 1,
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [0.0, 0.0]
+                }
+            }
+        ]}"""
+        objects = list(serializers.deserialize('geojson', input_geojson))
+        self.assertEqual(objects[0].object.geom,
+                         {'type': 'Point', 'coordinates': [0, 0]})
