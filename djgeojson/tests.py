@@ -3,6 +3,7 @@ import json
 from django.test import TestCase
 from django.conf import settings
 from django.core import serializers
+from django.core.exceptions import ValidationError
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import LineString, Point, GeometryCollection
 from django.utils.encoding import smart_text
@@ -10,7 +11,7 @@ from django.utils.encoding import smart_text
 from .templatetags.geojson_tags import geojsonfeature
 from .serializers import Serializer
 from .views import GeoJSONLayerView
-from .fields import GeoJSONField, GeoJSONFormField
+from .fields import GeoJSONField, GeoJSONFormField, geojson_geometry
 
 
 settings.SERIALIZATION_MODULES = {'geojson': 'djgeojson.serializers'}
@@ -463,6 +464,20 @@ class ModelFieldTest(TestCase):
     def test_default_form_field_is_geojsonfield(self):
         field = self.address._meta.get_field('geom').formfield()
         self.assertTrue(isinstance(field, GeoJSONFormField))
+
+    def test_default_form_field_has_geojson_validator(self):
+        field = self.address._meta.get_field('geom').formfield()
+        self.assertEqual(field.validators, [geojson_geometry])
+
+    def test_form_field_raises_if_invalid_type(self):
+        field = self.address._meta.get_field('geom').formfield()
+        self.assertRaises(ValidationError, field.clean,
+                          {'type': 'FeatureCollection', 'foo': 'bar'})
+
+    def test_form_field_raises_if_type_missing(self):
+        field = self.address._meta.get_field('geom').formfield()
+        self.assertRaises(ValidationError, field.clean,
+                          {'foo': 'bar'})
 
     def test_field_can_be_serialized(self):
         serializer = Serializer()
