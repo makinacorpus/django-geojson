@@ -1,5 +1,10 @@
-*django-geojson* is a collection of helpers to (de)serialize (Geo)Django objects
-into GeoJSON.
+*django-geojson* is a set of tools to manipulate GeoJSON with Django :
+
+* (De)Serializer for (Geo)Django objects, querysets and lists
+* Base views to serve GeoJSON map layers from models
+* GeoJSON model and form fields to avoid spatial database backends
+  (compatible with *django-leaflet* for map widgets)
+
 
 .. image:: https://pypip.in/v/django-geojson/badge.png
         :target: https://pypi.python.org/pypi/django-geojson
