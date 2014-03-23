@@ -10,7 +10,7 @@ from django.utils.encoding import smart_text
 
 from .templatetags.geojson_tags import geojsonfeature
 from .serializers import Serializer
-from .views import GeoJSONLayerView
+from .views import GeoJSONLayerView, TiledGeoJSONLayerView
 from .fields import GeoJSONField, GeoJSONFormField, GeoJSONValidator
 
 
@@ -445,6 +445,22 @@ class ViewsTest(TestCase):
         geojson = json.loads(smart_text(response.content))
         self.assertEqual(geojson['features'][0]['properties']['name'],
                          'green')
+
+
+class TileEnvelopTest(TestCase):
+    def setUp(self):
+        self.view = TiledGeoJSONLayerView()
+
+    def test_raises_error_if_not_spherical_mercator(self):
+        self.view.tile_srid = 2154
+        self.assertRaises(AssertionError, self.view.tile_coord, 0, 0, 0)
+
+    def test_origin_is_north_west_for_tile_0(self):
+        self.assertEqual((85.0511287798066, -180.0),
+                         self.view.tile_coord(0, 0, 0))
+
+    def test_origin_is_center_for_middle_tile(self):
+        self.assertEqual((0, 0), self.view.tile_coord(8, 8, 4))
 
 
 class Address(models.Model):
