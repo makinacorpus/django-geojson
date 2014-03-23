@@ -456,11 +456,29 @@ class TileEnvelopTest(TestCase):
         self.assertRaises(AssertionError, self.view.tile_coord, 0, 0, 0)
 
     def test_origin_is_north_west_for_tile_0(self):
-        self.assertEqual((85.0511287798066, -180.0),
+        self.assertEqual((-180.0, 85.0511287798066),
                          self.view.tile_coord(0, 0, 0))
 
     def test_origin_is_center_for_middle_tile(self):
         self.assertEqual((0, 0), self.view.tile_coord(8, 8, 4))
+
+class TiledGeoJSONViewTest(TestCase):
+    def setUp(self):
+        self.view = TiledGeoJSONLayerView(model=Route)
+        self.r1 = Route.objects.create(geom=LineString((0, 0.1), (10, 0)))
+        self.r2 = Route.objects.create(geom=LineString((0, 0.1), (-10, 0)))
+
+    def test_zoom_0_queryset_contains_all(self):
+        self.view.args = [0, 0, 0]
+        self.assertEqual(2, len(self.view.get_queryset()))
+
+    def test_zoom_4_filters_by_tile_extent(self):
+        self.view.args = [8, 8, 4]
+        self.assertEqual([self.r1], list(self.view.get_queryset()))
+        self.view.args = [7, 8, 4]
+        self.assertEqual([self.r2], list(self.view.get_queryset()))
+        self.view.args = [6, 8, 4]
+        self.assertEqual(0, len(self.view.get_queryset()))
 
 
 class Address(models.Model):

@@ -3,7 +3,7 @@ import math
 from django.views.generic import ListView
 from django.utils.decorators import method_decorator
 from django.views.decorators.gzip import gzip_page
-#from django.contrib.gis.geos.geometry import Polygon
+from django.contrib.gis.geos.geometry import Polygon
 
 from .http import HttpJSONResponse
 from .serializers import Serializer as GeoJSONSerializer
@@ -78,12 +78,25 @@ class TiledGeoJSONLayerView(GeoJSONLayerView):
         lon_deg = xtile / n * 360.0 - 180.0
         lat_rad = math.atan(math.sinh(math.pi * (1 - 2 * ytile / n)))
         lat_deg = math.degrees(lat_rad)
-        return (lat_deg, lon_deg)
+        return (lon_deg, lat_deg)
+
+    def get_queryset(self):
+        """
+        Inspired by Glen Roberton's django-geojson-tiles view
+        """
+        x, y, z = self.args[:3]
+        nw = self.tile_coord(x, y, z)
+        se = self.tile_coord(x+1, y+1, z)
+        bbox = Polygon((nw, (se[0], nw[1]),
+                       se, (nw[0], se[1]), nw))
+        qs = super(TiledGeoJSONLayerView, self).get_queryset()
+        qs = qs.filter(**{
+            '%s__intersects' % self.geometry_field: bbox
+        })
+        return qs
 
     # def __call__(self, request, z, x, y):
-    #     """
-    #     Glen Roberton's django-geojson-tiles view
-    #     """
+    #     
     #     z = int(z)
     #     x = int(x)
     #     y = int(y)
