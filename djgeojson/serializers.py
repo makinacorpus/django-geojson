@@ -173,7 +173,7 @@ class Serializer(PythonSerializer):
             if simplify is not None:
                 geometry = geometry.simplify(tolerance=simplify, preserve_topology=True)
             # Optional geometry reprojection
-            if self.srid != geometry.srid:
+            if geometry.srid and geometry.srid != self.srid:
                 geometry.transform(self.srid)
             # Optional bbox
             if self.options.get('bbox_auto'):

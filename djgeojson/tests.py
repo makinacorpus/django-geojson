@@ -462,21 +462,48 @@ class TileEnvelopTest(TestCase):
     def test_origin_is_center_for_middle_tile(self):
         self.assertEqual((0, 0), self.view.tile_coord(8, 8, 4))
 
+
 class TiledGeoJSONViewTest(TestCase):
     def setUp(self):
         self.view = TiledGeoJSONLayerView(model=Route)
-        self.r1 = Route.objects.create(geom=LineString((0, 0.1), (10, 0)))
-        self.r2 = Route.objects.create(geom=LineString((0, 0.1), (-10, 0)))
+        self.r1 = Route.objects.create(geom=LineString((0, 1), (10, 1)))
+        self.r2 = Route.objects.create(geom=LineString((0, -1), (-10, -1)))
+
+    def test_view_is_serialized_as_geojson(self):
+        self.view.args = [8, 7, 4]
+        response = self.view.render_to_response(context={})
+        geojson = json.loads(smart_text(response.content))
+        self.assertEqual(geojson['features'][0]['geometry']['coordinates'],
+                         [[0.0, 1.0], [10.0, 1.0]])
+
+    def test_view_trims_to_geometries_boundaries(self):
+        self.view.args = [128, 127, 8]
+        response = self.view.render_to_response(context={})
+        geojson = json.loads(smart_text(response.content))
+        self.assertEqual(geojson['features'][0]['geometry']['coordinates'],
+                         [[0.0, 1.0], [1.40625, 1.0]])
+
+    def test_geometries_trim_can_be_disabled(self):
+        self.view.args = [128, 127, 8]
+        self.view.trim_to_boundary = False
+        response = self.view.render_to_response(context={})
+        geojson = json.loads(smart_text(response.content))
+        self.assertEqual(geojson['features'][0]['geometry']['coordinates'],
+                         [[0.0, 1.0], [10.0, 1.0]])
+
+    def test_url_parameters_are_converted_to_int(self):
+        self.view.args = ['0', '0', '0']
+        self.assertEqual(2, len(self.view.get_queryset()))
 
     def test_zoom_0_queryset_contains_all(self):
         self.view.args = [0, 0, 0]
         self.assertEqual(2, len(self.view.get_queryset()))
 
     def test_zoom_4_filters_by_tile_extent(self):
-        self.view.args = [8, 8, 4]
+        self.view.args = [8, 7, 4]
         self.assertEqual([self.r1], list(self.view.get_queryset()))
-        self.view.args = [7, 8, 4]
-        self.assertEqual([self.r2], list(self.view.get_queryset()))
+
+    def test_some_tiles_have_empty_queryset(self):
         self.view.args = [6, 8, 4]
         self.assertEqual(0, len(self.view.get_queryset()))
 
