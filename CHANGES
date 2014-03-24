@@ -5,7 +5,7 @@ CHANGELOG
 2.4.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Specify django-leaflet minimal version for GeoJSON model field
 
 
 2.4.0 (2014-03-22)

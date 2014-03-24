@@ -20,7 +20,7 @@ setup(
     ],
     extras_require={
         'shapely': ['shapely'],
-        'field': ['jsonfield', 'django-leaflet'],
+        'field': ['jsonfield', 'django-leaflet>=0.12'],
     },
     packages=find_packages(),
     include_package_data=True,
