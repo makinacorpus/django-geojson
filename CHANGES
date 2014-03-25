@@ -7,6 +7,7 @@ CHANGELOG
 
 - Specify django-leaflet minimal version for GeoJSON model field
 - Add various GeoJSON fields, for each geometry type
+- Got rid of shapely for deserialization
 
 
 2.4.0 (2014-03-22)
