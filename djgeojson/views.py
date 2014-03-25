@@ -67,6 +67,8 @@ class TiledGeoJSONLayerView(GeoJSONLayerView):
     height = 256
     tile_srid = 3857
     trim_to_boundary = True
+    """Simplify geometries by zoom level (dict <int:float>)"""
+    simplifications = None
 
     def tile_coord(self, xtile, ytile, zoom):
         """
@@ -95,6 +97,15 @@ class TiledGeoJSONLayerView(GeoJSONLayerView):
         qs = qs.filter(**{
             '%s__intersects' % self.geometry_field: bbox
         })
+
+        # Simplification dict by zoom level
+        simplifications = self.simplifications or {}
+        z = self.z
+        self.simplify = simplifications.get(z)
+        while self.simplify is None and z < 32:
+            z += 1
+            self.simplify = simplifications.get(z)
+
         # Won't trim point geometries to a boundary
         model_field = qs.model._meta.get_field(self.geometry_field)
         self.trim_to_boundary = (self.trim_to_boundary and
@@ -102,4 +113,5 @@ class TiledGeoJSONLayerView(GeoJSONLayerView):
         if self.trim_to_boundary:
             qs = qs.intersection(bbox)
             self.geometry_field = 'intersection'
+
         return qs

@@ -507,6 +507,24 @@ class TiledGeoJSONViewTest(TestCase):
         self.view.args = [4, 6, 8]
         self.assertEqual(0, len(self.view.get_queryset()))
 
+    def test_simplification_depends_on_zoom_level(self):
+        self.view.simplifications = {6: 100}
+        self.view.args = [6, 8, 4]
+        self.view.get_queryset()
+        self.assertEqual(self.view.simplify, 100)
+
+    def test_simplification_is_default_if_not_specified(self):
+        self.view.simplifications = {}
+        self.view.args = [0, 8, 4]
+        self.view.get_queryset()
+        self.assertEqual(self.view.simplify, None)
+
+    def test_simplification_takes_the_closest_upper_level(self):
+        self.view.simplifications = {3: 100, 6: 200}
+        self.view.args = [4, 8, 4]
+        self.view.get_queryset()
+        self.assertEqual(self.view.simplify, 200)
+
 
 class Address(models.Model):
     geom = GeoJSONField()
