@@ -421,6 +421,13 @@ class GeoJsonTemplateTagTest(TestCase):
                 "type": "Feature", "properties": {}
             })
 
+    def test_property_can_be_specified(self):
+        features = json.loads(geojsonfeature(self.route1,
+                                            "name"))
+        feature = features['features'][0]
+        self.assertEqual(feature['properties']['name'],
+                         self.route1.name)
+
 
 class ViewsTest(TestCase):
 
