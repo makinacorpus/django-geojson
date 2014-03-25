@@ -97,6 +97,6 @@ class MultiPolygonField(GeoJSONField):
 
 try:
     from south.modelsinspector import add_introspection_rules
-    add_introspection_rules([], ["^djgeojson\.fields\.GeoJSONField"])
+    add_introspection_rules([], ["^djgeojson\.fields\.(GeoJSONField|GeometryField|GeometryCollectionField|PointField|MultiPointField|LineStringField|MultiLineStringField|PolygonField|MultiPolygonField)"])
 except ImportError:
     pass
