@@ -343,9 +343,16 @@ class ReverseForeignkeyTest(TestCase):
 
 class GeoJsonTemplateTagTest(TestCase):
 
-    def test_single(self):
-        r = Route(name='red', geom="LINESTRING (0 0, 1 1)")
-        feature = json.loads(geojsonfeature(r))
+    def setUp(self):
+        self.route1 = Route.objects.create(name='green',
+                                           geom="LINESTRING (0 0, 1 1)")
+        self.route2 = Route.objects.create(name='blue',
+                                           geom="LINESTRING (0 0, 1 1)")
+        self.route3 = Route.objects.create(name='red',
+                                           geom="LINESTRING (0 0, 1 1)")
+
+    def test_templatetag_renders_single_object(self):
+        feature = json.loads(geojsonfeature(self.route1))
         self.assertEqual(
             feature, {
                 "crs": {
@@ -363,13 +370,7 @@ class GeoJsonTemplateTagTest(TestCase):
                     "type": "Feature", "properties": {}}]
             })
 
-    def test_queryset(self):
-        route1 = Route.objects.create(
-            name='green', geom="LINESTRING (0 0, 1 1)")
-        route2 = Route.objects.create(
-            name='blue', geom="LINESTRING (0 0, 1 1)")
-        route3 = Route.objects.create(name='red', geom="LINESTRING (0 0, 1 1)")
-
+    def test_templatetag_renders_queryset(self):
         feature = json.loads(geojsonfeature(Route.objects.all()))
         self.assertEqual(
             feature, {
@@ -390,7 +391,7 @@ class GeoJsonTemplateTagTest(TestCase):
                         "properties": {
                             "model": "djgeojson.route"
                         },
-                        "id": route1.pk
+                        "id": self.route1.pk
                     },
                     {
                         "geometry": {
@@ -399,21 +400,20 @@ class GeoJsonTemplateTagTest(TestCase):
                         },
                         "type": "Feature",
                         "properties": {"model": "djgeojson.route"},
-                        "id": route2.pk
+                        "id": self.route2.pk
                     },
                     {
                         "geometry": {"type": "LineString",
                                      "coordinates": [[0.0, 0.0], [1.0, 1.0]]},
                         "type": "Feature",
                         "properties": {"model": "djgeojson.route"},
-                        "id": route3.pk
+                        "id": self.route3.pk
                     }
                 ]
             })
 
-    def test_feature(self):
-        r = Route(name='red', geom="LINESTRING (0 0, 1 1)")
-        feature = json.loads(geojsonfeature(r.geom))
+    def test_template_renders_geometry(self):
+        feature = json.loads(geojsonfeature(self.route1.geom))
         self.assertEqual(
             feature, {
                 "geometry": {"type": "LineString",
