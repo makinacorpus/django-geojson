@@ -26,13 +26,20 @@ class GeoJSONValidator(object):
         self.geom_type = geom_type
 
     def __call__(self, value):
-        geom_type = value.get('type')
-        is_geometry = geom_type in (
-            "Point", "MultiPoint", "LineString", "MultiLineString",
-            "Polygon", "MultiPolygon", "GeometryCollection"
-        )
-        if not is_geometry:
-            err_msg = u'%s is not a valid GeoJSON geometry type' % geom_type
+        err_msg = None
+        geom_type = value.get('type') or ''
+        if self.geom_type == 'GEOMETRY':
+            is_geometry = geom_type in (
+                "Point", "MultiPoint", "LineString", "MultiLineString",
+                "Polygon", "MultiPolygon", "GeometryCollection"
+            )
+            if not is_geometry:
+                err_msg = u'%s is not a valid GeoJSON geometry type' % geom_type
+        else:
+            if self.geom_type.lower() != geom_type.lower():
+                err_msg = u'%s does not match geometry type' % geom_type
+
+        if err_msg:
             raise ValidationError(err_msg)
 
 

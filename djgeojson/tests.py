@@ -517,11 +517,11 @@ class ModelFieldTest(TestCase):
 
 class GeoJSONValidatorTest(TestCase):
     def test_validator_raises_if_missing_type(self):
-        validator = GeoJSONValidator(None)
+        validator = GeoJSONValidator('GEOMETRY')
         self.assertRaises(ValidationError, validator, {'foo': 'bar'})
 
     def test_validator_raises_if_type_is_wrong(self):
-        validator = GeoJSONValidator(None)
+        validator = GeoJSONValidator('GEOMETRY')
         self.assertRaises(ValidationError, validator,
                           {'type': 'FeatureCollection',
                            'features': []})
@@ -529,3 +529,14 @@ class GeoJSONValidatorTest(TestCase):
     def test_validator_succeeds_if_type_matches(self):
         validator = GeoJSONValidator('POINT')
         self.assertIsNone(validator({'type': 'Point', 'coords': [0, 0]}))
+
+    def test_validator_succeeds_if_type_is_generic(self):
+        validator = GeoJSONValidator('GEOMETRY')
+        self.assertIsNone(validator({'type': 'Point', 'coords': [0, 0]}))
+        self.assertIsNone(validator({'type': 'LineString', 'coords': [0, 0]}))
+        self.assertIsNone(validator({'type': 'Polygon', 'coords': [0, 0]}))
+
+    def test_validator_fails_if_type_does_not_match(self):
+        validator = GeoJSONValidator('POINT')
+        self.assertRaises(ValidationError, validator,
+                          {'type': 'LineString', 'coords': [0, 0]})
