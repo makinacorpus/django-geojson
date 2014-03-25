@@ -16,7 +16,7 @@ before_install:
  - sudo apt-get update > /dev/null
 
 install:
- - pip install shapely jsonfield
+ - pip install jsonfield
  - sudo apt-get install -y libgdal-dev libproj-dev libgeos-dev libspatialite-dev
  - if [[ $TRAVIS_PYTHON_VERSION == "2.7" ]]; then pip install git+git://github.com/tinio/pysqlite.git@extension-enabled#egg=pysqlite; fi
    # This is a dependency of our Django test script

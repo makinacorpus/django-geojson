@@ -26,10 +26,6 @@ from django.utils.encoding import smart_text
 from django.contrib.gis.geos import WKBWriter
 from django.contrib.gis.geos.geometry import GEOSGeometry
 from django.contrib.gis.db.models.fields import GeometryField
-try:
-    from shapely.geometry import asShape
-except ImportError:
-    asShape = None  # NOQA
 
 from . import GEOJSON_DEFAULT_SRID
 from .fields import GeoJSONField
@@ -377,9 +373,7 @@ def Deserializer(stream_or_string, **options):
         if isinstance(model._meta.get_field(geometry_field), GeoJSONField):
             obj['fields'][geometry_field] = dictobj['geometry']
         else:
-            if asShape is None:
-                raise DeserializationError('shapely is not installed')
-            shape = asShape(dictobj['geometry'])
+            shape = GEOSGeometry(json.dumps(dictobj['geometry']))
             obj['fields'][geometry_field] = shape.wkt
         return obj
 
