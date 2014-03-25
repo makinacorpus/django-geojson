@@ -86,7 +86,7 @@ class TiledGeoJSONLayerView(GeoJSONLayerView):
         """
         Inspired by Glen Roberton's django-geojson-tiles view
         """
-        self.x, self.y, self.z = map(int, self.args[:3])
+        self.z, self.x, self.y = map(int, self.args[:3])
         nw = self.tile_coord(self.x, self.y, self.z)
         se = self.tile_coord(self.x + 1, self.y + 1, self.z)
         bbox = Polygon((nw, (se[0], nw[1]),
