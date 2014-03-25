@@ -1,4 +1,5 @@
 import json
+import re
 
 from six import string_types
 
@@ -14,11 +15,23 @@ register = template.Library()
 
 
 @register.filter
-def geojsonfeature(source, geometry_field='geom', properties=None, srid=GEOJSON_DEFAULT_SRID):
+def geojsonfeature(source, params=''):
+    """
+    :params: A string with the following optional tokens:
+             "properties:field:srid"
+    """
+    parse = re.search(r'(?P<properties>((\w+)(,\w+)*)?)(:(?P<field>(\w+)?))?(:(?P<srid>(\d+)?))?', params)
+    if parse:
+        parse = parse.groupdict()
+    else:
+        parse = {}
+
+    geometry_field = parse.get('field') or 'geom'
+    properties = parse.get('properties', '').split(',')
+    srid = parse.get('srid') or GEOJSON_DEFAULT_SRID
+
     if source is None or isinstance(source, string_types):
         return 'null'
-
-    properties = properties or []
 
     if isinstance(source, (GEOSGeometry, GeometryField)):
         encoder = DjangoGeoJSONEncoder()
@@ -33,4 +46,5 @@ def geojsonfeature(source, geometry_field='geom', properties=None, srid=GEOJSON_
     if not hasattr(source, '__iter__'):
         source = [source]
 
-    return serializer.serialize(source, properties=properties, geometry_field=geometry_field, srid=srid)
+    return serializer.serialize(source, properties=properties,
+                                geometry_field=geometry_field, srid=srid)
