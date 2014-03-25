@@ -19,7 +19,6 @@ setup(
         'six',
     ],
     extras_require={
-        'shapely': ['shapely'],
         'field': ['jsonfield', 'django-leaflet>=0.12'],
     },
     packages=find_packages(),

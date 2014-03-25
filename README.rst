@@ -38,11 +38,6 @@ If you need GeoJSON fields with map widgets :
     pip install "django-geojson [field]"
 
 
-If you also need to load data from GeoJSON files (deserialize), you'll also need shapely ::
-
-    pip install "django-geojson [field,shapely]"
-
-
 =====
 USAGE
 =====
