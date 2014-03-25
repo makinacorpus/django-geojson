@@ -442,6 +442,15 @@ class GeoJsonTemplateTagTest(TestCase):
                          [[253531.1305237495, 909838.9305578759],
                           [406035.7627716485, 1052023.2925472297]])
 
+    def test_geom_field_name_can_be_specified(self):
+        features = json.loads(geojsonfeature(self.route1, ":geom"))
+        feature = features['features'][0]
+        self.assertEqual(feature['geometry']['coordinates'],
+                         [[0.0, 0.0], [1.0, 1.0]])
+
+    def test_geom_field_raises_attributeerror_if_unknown(self):
+        self.assertRaises(AttributeError, geojsonfeature, self.route1, ":geo")
+
 
 class ViewsTest(TestCase):
 

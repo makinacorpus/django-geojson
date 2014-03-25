@@ -20,14 +20,15 @@ def geojsonfeature(source, params=''):
     :params: A string with the following optional tokens:
              "properties:field:srid"
     """
-    geometry_field = 'geom'
-    properties = []
-    srid = GEOJSON_DEFAULT_SRID
     parse = re.search(r'(?P<properties>((\w+)(,\w+)*)?)(:(?P<field>(\w+)?))?(:(?P<srid>(\d+)?))?', params)
     if parse:
         parse = parse.groupdict()
-        properties = parse['properties'].split(',')
-        srid = parse['srid'] or GEOJSON_DEFAULT_SRID
+    else:
+        parse = {}
+
+    geometry_field = parse.get('field') or 'geom'
+    properties = parse.get('properties', '').split(',')
+    srid = parse.get('srid') or GEOJSON_DEFAULT_SRID
 
     if source is None or isinstance(source, string_types):
         return 'null'
