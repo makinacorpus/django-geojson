@@ -135,6 +135,15 @@ Will work either for a model, a geometry field or a queryset.
     var collection = {{ object_list|geojsonfeature|safe }};
 
 
+Properties and custom geometry field name can be provided.
+
+::
+
+    {{ object|geojsonfeature:"name,age" }}
+    {{ object|geojsonfeature:"name,age:the_geom" }}
+    {{ object|geojsonfeature:":geofield" }}
+
+
 Model and forms fields
 ======================
 
