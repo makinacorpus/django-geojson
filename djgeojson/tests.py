@@ -11,7 +11,7 @@ from django.utils.encoding import smart_text
 from .templatetags.geojson_tags import geojsonfeature
 from .serializers import Serializer
 from .views import GeoJSONLayerView
-from .fields import GeoJSONField, GeoJSONFormField, geojson_geometry
+from .fields import GeoJSONField, GeoJSONFormField, GeoJSONValidator
 
 
 settings.SERIALIZATION_MODULES = {'geojson': 'djgeojson.serializers'}
@@ -467,7 +467,8 @@ class ModelFieldTest(TestCase):
 
     def test_default_form_field_has_geojson_validator(self):
         field = self.address._meta.get_field('geom').formfield()
-        self.assertEqual(field.validators, [geojson_geometry])
+        validator = field.validators[0]
+        self.assertTrue(isinstance(validator, GeoJSONValidator))
 
     def test_form_field_raises_if_invalid_type(self):
         field = self.address._meta.get_field('geom').formfield()
@@ -512,3 +513,30 @@ class ModelFieldTest(TestCase):
         objects = list(serializers.deserialize('geojson', input_geojson))
         self.assertEqual(objects[0].object.geom,
                          {'type': 'Point', 'coordinates': [0, 0]})
+
+
+class GeoJSONValidatorTest(TestCase):
+    def test_validator_raises_if_missing_type(self):
+        validator = GeoJSONValidator('GEOMETRY')
+        self.assertRaises(ValidationError, validator, {'foo': 'bar'})
+
+    def test_validator_raises_if_type_is_wrong(self):
+        validator = GeoJSONValidator('GEOMETRY')
+        self.assertRaises(ValidationError, validator,
+                          {'type': 'FeatureCollection',
+                           'features': []})
+
+    def test_validator_succeeds_if_type_matches(self):
+        validator = GeoJSONValidator('POINT')
+        self.assertIsNone(validator({'type': 'Point', 'coords': [0, 0]}))
+
+    def test_validator_succeeds_if_type_is_generic(self):
+        validator = GeoJSONValidator('GEOMETRY')
+        self.assertIsNone(validator({'type': 'Point', 'coords': [0, 0]}))
+        self.assertIsNone(validator({'type': 'LineString', 'coords': [0, 0]}))
+        self.assertIsNone(validator({'type': 'Polygon', 'coords': [0, 0]}))
+
+    def test_validator_fails_if_type_does_not_match(self):
+        validator = GeoJSONValidator('POINT')
+        self.assertRaises(ValidationError, validator,
+                          {'type': 'LineString', 'coords': [0, 0]})

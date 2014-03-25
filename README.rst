@@ -146,10 +146,10 @@ for very simple use-cases (no spatial operation yet).
 
 ::
 
-    from .fields import GeoJSONField
+    from djgeojson.fields import PointField
 
     class Address(models.Model):
-        geom = GeoJSONField()
+        geom = PointField()
 
     address = Address()
     address.geom = {'type': 'Point', 'coordinates': [0, 0]}
@@ -159,6 +159,11 @@ for very simple use-cases (no spatial operation yet).
 Form widgets are rendered with Leaflet maps automatically if
 `django-leaflet <https://github.com/makinacorpus/django-leaflet>`_
 is available.
+
+All geometry types are supported and respectively validated :
+`GeometryField`, `PointField`, `MultiPointField`, `LineStringField`,
+`MultiLineStringField`, `PolygonField`, `MultiPolygonField`,
+`GeometryCollectionField`.
 
 
 Low-level serializer
