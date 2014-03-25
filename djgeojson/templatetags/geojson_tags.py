@@ -23,9 +23,11 @@ def geojsonfeature(source, params=''):
     geometry_field = 'geom'
     properties = []
     srid = GEOJSON_DEFAULT_SRID
-    parse = re.search(r'((\w)+)(:(\w))?(:(\d))?', params)
+    parse = re.search(r'(?P<properties>((\w+)(,\w+)*)?)(:(?P<field>(\w+)?))?(:(?P<srid>(\d+)?))?', params)
     if parse:
-        properties = [parse.group(1)]
+        parse = parse.groupdict()
+        properties = parse['properties'].split(',')
+        srid = parse['srid'] or GEOJSON_DEFAULT_SRID
 
     if source is None or isinstance(source, string_types):
         return 'null'

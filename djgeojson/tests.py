@@ -428,6 +428,20 @@ class GeoJsonTemplateTagTest(TestCase):
         self.assertEqual(feature['properties']['name'],
                          self.route1.name)
 
+    def test_several_properties_can_be_specified(self):
+        features = json.loads(geojsonfeature(self.route1,
+                                            "name,id"))
+        feature = features['features'][0]
+        self.assertEqual(feature['properties'],
+                         {'name': self.route1.name,
+                          'id': self.route1.id})
+
+    def test_srid_can_be_specified(self):
+        feature = json.loads(geojsonfeature(self.route1.geom, "::2154"))
+        self.assertEqual(feature['geometry']['coordinates'],
+                         [[253531.1305237495, 909838.9305578759],
+                          [406035.7627716485, 1052023.2925472297]])
+
 
 class ViewsTest(TestCase):
 
