@@ -21,30 +21,72 @@ except ImportError:
     JSONFormField = Missing
 
 
-def geojson_geometry(value):
-    geom_type = value.get('type')
-    is_geometry = geom_type in (
-        "Point", "MultiPoint", "LineString", "MultiLineString",
-        "Polygon", "MultiPolygon", "GeometryCollection"
-    )
-    if not is_geometry:
-        err_msg = u'%s is not a valid GeoJSON geometry type' % geom_type
-        raise ValidationError(err_msg)
+class GeoJSONValidator(object):
+    def __init__(self, geom_type):
+        self.geom_type = geom_type
+
+    def __call__(self, value):
+        geom_type = value.get('type')
+        is_geometry = geom_type in (
+            "Point", "MultiPoint", "LineString", "MultiLineString",
+            "Polygon", "MultiPolygon", "GeometryCollection"
+        )
+        if not is_geometry:
+            err_msg = u'%s is not a valid GeoJSON geometry type' % geom_type
+            raise ValidationError(err_msg)
 
 
 class GeoJSONFormField(JSONFormField):
     widget = LeafletWidget if HAS_LEAFLET else HiddenInput
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('validators', [geojson_geometry])
+        geom_type = kwargs.pop('geom_type')
+        kwargs.setdefault('validators', [GeoJSONValidator(geom_type)])
         super(GeoJSONFormField, self).__init__(*args, **kwargs)
 
 
 class GeoJSONField(JSONField):
     description = _("Geometry as GeoJSON")
     form_class = GeoJSONFormField
-    geom_type = 'GEOMETRY'
     dim = 2
+    geom_type = 'GEOMETRY'
+
+    def formfield(self, **kwargs):
+        kwargs.setdefault('geom_type', self.geom_type)
+        return super(GeoJSONField, self).formfield(**kwargs)
+
+
+class GeometryField(GeoJSONField):
+    pass
+
+
+class GeometryCollectionField(GeometryField):
+    geom_type = 'GEOMETRYCOLLECTION'
+
+
+class PointField(GeometryField):
+    geom_type = 'POINT'
+
+
+class MultiPointField(GeometryField):
+    geom_type = 'MULTIPOINT'
+
+
+class LineStringField(GeometryField):
+    geom_type = 'LINESTRING'
+
+
+class MultiLineStringField(GeometryField):
+    geom_type = 'MULTILINESTRING'
+
+
+class PolygonField(GeometryField):
+    geom_type = 'POLYGON'
+
+
+class MultiPolygonField(GeoJSONField):
+    geom_type = 'MULTIPOLYGON'
+
 
 try:
     from south.modelsinspector import add_introspection_rules
