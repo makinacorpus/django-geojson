@@ -6,6 +6,7 @@ CHANGELOG
 ==================
 
 - Specify django-leaflet minimal version for GeoJSON model field
+- Add various GeoJSON fields, for each geometry type
 
 
 2.4.0 (2014-03-22)
