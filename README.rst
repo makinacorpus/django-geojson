@@ -128,7 +128,7 @@ with `reasonnable performance <https://groups.google.com/forum/?fromgroups#!sear
         TiledGeoJSONLayerView.as_view(model=MushroomSpot), name='data'),
 
 
-Consume the vector tiles using `Leaflet TileLayer GeoJSON <https://github.com/glenrobertson/leaflet-tilelayer-geojson/>`_, `Polymaps <http://polymaps.org/>`_ or `d3.js <http://d3js.org>`_ for example.
+Consume the vector tiles using `Leaflet TileLayer GeoJSON <https://github.com/glenrobertson/leaflet-tilelayer-geojson/>`_, `Polymaps <http://polymaps.org/>`_, `OpenLayers 3 <http://twpayne.github.io/ol3/remote-vector/examples/tile-vector.html>`_ or `d3.js <http://d3js.org>`_ for example.
 
 Options are :
  
