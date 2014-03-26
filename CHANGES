@@ -9,6 +9,7 @@ CHANGELOG
 - Add various GeoJSON fields, for each geometry type
 - Got rid of shapely for deserialization
 - Improved `geojsonfeature` template tag (fixes #15, #16)
+- Add vector tiles view
 
 
 2.4.0 (2014-03-22)
