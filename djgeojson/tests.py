@@ -10,7 +10,7 @@ from django.utils.encoding import smart_text
 
 from .templatetags.geojson_tags import geojsonfeature
 from .serializers import Serializer
-from .views import GeoJSONLayerView
+from .views import GeoJSONLayerView, TiledGeoJSONLayerView
 from .fields import GeoJSONField, GeoJSONFormField, GeoJSONValidator
 
 
@@ -475,6 +475,85 @@ class ViewsTest(TestCase):
         geojson = json.loads(smart_text(response.content))
         self.assertEqual(geojson['features'][0]['properties']['name'],
                          'green')
+
+
+class TileEnvelopTest(TestCase):
+    def setUp(self):
+        self.view = TiledGeoJSONLayerView()
+
+    def test_raises_error_if_not_spherical_mercator(self):
+        self.view.tile_srid = 2154
+        self.assertRaises(AssertionError, self.view.tile_coord, 0, 0, 0)
+
+    def test_origin_is_north_west_for_tile_0(self):
+        self.assertEqual((-180.0, 85.0511287798066),
+                         self.view.tile_coord(0, 0, 0))
+
+    def test_origin_is_center_for_middle_tile(self):
+        self.assertEqual((0, 0), self.view.tile_coord(8, 8, 4))
+
+
+class TiledGeoJSONViewTest(TestCase):
+    def setUp(self):
+        self.view = TiledGeoJSONLayerView(model=Route)
+        self.r1 = Route.objects.create(geom=LineString((0, 1), (10, 1)))
+        self.r2 = Route.objects.create(geom=LineString((0, -1), (-10, -1)))
+
+    def test_view_is_serialized_as_geojson(self):
+        self.view.args = [4, 8, 7]
+        response = self.view.render_to_response(context={})
+        geojson = json.loads(smart_text(response.content))
+        self.assertEqual(geojson['features'][0]['geometry']['coordinates'],
+                         [[0.0, 1.0], [10.0, 1.0]])
+
+    def test_view_trims_to_geometries_boundaries(self):
+        self.view.args = [8, 128, 127]
+        response = self.view.render_to_response(context={})
+        geojson = json.loads(smart_text(response.content))
+        self.assertEqual(geojson['features'][0]['geometry']['coordinates'],
+                         [[0.0, 1.0], [1.40625, 1.0]])
+
+    def test_geometries_trim_can_be_disabled(self):
+        self.view.args = [8, 128, 127]
+        self.view.trim_to_boundary = False
+        response = self.view.render_to_response(context={})
+        geojson = json.loads(smart_text(response.content))
+        self.assertEqual(geojson['features'][0]['geometry']['coordinates'],
+                         [[0.0, 1.0], [10.0, 1.0]])
+
+    def test_url_parameters_are_converted_to_int(self):
+        self.view.args = ['0', '0', '0']
+        self.assertEqual(2, len(self.view.get_queryset()))
+
+    def test_zoom_0_queryset_contains_all(self):
+        self.view.args = [0, 0, 0]
+        self.assertEqual(2, len(self.view.get_queryset()))
+
+    def test_zoom_4_filters_by_tile_extent(self):
+        self.view.args = [4, 8, 7]
+        self.assertEqual([self.r1], list(self.view.get_queryset()))
+
+    def test_some_tiles_have_empty_queryset(self):
+        self.view.args = [4, 6, 8]
+        self.assertEqual(0, len(self.view.get_queryset()))
+
+    def test_simplification_depends_on_zoom_level(self):
+        self.view.simplifications = {6: 100}
+        self.view.args = [6, 8, 4]
+        self.view.get_queryset()
+        self.assertEqual(self.view.simplify, 100)
+
+    def test_simplification_is_default_if_not_specified(self):
+        self.view.simplifications = {}
+        self.view.args = [0, 8, 4]
+        self.view.get_queryset()
+        self.assertEqual(self.view.simplify, None)
+
+    def test_simplification_takes_the_closest_upper_level(self):
+        self.view.simplifications = {3: 100, 6: 200}
+        self.view.args = [4, 8, 4]
+        self.view.get_queryset()
+        self.assertEqual(self.view.simplify, 200)
 
 
 class Address(models.Model):

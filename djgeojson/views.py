@@ -1,6 +1,10 @@
+import math
+
 from django.views.generic import ListView
 from django.utils.decorators import method_decorator
 from django.views.decorators.gzip import gzip_page
+from django.contrib.gis.geos.geometry import Polygon
+from django.contrib.gis.db.models import PointField
 
 from .http import HttpJSONResponse
 from .serializers import Serializer as GeoJSONSerializer
@@ -35,6 +39,7 @@ class GeoJSONResponseMixin(object):
         """
         serializer = GeoJSONSerializer()
         response = self.response_class(**response_kwargs)
+        queryset = self.get_queryset()
         options = dict(properties=self.properties,
                        precision=self.precision,
                        simplify=self.simplify,
@@ -43,7 +48,7 @@ class GeoJSONResponseMixin(object):
                        force2d=self.force2d,
                        bbox=self.bbox,
                        bbox_auto=self.bbox_auto)
-        serializer.serialize(self.get_queryset(), stream=response, ensure_ascii=False,
+        serializer.serialize(queryset, stream=response, ensure_ascii=False,
                              **options)
         return response
 
@@ -55,3 +60,58 @@ class GeoJSONLayerView(GeoJSONResponseMixin, ListView):
     @method_decorator(gzip_page)
     def dispatch(self, *args, **kwargs):
         return super(GeoJSONLayerView, self).dispatch(*args, **kwargs)
+
+
+class TiledGeoJSONLayerView(GeoJSONLayerView):
+    width = 256
+    height = 256
+    tile_srid = 3857
+    trim_to_boundary = True
+    """Simplify geometries by zoom level (dict <int:float>)"""
+    simplifications = None
+
+    def tile_coord(self, xtile, ytile, zoom):
+        """
+        This returns the NW-corner of the square. Use the function
+        with xtile+1 and/or ytile+1 to get the other corners.
+        With xtile+0.5 & ytile+0.5 it will return the center of the tile.
+        http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Tile_numbers_to_lon..2Flat._2
+        """
+        assert self.tile_srid == 3857, 'Custom tile projection not supported yet'
+        n = 2.0 ** zoom
+        lon_deg = xtile / n * 360.0 - 180.0
+        lat_rad = math.atan(math.sinh(math.pi * (1 - 2 * ytile / n)))
+        lat_deg = math.degrees(lat_rad)
+        return (lon_deg, lat_deg)
+
+    def get_queryset(self):
+        """
+        Inspired by Glen Roberton's django-geojson-tiles view
+        """
+        self.z, self.x, self.y = map(int, self.args[:3])
+        nw = self.tile_coord(self.x, self.y, self.z)
+        se = self.tile_coord(self.x + 1, self.y + 1, self.z)
+        bbox = Polygon((nw, (se[0], nw[1]),
+                       se, (nw[0], se[1]), nw))
+        qs = super(TiledGeoJSONLayerView, self).get_queryset()
+        qs = qs.filter(**{
+            '%s__intersects' % self.geometry_field: bbox
+        })
+
+        # Simplification dict by zoom level
+        simplifications = self.simplifications or {}
+        z = self.z
+        self.simplify = simplifications.get(z)
+        while self.simplify is None and z < 32:
+            z += 1
+            self.simplify = simplifications.get(z)
+
+        # Won't trim point geometries to a boundary
+        model_field = qs.model._meta.get_field(self.geometry_field)
+        self.trim_to_boundary = (self.trim_to_boundary and
+                                 not isinstance(model_field, PointField))
+        if self.trim_to_boundary:
+            qs = qs.intersection(bbox)
+            self.geometry_field = 'intersection'
+
+        return qs

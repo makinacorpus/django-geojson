@@ -173,7 +173,7 @@ class Serializer(PythonSerializer):
             if simplify is not None:
                 geometry = geometry.simplify(tolerance=simplify, preserve_topology=True)
             # Optional geometry reprojection
-            if self.srid != geometry.srid:
+            if geometry.srid and geometry.srid != self.srid:
                 geometry.transform(self.srid)
             # Optional bbox
             if self.options.get('bbox_auto'):
@@ -264,7 +264,7 @@ class Serializer(PythonSerializer):
             self.handle_field(obj, self.geometry_field)
 
             for field_name in obj:
-                if not field_name in obj:
+                if field_name not in obj:
                     continue
                 if self.properties is None or field_name in self.properties:
                     self.handle_field(obj, field_name)
