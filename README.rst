@@ -111,6 +111,32 @@ Options are :
 * **bbox_auto** : True/False (default false). Will automatically generate a bounding box on a per feature level.
 
 
+
+Tiled GeoJSON layer view
+========================
+
+Vectorial tiles can help display a great number of objects on the map,
+with `reasonnable performance <https://groups.google.com/forum/?fromgroups#!searchin/leaflet-js/GeoJSON$20performance$3F$20River$20vector$20tile$20map./leaflet-js/_WJquNpdmH0/qQsasZpCTPUJ>`_.
+
+::
+
+    # urls.py
+    from djgeojson.views import TiledGeoJSONLayerView
+    ...
+
+    url(r'^data/(?P<z>\d+)/(?P<x>\d+)/(?P<y>\d+).geojson$',
+        TiledGeoJSONLayerView.as_view(model=MushroomSpot), name='data'),
+
+
+Consume the vector tiles using `Leaflet TileLayer GeoJSON <https://github.com/glenrobertson/leaflet-tilelayer-geojson/>`_, `Polymaps <http://polymaps.org/>`_ or `d3.js <http://d3js.org>`_ for example.
+
+Options are :
+ 
+* **trim_to_boundary** : if ``True`` geometries are trimmed to the tile boundary
+* **simplifications** : a dict of simplification values by zoom level
+
+
+
 GeoJSON template filter
 =======================
 
