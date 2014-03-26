@@ -264,7 +264,7 @@ class Serializer(PythonSerializer):
             self.handle_field(obj, self.geometry_field)
 
             for field_name in obj:
-                if not field_name in obj:
+                if field_name not in obj:
                     continue
                 if self.properties is None or field_name in self.properties:
                     self.handle_field(obj, field_name)
