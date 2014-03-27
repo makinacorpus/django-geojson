@@ -97,6 +97,7 @@ class TiledGeoJSONLayerView(GeoJSONLayerView):
         qs = qs.filter(**{
             '%s__intersects' % self.geometry_field: bbox
         })
+        self.bbox = bbox.extent
 
         # Simplification dict by zoom level
         simplifications = self.simplifications or {}

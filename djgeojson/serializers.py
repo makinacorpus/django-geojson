@@ -57,7 +57,7 @@ class Serializer(PythonSerializer):
 
         bbox = self.options.pop('bbox', None)
         if bbox:
-            self.feature_collection["bbox"] = bbox[0][1:]
+            self.feature_collection["bbox"] = bbox
 
         self._current = None
 

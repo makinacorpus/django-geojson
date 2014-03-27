@@ -521,6 +521,13 @@ class TiledGeoJSONViewTest(TestCase):
         self.assertEqual(geojson['features'][0]['geometry']['coordinates'],
                          [[0.0, 1.0], [10.0, 1.0]])
 
+    def test_tile_extent_is_provided_in_collection(self):
+        self.view.args = [8, 128, 127]
+        response = self.view.render_to_response(context={})
+        geojson = json.loads(smart_text(response.content))
+        self.assertEqual(geojson['bbox'],
+                         [0.0, 0.0, 1.40625, 1.4061088354351565])
+
     def test_url_parameters_are_converted_to_int(self):
         self.view.args = ['0', '0', '0']
         self.assertEqual(2, len(self.view.get_queryset()))
