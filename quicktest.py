@@ -3,6 +3,7 @@ import sys
 import argparse
 from django.conf import settings
 
+
 class QuickDjangoTest(object):
     """
     A quick way to run the Django test suite without a fully-configured project.
@@ -11,7 +12,7 @@ class QuickDjangoTest(object):
 
         >>> QuickDjangoTest('app1', 'app2')
 
-    Based on a script published by Lukasz Dziedzia at: 
+    Based on a script published by Lukasz Dziedzia at:
     http://stackoverflow.com/questions/3841725/how-to-launch-tests-for-django-reusable-app
     """
     DIRNAME = os.path.dirname(__file__)

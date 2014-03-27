@@ -24,7 +24,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    classifiers=['Topic :: Utilities', 
+    classifiers=['Topic :: Utilities',
                  'Natural Language :: English',
                  'Operating System :: OS Independent',
                  'Intended Audience :: Developers',
