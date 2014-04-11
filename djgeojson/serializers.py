@@ -151,17 +151,19 @@ class Serializer(PythonSerializer):
         elif isinstance(value, dict) and 'type' in value:
             geometry = value
         else:
-            try:
-                # this will handle GEOSGeometry objects
-                # and string representations (e.g. ewkt, bwkt)
-                geometry = GEOSGeometry(value)
-            except ValueError:
-                # if the geometry couldn't be parsed.
-                # we can't generate valid geojson
-                error_msg = 'The field ["%s", "%s"] could not be parsed as a valid geometry' % (
-                    self.geometry_field, value
-                )
-                raise SerializationError(error_msg)
+            if isinstance(value, GEOSGeometry):
+                geometry = value
+            else:
+                try:
+                    # this will handle string representations (e.g. ewkt, bwkt)
+                    geometry = GEOSGeometry(value)
+                except ValueError:
+                    # if the geometry couldn't be parsed.
+                    # we can't generate valid geojson
+                    error_msg = 'The field ["%s", "%s"] could not be parsed as a valid geometry' % (
+                        self.geometry_field, value
+                    )
+                    raise SerializationError(error_msg)
 
             # Optional force 2D
             if self.options.get('force2d'):
