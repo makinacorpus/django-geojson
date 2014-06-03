@@ -50,6 +50,9 @@ class DjangoGeoJSONEncoder(DjangoJSONEncoder):
 
 
 class Serializer(PythonSerializer):
+
+    internal_use_only = False
+
     def start_serialization(self):
         self.feature_collection = {"type": "FeatureCollection", "features": []}
         if self.crs is not False:

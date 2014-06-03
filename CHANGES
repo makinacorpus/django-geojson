@@ -10,6 +10,7 @@ CHANGELOG
 - Got rid of shapely for deserialization
 - Improved `geojsonfeature` template tag (fixes #15, #16)
 - Add vector tiles view
+- Fix (de)serializers not being usable from command-line (fixes #28)
 
 
 2.4.0 (2014-03-22)
