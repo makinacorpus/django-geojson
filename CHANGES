@@ -11,6 +11,7 @@ CHANGELOG
 - Improved `geojsonfeature` template tag (fixes #15, #16)
 - Add vector tiles view
 - Fix (de)serializers not being usable from command-line (fixes #28)
+- Fix import attempt for *django-leaflet* (fixes #27), by Seyi Ogunyemi
 
 
 2.4.0 (2014-03-22)
