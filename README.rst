@@ -68,7 +68,7 @@ Very useful for web mapping :
     url(r'^data.geojson$', GeoJSONLayerView.as_view(model=MushroomSpot), name='data'),
 
 
-Consume the vector layer as usual, for example, with Leaflet loaded in Ajax:
+Consume the vector layer as usual, for example, with Leaflet loaded with jQuery Ajax:
 
 ::
 
