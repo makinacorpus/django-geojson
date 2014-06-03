@@ -5,13 +5,22 @@ CHANGELOG
 2.4.1 (unreleased)
 ==================
 
-- Specify django-leaflet minimal version for GeoJSON model field
-- Add various GeoJSON fields, for each geometry type
-- Got rid of shapely for deserialization
-- Improved `geojsonfeature` template tag (fixes #15, #16)
+** New features **
+
 - Add vector tiles view
+- Improved `geojsonfeature` template tag (fixes #15, #16)
+- Add various GeoJSON fields, for each geometry type
+
+** Bug fixes **
+
 - Fix (de)serializers not being usable from command-line (fixes #28)
 - Fix import attempt for *django-leaflet* (fixes #27), by Seyi Ogunyemi
+- Fix missed SRID after copying a geometry in ``_handle_geom``, by Biel Frontera
+
+** Internal changes **
+
+- Specify django-leaflet minimal version for GeoJSON model field
+- Got rid of shapely for deserialization
 
 
 2.4.0 (2014-03-22)
