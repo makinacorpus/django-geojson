@@ -257,6 +257,10 @@ class Serializer(PythonSerializer):
                 if self.geometry_field not in objdict:
                     objdict[self.geometry_field] = getattr(obj, self.geometry_field)
                 values.append(objdict)
+            if self.properties:
+                extras = [f for f in self.properties if hasattr(obj, f)]
+                for field_name in extras:
+                    objdict[field_name] = getattr(obj, field_name)
             objects = values
 
         self.serialize_values_queryset(objects)
