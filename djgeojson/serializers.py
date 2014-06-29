@@ -23,9 +23,22 @@ from django.core.serializers.python import (_get_model,
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.serializers.base import SerializationError, DeserializationError
 from django.utils.encoding import smart_text
-from django.contrib.gis.geos import WKBWriter
-from django.contrib.gis.geos.geometry import GEOSGeometry
-from django.contrib.gis.db.models.fields import GeometryField
+
+
+try:
+    from django.contrib.gis.geos import WKBWriter
+except ImportError:
+    from .nogeos import WKBWriter
+
+try:
+    from django.contrib.gis.geos import GEOSGeometry
+except ImportError:
+    from .nogeos import GEOSGeometry
+
+try:
+    from django.contrib.gis.db.models.fields import GeometryField
+except ImportError:
+    from .fields import GeometryField
 
 from . import GEOJSON_DEFAULT_SRID
 from .fields import GeoJSONField

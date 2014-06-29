@@ -4,8 +4,15 @@ import re
 from six import string_types
 
 from django import template
-from django.contrib.gis.geos import GEOSGeometry
-from django.contrib.gis.db.models.fields import GeometryField
+try:
+    from django.contrib.gis.geos import GEOSGeometry
+except ImportError:
+    from ..nogeos import GEOSGeometry
+
+try:
+    from django.contrib.gis.db.models.fields import GeometryField
+except ImportError:
+    from ..fields import GeometryField
 
 from .. import GEOJSON_DEFAULT_SRID
 from ..serializers import Serializer, DjangoGeoJSONEncoder
