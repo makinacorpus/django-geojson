@@ -261,6 +261,7 @@ AUTHORS
     * Glen Robertson author of django-geojson-tiles at: https://github.com/glenrobertson/django-geojson-tiles/
     * @jeffkistler's author of geojson serializer at: https://gist.github.com/967274
     * Ben Welsh and Lukasz Dziedzia for `quick test script <http://datadesk.latimes.com/posts/2012/06/test-your-django-app-with-travisci/>`_
+    * Florent Lebreton http://github.com/fle
 
 Version 1.X:
 
