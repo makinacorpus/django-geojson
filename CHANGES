@@ -5,7 +5,10 @@ CHANGELOG
 2.5.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+** New features **
+
+- Django GeoJSON fields without libgeos installed (thanks Florent Lebreton)
+- Properties can be a tuple (fixes #34)
 
 
 2.5.0 (2014-06-03)

@@ -113,7 +113,7 @@ class Serializer(PythonSerializer):
         if isinstance(self.properties, dict):
             extras = [field for field, name in self.properties.items()
                       if name not in self._current['properties']]
-        elif isinstance(self.properties, list):
+        elif isinstance(self.properties, (list, tuple)):
             extras = [field for field in self.properties
                       if field not in self._current['properties']]
 
