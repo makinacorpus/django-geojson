@@ -16,6 +16,7 @@ from six import string_types, iteritems
 
 from django.db.models.base import Model
 from django.db.models.query import QuerySet, ValuesQuerySet
+from django.db.models.query import RawQuerySet
 from django.forms.models import model_to_dict
 from django.core.serializers.python import (_get_model,
                                             Serializer as PythonSerializer,
@@ -122,7 +123,7 @@ class Serializer(PythonSerializer):
                 self.handle_field(obj, field)
 
         # Add extra-info for deserializing
-        if hasattr(obj, '_meta'):
+        if hasattr(obj, '_meta') and self.deserializing_extra:
             self._current['properties']['model'] = smart_text(obj._meta)
 
         # If geometry not in model fields, may be a dynamic attribute
@@ -148,6 +149,7 @@ class Serializer(PythonSerializer):
         self.options.pop('simplify', None)
         self.options.pop('bbox', None)
         self.options.pop('bbox_auto', None)
+        self.options.pop('deserializing_extra', None)
 
         # Optional float precision control
         precision = self.options.pop('precision', None)
@@ -354,6 +356,7 @@ class Serializer(PythonSerializer):
         self.bbox_auto = options.get("bbox_auto", None)
         self.srid = options.get("srid", GEOJSON_DEFAULT_SRID)
         self.crs = options.get("crs", True)
+        self.deserializing_extra = options.get("deserializing_extra", True)
 
         self.start_serialization()
 
@@ -364,6 +367,12 @@ class Serializer(PythonSerializer):
             self.serialize_object_list(queryset)
 
         elif isinstance(queryset, QuerySet):
+            self.serialize_queryset(queryset)
+
+        # a geometry field, "geom" could be retrieve with AsText(geom)
+        # for example
+        elif isinstance(queryset, RawQuerySet) and \
+            self.properties is not None :
             self.serialize_queryset(queryset)
 
         self.end_serialization()
