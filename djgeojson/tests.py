@@ -146,6 +146,23 @@ class GeoJsonSerializerTest(TestCase):
         self.assertEqual(actual_geojson_with_prop,
                          {"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"picture": "image.png", "model": "djgeojson.route", "upper_name": "GREEN", "name": "green"}, "id": route1.pk}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"picture": "image.png", "model": "djgeojson.route", "upper_name": "BLUE", "name": "blue"}, "id": route2.pk}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"picture": "image.png", "model": "djgeojson.route", "upper_name": "RED", "name": "red"}, "id": route3.pk}]})
 
+    def test_basic_raw_query_set(self):
+        # Stuff to serialize
+        route1 = Route.objects.create(
+            name='green', geom="LINESTRING (0 0, 1 1)")
+        route2 = Route.objects.create(
+            name='blue', geom="LINESTRING (0 0, 1 1)")
+        route3 = Route.objects.create(name='red', geom="LINESTRING (0 0, 1 1)")
+
+        actual_geojson = json.loads(serializers.serialize(
+            'geojson',
+            Route.objects.raw('select id, name, AsText(geom) from djgeojson_route'),
+            deserializing_extra=False,
+            properties=['name']))
+        self.assertEqual(
+            actual_geojson,
+            {"crs": {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}}, "type": "FeatureCollection", "features": [{"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"name": "green"}, "id": route1.pk}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"name": "blue"}, "id": route2.pk}, {"geometry": {"type": "LineString", "coordinates": [[0.0, 0.0], [1.0, 1.0]]}, "type": "Feature", "properties": {"name": "red"}, "id": route3.pk}]})
+
     def test_precision(self):
         serializer = Serializer()
         features = json.loads(serializer.serialize(
