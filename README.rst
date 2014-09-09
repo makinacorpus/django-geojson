@@ -96,7 +96,7 @@ Inherit generic views **only** if you need a reusable set of options :
     # urls.py
     from .views import MapLayer, MeetingLayer
     ...
-    url(r'^mushrooms.geojson$', MapLayer.as_view(model=MushroomSpot, fields=('name',)), name='mushrooms')
+    url(r'^mushrooms.geojson$', MapLayer.as_view(model=MushroomSpot, properties=('name',)), name='mushrooms')
 
 Most common use-cases of reusable options are: low-fi precision, common list of fields between several views, etc.
 
