@@ -630,6 +630,29 @@ class ModelFieldTest(TestCase):
         self.assertEqual(objects[0].object.geom,
                          {'type': 'Point', 'coordinates': [0, 0]})
 
+    def test_model_can_be_omitted(self):
+        serializer = Serializer()
+        geojson = serializer.serialize(Address.objects.all(),
+                                       with_modelname=False)
+        features = json.loads(geojson)
+        self.assertEqual(
+            features, {
+                "crs": {
+                    "type": "link",
+                    "properties": {
+                        "href": "http://spatialreference.org/ref/epsg/4326/",
+                        "type": "proj4"
+                    }
+                },
+                u'type': u'FeatureCollection',
+                u'features': [{
+                    u'id': self.address.id,
+                    u'type': u'Feature',
+                    u'geometry': {u'type': u'Point', u'coordinates': [0, 0]},
+                    u'properties': {}
+                }]
+            })
+
 
 class GeoJSONValidatorTest(TestCase):
     def test_validator_raises_if_missing_type(self):
