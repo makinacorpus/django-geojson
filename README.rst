@@ -208,7 +208,7 @@ Low-level serializer
 
     from djgeojson.serializers import Serializer as GeoJSONSerializer
 
-    GeoJSONSerializer().serialize(Restaurants.objects.all(), use_natural_keys=True)
+    GeoJSONSerializer().serialize(Restaurants.objects.all(), use_natural_keys=True, with_modelname=False)
 
 
 

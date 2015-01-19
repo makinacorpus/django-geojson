@@ -122,7 +122,8 @@ class Serializer(PythonSerializer):
                 self.handle_field(obj, field)
 
         # Add extra-info for deserializing
-        if hasattr(obj, '_meta'):
+        with_modelname = self.options.pop('with_modelname', True)
+        if hasattr(obj, '_meta') and with_modelname:
             self._current['properties']['model'] = smart_text(obj._meta)
 
         # If geometry not in model fields, may be a dynamic attribute
@@ -148,6 +149,7 @@ class Serializer(PythonSerializer):
         self.options.pop('simplify', None)
         self.options.pop('bbox', None)
         self.options.pop('bbox_auto', None)
+        self.options.pop('with_modelname', None)
 
         # Optional float precision control
         precision = self.options.pop('precision', None)
