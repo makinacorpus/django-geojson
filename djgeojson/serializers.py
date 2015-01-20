@@ -79,10 +79,16 @@ class Serializer(PythonSerializer):
 
     def get_crs(self):
         crs = {}
-        crs["type"] = "link"
+        type = self.options.pop('crs_type', None)
         properties = {}
-        properties["href"] = "http://spatialreference.org/ref/epsg/%s/" % (str(self.srid))
-        properties["type"] = "proj4"
+        if type == "name":
+            # todo: GeoJSON Spec: OGC CRS URNs such as "urn:ogc:def:crs:OGC:1.3:CRS84" shall be preferred over legacy identifiers such as "EPSG:4326":
+            properties["name"] = "EPSG:%s" % (str(self.srid))
+        else:  # preserve default behaviour
+            type = "link"
+            properties["href"] = "http://spatialreference.org/ref/epsg/%s/" % (str(self.srid))
+            properties["type"] = "proj4"
+        crs["type"] = type
         crs["properties"] = properties
         return crs
 
