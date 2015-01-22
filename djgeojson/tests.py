@@ -171,16 +171,15 @@ class GeoJsonSerializerTest(TestCase):
     def test_named_crs(self):
         serializer = Serializer()
         features = json.loads(serializer.serialize(
-            [{'geom': 'SRID=4326;POINT Z (1 2)'}],
+            [{'geom': 'SRID=4326;POINT (1 2)'}],
             crs_type="name"))
         self.assertEqual(
             features['crs'], {"type": "name", "properties": {"name": "EPSG:4326"}})
 
-    # todo: should misspelled name raise error instead?
     def test_misspelled_named_crs(self):
         serializer = Serializer()
         features = json.loads(serializer.serialize(
-            [{'geom': 'SRID=4326;POINT Z (1 2)'}],
+            [{'geom': 'SRID=4326;POINT (1 2)'}],
             crs_type="named"))
         self.assertEqual(
             features['crs'], {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}})
