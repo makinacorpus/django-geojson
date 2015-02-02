@@ -1,6 +1,6 @@
 import json
 
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.conf import settings
 from django.core import serializers
 from django.core.exceptions import ValidationError
@@ -451,7 +451,6 @@ class GeoJsonTemplateTagTest(TestCase):
     def test_geom_field_raises_attributeerror_if_unknown(self):
         self.assertRaises(AttributeError, geojsonfeature, self.route1, ":geo")
 
-
 class ViewsTest(TestCase):
 
     def setUp(self):
@@ -498,6 +497,18 @@ class TiledGeoJSONViewTest(TestCase):
         self.view = TiledGeoJSONLayerView(model=Route)
         self.r1 = Route.objects.create(geom=LineString((0, 1), (10, 1)))
         self.r2 = Route.objects.create(geom=LineString((0, -1), (-10, -1)))
+
+    def test_view_with_kwargs(self):
+
+        """Testing on issue #42"""
+
+        self.view.kwargs = {'z': 4,
+                            'x': 8,
+                            'y': 7}
+        response = self.view.render_to_response(context={})
+        geojson = json.loads(smart_text(response.content))
+        self.assertEqual(geojson['features'][0]['geometry']['coordinates'], [[0.0, 1.0], [10.0, 1.0]])
+
 
     def test_view_is_serialized_as_geojson(self):
         self.view.args = [4, 8, 7]
