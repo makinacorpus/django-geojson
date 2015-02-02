@@ -44,7 +44,14 @@ class QuickDjangoTest(object):
             },
             INSTALLED_APPS=self.INSTALLED_APPS + self.apps,
         )
+
         from django.test.simple import DjangoTestSuiteRunner
+
+        import django
+
+        if hasattr(django, "setup"):
+            django.setup()
+
         failures = DjangoTestSuiteRunner().run_tests(self.apps, verbosity=1)
         if failures:  # pragma: no cover
             sys.exit(failures)
