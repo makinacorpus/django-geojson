@@ -15,7 +15,8 @@ import logging
 from six import string_types, iteritems
 
 from django.db.models.base import Model
-from django.db.models.query import QuerySet, ValuesQuerySet
+from django.db.models.query import QuerySet
+from django.db.models.query import RawQuerySet
 from django.forms.models import model_to_dict
 from django.core.serializers.python import (_get_model,
                                             Serializer as PythonSerializer,
@@ -149,7 +150,11 @@ class Serializer(PythonSerializer):
         self.options.pop('simplify', None)
         self.options.pop('bbox', None)
         self.options.pop('bbox_auto', None)
+<<<<<<< HEAD
         self.options.pop('with_modelname', None)
+=======
+        self.options.pop('deserializing_extra', None)
+>>>>>>> 012d985bb15c3439f61f2fddf67bbd17086462f3
 
         # Optional float precision control
         precision = self.options.pop('precision', None)
@@ -356,16 +361,20 @@ class Serializer(PythonSerializer):
         self.bbox_auto = options.get("bbox_auto", None)
         self.srid = options.get("srid", GEOJSON_DEFAULT_SRID)
         self.crs = options.get("crs", True)
+        self.deserializing_extra = options.get("deserializing_extra", True)
 
         self.start_serialization()
 
-        if isinstance(queryset, ValuesQuerySet):
-            self.serialize_values_queryset(queryset)
-
-        elif isinstance(queryset, list):
+        if isinstance(queryset, list):
             self.serialize_object_list(queryset)
 
         elif isinstance(queryset, QuerySet):
+            self.serialize_queryset(queryset)
+
+        # a geometry field, "geom" could be retrieve with AsText(geom)
+        # for example
+        elif isinstance(queryset, RawQuerySet) and \
+            self.properties is not None :
             self.serialize_queryset(queryset)
 
         self.end_serialization()
