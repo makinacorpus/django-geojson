@@ -150,11 +150,7 @@ class Serializer(PythonSerializer):
         self.options.pop('simplify', None)
         self.options.pop('bbox', None)
         self.options.pop('bbox_auto', None)
-<<<<<<< HEAD
         self.options.pop('with_modelname', None)
-=======
-        self.options.pop('deserializing_extra', None)
->>>>>>> 012d985bb15c3439f61f2fddf67bbd17086462f3
 
         # Optional float precision control
         precision = self.options.pop('precision', None)
