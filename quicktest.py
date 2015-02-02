@@ -1,6 +1,7 @@
 import os
 import sys
 import argparse
+import django
 from django.conf import settings
 
 
@@ -45,14 +46,16 @@ class QuickDjangoTest(object):
             INSTALLED_APPS=self.INSTALLED_APPS + self.apps,
         )
 
-        from django.test.simple import DjangoTestSuiteRunner
-
-        import django
-
-        if hasattr(django, "setup"):
+        if django.VERSION >= (1, 7, 0):
+            # see: https://docs.djangoproject.com/en/dev/releases/1.7/#standalone-scripts
             django.setup()
+        if django.VERSION >= (1, 6, 0):
+            # see: https://docs.djangoproject.com/en/dev/releases/1.6/#discovery-of-tests-in-any-test-module
+            from django.test.runner import DiscoverRunner as Runner
+        else:
+            from django.test.simple import DjangoTestSuiteRunner as Runner
 
-        failures = DjangoTestSuiteRunner().run_tests(self.apps, verbosity=1)
+        failures = Runner().run_tests(self.apps, verbosity=1)
         if failures:  # pragma: no cover
             sys.exit(failures)
 
