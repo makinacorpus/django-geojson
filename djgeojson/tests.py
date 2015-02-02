@@ -451,6 +451,7 @@ class GeoJsonTemplateTagTest(TestCase):
     def test_geom_field_raises_attributeerror_if_unknown(self):
         self.assertRaises(AttributeError, geojsonfeature, self.route1, ":geo")
 
+
 class ViewsTest(TestCase):
 
     def setUp(self):
