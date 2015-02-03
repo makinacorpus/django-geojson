@@ -92,18 +92,27 @@ class TiledGeoJSONLayerView(GeoJSONLayerView):
             self.z, self.x, self.y = map(int, self.args[:3])
         except AttributeError:
             # let's try to get these as kwargs
-            self.z = self.kwargs.get("z", None)
-            self.x = self.kwargs.get("x", None)
-            self.y = self.kwargs.get("y", None)
 
-            if not self.z:
-                raise ValueError("View parameter Z not provided in URL.")
+            self.z = self.kwargs.get('z', None)
+            self.x = self.kwargs.get('x', None)
+            self.y = self.kwargs.get('y', None)
 
-            if not self.x:
-                raise ValueError("View parameter X not provided in URL.")
+            if self.z is None:
+                raise ValueError('View parameter Z not provided in URL.')
 
-            if not self.y:
-                raise ValueError("View parameter Y not provided in URL.")
+            if self.x is None:
+                raise ValueError('View parameter X not provided in URL.')
+
+            if self.y is None:
+                raise ValueError('View parameter Y not provided in URL.')
+
+            try:
+                self.z = int(self.z)
+                self.x = int(self.x)
+                self.y = int(self.y)
+            except ValueError:
+                # should we just reraise this?
+                raise ValueError('The values for view parameters Z, X or Y are not valid integers.')
 
         nw = self.tile_coord(self.x, self.y, self.z)
         se = self.tile_coord(self.x + 1, self.y + 1, self.z)
