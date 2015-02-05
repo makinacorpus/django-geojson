@@ -1,4 +1,5 @@
 import json
+from django.http import HttpResponseBadRequest
 
 from django.test import TestCase
 from django.conf import settings
@@ -511,40 +512,51 @@ class TiledGeoJSONViewTest(TestCase):
         self.view.kwargs = {'z': 'a',
                             'x': 8,
                             'y': 7}
-
-        self.assertRaises(ValueError, self.view.render_to_response, **{'context': {}})
+        response = self.view.render_to_response(context={})
+        self.assertTrue(type(response) is HttpResponseBadRequest)
+        self.assertTrue(response.content == u"View parameters could not be processed.")
 
     def test_view_with_kwargs_wrong_type_x(self):
         self.view.kwargs = {'z': 1,
                             'x': 'a',
                             'y': 7}
 
-        self.assertRaises(ValueError, self.view.render_to_response, **{'context': {}})
+        response = self.view.render_to_response(context={})
+        self.assertTrue(type(response) is HttpResponseBadRequest)
+        self.assertTrue(response.content == u"View parameters could not be processed.")
 
     def test_view_with_kwargs_wrong_type_y(self):
         self.view.kwargs = {'z': 4,
                             'x': 8,
                             'y': 'a'}
 
-        self.assertRaises(ValueError, self.view.render_to_response, **{'context': {}})
+        response = self.view.render_to_response(context={})
+        self.assertTrue(type(response) is HttpResponseBadRequest)
+        self.assertTrue(response.content == u"View parameters could not be processed.")
 
     def test_view_with_kwargs_no_z(self):
         self.view.kwargs = {'x': 8,
                             'y': 7}
 
-        self.assertRaises(ValueError, self.view.render_to_response, **{'context': {}})
+        response = self.view.render_to_response(context={})
+        self.assertTrue(type(response) is HttpResponseBadRequest)
+        self.assertTrue(response.content == u"View parameters could not be processed.")
 
     def test_view_with_kwargs_no_x(self):
         self.view.kwargs = {'z': 8,
                             'y': 7}
 
-        self.assertRaises(ValueError, self.view.render_to_response, **{'context': {}})
+        response = self.view.render_to_response(context={})
+        self.assertTrue(type(response) is HttpResponseBadRequest)
+        self.assertTrue(response.content == u"View parameters could not be processed.")
 
     def test_view_with_kwargs_no_y(self):
         self.view.kwargs = {'x': 8,
                             'z': 7}
 
-        self.assertRaises(ValueError, self.view.render_to_response, **{'context': {}})
+        response = self.view.render_to_response(context={})
+        self.assertTrue(type(response) is HttpResponseBadRequest)
+        self.assertTrue(response.content == u"View parameters could not be processed.")
 
     def test_view_is_serialized_as_geojson(self):
         self.view.args = [4, 8, 7]

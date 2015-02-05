@@ -41,6 +41,10 @@ class GeoJSONResponseMixin(object):
         serializer = GeoJSONSerializer()
         response = self.response_class(**response_kwargs)
         queryset = self.get_queryset()
+
+        if type(queryset) is HttpResponseBadRequest:
+            return queryset
+
         options = dict(properties=self.properties,
                        precision=self.precision,
                        simplify=self.simplify,
@@ -95,10 +99,11 @@ class TiledGeoJSONLayerView(GeoJSONLayerView):
             # let's try to get these as kwargs
 
             try:
-                self.z = int(self.kwargs.get('z'))
-                self.x = int(self.kwargs.get('x'))
-                self.y = int(self.kwargs.get('y'))
-            except (ValueError, TypeError):
+
+                self.z = int(self.kwargs['z'])
+                self.x = int(self.kwargs['x'])
+                self.y = int(self.kwargs['y'])
+            except (ValueError, TypeError, KeyError):
                 return HttpResponseBadRequest(u"View parameters could not be processed.")
 
         nw = self.tile_coord(self.x, self.y, self.z)
