@@ -1,4 +1,5 @@
 import math
+from django.http import HttpResponseBadRequest
 
 from django.views.generic import ListView
 from django.utils.decorators import method_decorator
@@ -93,26 +94,12 @@ class TiledGeoJSONLayerView(GeoJSONLayerView):
         except AttributeError:
             # let's try to get these as kwargs
 
-            self.z = self.kwargs.get('z', None)
-            self.x = self.kwargs.get('x', None)
-            self.y = self.kwargs.get('y', None)
-
-            if self.z is None:
-                raise ValueError('View parameter Z not provided in URL.')
-
-            if self.x is None:
-                raise ValueError('View parameter X not provided in URL.')
-
-            if self.y is None:
-                raise ValueError('View parameter Y not provided in URL.')
-
             try:
-                self.z = int(self.z)
-                self.x = int(self.x)
-                self.y = int(self.y)
-            except ValueError:
-                # should we just reraise this?
-                raise ValueError('The values for view parameters Z, X or Y are not valid integers.')
+                self.z = int(self.kwargs.get('z'))
+                self.x = int(self.kwargs.get('x'))
+                self.y = int(self.kwargs.get('y'))
+            except (ValueError, TypeError):
+                return HttpResponseBadRequest(u"View parameters could not be processed. Check your URLconf.")
 
         nw = self.tile_coord(self.x, self.y, self.z)
         se = self.tile_coord(self.x + 1, self.y + 1, self.z)
