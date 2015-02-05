@@ -99,7 +99,7 @@ class TiledGeoJSONLayerView(GeoJSONLayerView):
                 self.x = int(self.kwargs.get('x'))
                 self.y = int(self.kwargs.get('y'))
             except (ValueError, TypeError):
-                return HttpResponseBadRequest(u"View parameters could not be processed. Check your URLconf.")
+                return HttpResponseBadRequest(u"View parameters could not be processed.")
 
         nw = self.tile_coord(self.x, self.y, self.z)
         se = self.tile_coord(self.x + 1, self.y + 1, self.z)
