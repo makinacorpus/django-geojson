@@ -3,7 +3,7 @@
     This code mainly comes from @glenrobertson's django-geoson-tiles at:
     https://github.com/glenrobertson/django-geojson-tiles/
 
-    Itself, adapted from @jeffkistler's geojson serializer at: https://gist.github.com/967274
+    Itself, adapted from @jeffkistler's geojson serializer at: https://gist.github.com/967274  # NOQA
 """
 try:
     from cStringIO import StringIO
@@ -22,7 +22,8 @@ from django.core.serializers.python import (_get_model,
                                             Serializer as PythonSerializer,
                                             Deserializer as PythonDeserializer)
 from django.core.serializers.json import DjangoJSONEncoder
-from django.core.serializers.base import SerializationError, DeserializationError
+from django.core.serializers.base import SerializationError
+from django.core.serializers.base import DeserializationError
 from django.utils.encoding import smart_text
 
 
@@ -68,7 +69,12 @@ class Serializer(PythonSerializer):
     internal_use_only = False
 
     def start_serialization(self):
-        self.feature_collection = {"type": "FeatureCollection", "features": []}
+        self.feature_collection = {
+            "total": "",
+            "page": "",
+            "perPage": "",
+            "type": "FeatureCollection",
+            "features": []}
         if self.crs is not False:
             self.feature_collection["crs"] = self.get_crs()
 
@@ -82,7 +88,7 @@ class Serializer(PythonSerializer):
         crs = {}
         crs["type"] = "link"
         properties = {}
-        properties["href"] = "http://spatialreference.org/ref/epsg/%s/" % (str(self.srid))
+        properties["href"] = "http://spatialreference.org/ref/epsg/%s/" % (str(self.srid))  # NOQA
         properties["type"] = "proj4"
         crs["properties"] = properties
         return crs
@@ -159,7 +165,9 @@ class Serializer(PythonSerializer):
             # Monkey patch for float precision!
             json.encoder.FLOAT_REPR = lambda o: format(o, '.%sf' % precision)
 
-        json.dump(self.feature_collection, self.stream, cls=DjangoGeoJSONEncoder, **self.options)
+        json.dump(
+            self.feature_collection,
+            self.stream, cls=DjangoGeoJSONEncoder, **self.options)
 
         json.encoder.FLOAT_REPR = floatrepr  # Restore
 
@@ -179,7 +187,7 @@ class Serializer(PythonSerializer):
                 except ValueError:
                     # if the geometry couldn't be parsed.
                     # we can't generate valid geojson
-                    error_msg = 'The field ["%s", "%s"] could not be parsed as a valid geometry' % (
+                    error_msg = 'The field ["%s", "%s"] could not be parsed as a valid geometry' % (  # NOQA
                         self.geometry_field, value
                     )
                     raise SerializationError(error_msg)
@@ -188,11 +196,14 @@ class Serializer(PythonSerializer):
             if self.options.get('force2d'):
                 wkb_w = WKBWriter()
                 wkb_w.outdim = 2
-                geometry = GEOSGeometry(wkb_w.write(geometry), srid=geometry.srid)
+                geometry = GEOSGeometry(
+                    wkb_w.write(geometry),
+                    srid=geometry.srid)
             # Optional geometry simplification
             simplify = self.options.get('simplify')
             if simplify is not None:
-                geometry = geometry.simplify(tolerance=simplify, preserve_topology=True)
+                geometry = geometry.simplify(
+                    tolerance=simplify, preserve_topology=True)
             # Optional geometry reprojection
             if geometry.srid and geometry.srid != self.srid:
                 geometry.transform(self.srid)
@@ -240,7 +251,9 @@ class Serializer(PythonSerializer):
                     related = related._get_pk_val()
                 else:
                     # Related to remote object via other field
-                    related = smart_text(getattr(related, field.rel.field_name), strings_only=True)
+                    related = smart_text(
+                        getattr(related, field.rel.field_name),
+                        strings_only=True)
         self._current['properties'][field.name] = related
 
     def handle_m2m_field(self, obj, field):
@@ -248,16 +261,18 @@ class Serializer(PythonSerializer):
             if self.use_natural_keys and hasattr(field.rel.to, 'natural_key'):
                 m2m_value = lambda value: value.natural_key()
             else:
-                m2m_value = lambda value: smart_text(value._get_pk_val(), strings_only=True)
-            self._current['properties'][field.name] = [m2m_value(related)
-                                                       for related in getattr(obj, field.name).iterator()]
+                m2m_value = lambda value: smart_text(
+                    value._get_pk_val(), strings_only=True)
+            self._current['properties'][field.name] = [
+                m2m_value(related) for related in getattr(
+                    obj, field.name).iterator()]
 
     def handle_reverse_field(self, obj, field, field_name):
         if self.use_natural_keys and hasattr(field.model, 'natural_key'):
             reverse_value = lambda value: value.natural_key()
         else:
-            reverse_value = lambda value: smart_text(value._get_pk_val(), strings_only=True)
-        values = [reverse_value(related) for related in getattr(obj, field_name).iterator()]
+            reverse_value = lambda value: smart_text(value._get_pk_val(), strings_only=True)  # NOQA
+        values = [reverse_value(related) for related in getattr(obj, field_name).iterator()]  # NOQA
         self._current['properties'][field_name] = values
 
     def serialize_object_list(self, objects):
@@ -271,7 +286,7 @@ class Serializer(PythonSerializer):
                 objdict = model_to_dict(obj)
                 # In case geometry is not a DB field
                 if self.geometry_field not in objdict:
-                    objdict[self.geometry_field] = getattr(obj, self.geometry_field)
+                    objdict[self.geometry_field] = getattr(obj, self.geometry_field)  # NOQA
                 values.append(objdict)
             if self.properties:
                 extras = [f for f in self.properties if hasattr(obj, f)]
@@ -301,7 +316,7 @@ class Serializer(PythonSerializer):
         local_fields = opts.local_fields
         many_to_many_fields = opts.many_to_many
         reversed_fields = [obj.field for obj in opts.get_all_related_objects()]
-        reversed_fields += [obj.field for obj in opts.get_all_related_many_to_many_objects()]
+        reversed_fields += [obj.field for obj in opts.get_all_related_many_to_many_objects()]  # NOQA
 
         # populate each queryset obj as a feature
         for obj in queryset:
@@ -316,7 +331,7 @@ class Serializer(PythonSerializer):
                 # as it is in the id of the feature
                 # except if explicitly listed in properties
                 if field.name == opts.pk.name and \
-                        (self.properties is None or 'id' not in self.properties):
+                        (self.properties is None or 'id' not in self.properties):  # NOQA
                     continue
                 # ignore other geometries
                 if isinstance(field, GeometryField):
@@ -324,21 +339,21 @@ class Serializer(PythonSerializer):
 
                 if field.serialize or field.primary_key:
                     if field.rel is None:
-                        if self.properties is None or field.attname in self.properties:
+                        if self.properties is None or field.attname in self.properties:  # NOQA
                             self.handle_field(obj, field.name)
                     else:
-                        if self.properties is None or field.attname[:-3] in self.properties:
+                        if self.properties is None or field.attname[:-3] in self.properties:  # NOQA
                             self.handle_fk_field(obj, field)
 
             for field in many_to_many_fields:
                 if field.serialize:
-                    if self.properties is None or field.attname in self.properties:
+                    if self.properties is None or field.attname in self.properties:  # NOQA
                         self.handle_m2m_field(obj, field)
 
             for field in reversed_fields:
                 if field.serialize:
-                    field_name = field.rel.related_name or opts.object_name.lower()
-                    if self.properties is None or field_name in self.properties:
+                    field_name = field.rel.related_name or opts.object_name.lower()  # NOQA
+                    if self.properties is None or field_name in self.properties:  # NOQA
                         self.handle_reverse_field(obj, field, field_name)
             self.end_object(obj)
 
@@ -369,8 +384,7 @@ class Serializer(PythonSerializer):
 
         # a geometry field, "geom" could be retrieve with AsText(geom)
         # for example
-        elif isinstance(queryset, RawQuerySet) and \
-            self.properties is not None :
+        elif isinstance(queryset, RawQuerySet) and self.properties is not None:
             self.serialize_queryset(queryset)
 
         self.end_serialization()
