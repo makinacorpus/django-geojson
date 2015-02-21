@@ -245,17 +245,21 @@ class Serializer(PythonSerializer):
     def handle_m2m_field(self, obj, field):
         if field.rel.through._meta.auto_created:
             if self.use_natural_keys and hasattr(field.rel.to, 'natural_key'):
-                m2m_value = lambda value: value.natural_key()
+                def m2m_value(value):
+                    return value.natural_key()
             else:
-                m2m_value = lambda value: smart_text(value._get_pk_val(), strings_only=True)
+                def m2m_value(value):
+                    return smart_text(value._get_pk_val(), strings_only=True)
             self._current['properties'][field.name] = [m2m_value(related)
                                                        for related in getattr(obj, field.name).iterator()]
 
     def handle_reverse_field(self, obj, field, field_name):
         if self.use_natural_keys and hasattr(field.model, 'natural_key'):
-            reverse_value = lambda value: value.natural_key()
+            def reverse_value(value):
+                return value.natural_key()
         else:
-            reverse_value = lambda value: smart_text(value._get_pk_val(), strings_only=True)
+            def reverse_value(value):
+                return smart_text(value._get_pk_val(), strings_only=True)
         values = [reverse_value(related) for related in getattr(obj, field_name).iterator()]
         self._current['properties'][field_name] = values
 
