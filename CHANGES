@@ -2,10 +2,17 @@
 CHANGELOG
 =========
 
-Y (unreleased)
-==============
+2.7.0 (2015-02-21)
+==================
 
-- Nothing changed yet.
+** New features **
+
+- Add a with_modelname option to serializer
+
+** Bug fixes **
+
+- change 'fields' to 'properties' in code example
+- Adds a warning for "Module version, as defined in PEP-0396
 
 
 2.6.0 (2014-07-21)
