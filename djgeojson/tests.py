@@ -168,6 +168,22 @@ class GeoJsonSerializerTest(TestCase):
         self.assertEqual(
             features2d, {"type": "FeatureCollection", "features": [{"geometry": {"type": "Point", "coordinates": [1.0, 2.0]}, "type": "Feature", "properties": {}}]})
 
+    def test_named_crs(self):
+        serializer = Serializer()
+        features = json.loads(serializer.serialize(
+            [{'geom': 'SRID=4326;POINT (1 2)'}],
+            crs_type="name"))
+        self.assertEqual(
+            features['crs'], {"type": "name", "properties": {"name": "EPSG:4326"}})
+
+    def test_misspelled_named_crs(self):
+        serializer = Serializer()
+        features = json.loads(serializer.serialize(
+            [{'geom': 'SRID=4326;POINT (1 2)'}],
+            crs_type="named"))
+        self.assertEqual(
+            features['crs'], {"type": "link", "properties": {"href": "http://spatialreference.org/ref/epsg/4326/", "type": "proj4"}})
+
     def test_pk_property(self):
         route = Route.objects.create(name='red', geom="LINESTRING (0 0, 1 1)")
         serializer = Serializer()
