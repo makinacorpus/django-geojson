@@ -42,9 +42,6 @@ class GeoJSONResponseMixin(object):
         response = self.response_class(**response_kwargs)
         queryset = self.get_queryset()
 
-        if type(queryset) is HttpResponseBadRequest:
-            return queryset
-
         options = dict(properties=self.properties,
                        precision=self.precision,
                        simplify=self.simplify,
@@ -89,22 +86,33 @@ class TiledGeoJSONLayerView(GeoJSONLayerView):
         lat_deg = math.degrees(lat_rad)
         return (lon_deg, lat_deg)
 
+    def get(self, request, *args, **kwargs):
+
+        """Overriding get method for processing of args and kwargs"""
+
+        try:
+
+            self.z, self.x, self.y = map(int, args[:3])
+
+        except AttributeError:
+            # any other exceptions we should trap here?
+
+            try:
+
+                self.z = int(kwargs['z'])
+                self.x = int(kwargs['x'])
+                self.y = int(kwargs['y'])
+
+            except (ValueError, TypeError, KeyError):
+
+                return HttpResponseBadRequest(u"View parameters could not be processed.")
+
+        return super(TiledGeoJSONLayerView, self).get(self, request, *args, **kwargs)
+
     def get_queryset(self):
         """
         Inspired by Glen Roberton's django-geojson-tiles view
         """
-        try:
-            self.z, self.x, self.y = map(int, self.args[:3])
-        except AttributeError:
-            # let's try to get these as kwargs
-
-            try:
-
-                self.z = int(self.kwargs['z'])
-                self.x = int(self.kwargs['x'])
-                self.y = int(self.kwargs['y'])
-            except (ValueError, TypeError, KeyError):
-                return HttpResponseBadRequest(u"View parameters could not be processed.")
 
         nw = self.tile_coord(self.x, self.y, self.z)
         se = self.tile_coord(self.x + 1, self.y + 1, self.z)
