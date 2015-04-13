@@ -485,9 +485,9 @@ class ViewsTest(TestCase):
                          [[0.0, 0.0], [1.0, 1.0]])
 
     def test_view_can_control_properties(self):
-        klass = type('FullGeoJSON', (GeoJSONLayerView,),
-                     {'properties': ['name']})
-        view = klass(model=Route)
+        class FullGeoJSON(GeoJSONLayerView):
+            properties = ['name']
+        view = FullGeoJSON(model=Route)
         view.object_list = []
         response = view.render_to_response(context={})
         geojson = json.loads(smart_text(response.content))
