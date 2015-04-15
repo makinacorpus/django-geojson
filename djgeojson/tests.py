@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import json
 
 from django.test import TestCase
@@ -483,9 +485,9 @@ class ViewsTest(TestCase):
                          [[0.0, 0.0], [1.0, 1.0]])
 
     def test_view_can_control_properties(self):
-        klass = type('FullGeoJSON', (GeoJSONLayerView,),
-                     {'properties': ['name']})
-        view = klass(model=Route)
+        class FullGeoJSON(GeoJSONLayerView):
+            properties = ['name']
+        view = FullGeoJSON(model=Route)
         view.object_list = []
         response = view.render_to_response(context={})
         geojson = json.loads(smart_text(response.content))
@@ -618,13 +620,13 @@ class ModelFieldTest(TestCase):
         features = json.loads(geojson)
         self.assertEqual(
             features, {
-                u'type': u'FeatureCollection',
-                u'features': [{
-                    u'id': self.address.id,
-                    u'type': u'Feature',
-                    u'geometry': {u'type': u'Point', u'coordinates': [0, 0]},
-                    u'properties': {
-                        u'model': u'djgeojson.address'
+                'type': u'FeatureCollection',
+                'features': [{
+                    'id': self.address.id,
+                    'type': 'Feature',
+                    'geometry': {'type': 'Point', 'coordinates': [0, 0]},
+                    'properties': {
+                        'model': 'djgeojson.address'
                     }
                 }]
             })
@@ -660,12 +662,12 @@ class ModelFieldTest(TestCase):
                         "type": "proj4"
                     }
                 },
-                u'type': u'FeatureCollection',
-                u'features': [{
-                    u'id': self.address.id,
-                    u'type': u'Feature',
-                    u'geometry': {u'type': u'Point', u'coordinates': [0, 0]},
-                    u'properties': {}
+                'type': 'FeatureCollection',
+                'features': [{
+                    'id': self.address.id,
+                    'type': 'Feature',
+                    'geometry': {'type': 'Point', 'coordinates': [0, 0]},
+                    'properties': {}
                 }]
             })
 
