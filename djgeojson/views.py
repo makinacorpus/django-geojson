@@ -88,14 +88,12 @@ class TiledGeoJSONLayerView(GeoJSONLayerView):
 
     def _parse_args(self):
         try:
-            return map(int, [self.args[0],
-                             self.args[1],
-                             self.args[2]])
+            return [int(v) for v in (self.args[0], self.args[1], self.args[2])]
         except (ValueError, IndexError):
             try:
-                return map(int, [self.kwargs['z'],
-                                 self.kwargs['x'],
-                                 self.kwargs['y']])
+                return [int(v) for v in (self.kwargs['z'],
+                                         self.kwargs['x'],
+                                         self.kwargs['y'])]
             except (ValueError, TypeError, KeyError):
                 # Raise suspicious, Django will return ``400 Bad Request``.
                 error_msg = "Tile (z, x, y) parameters could not be processed."
