@@ -7,7 +7,8 @@ python:
 env:
   - DJANGO_VERSION=1.4.10
   - DJANGO_VERSION=1.5.5
-  - DJANGO_VERSION=1.6.1
+  - DJANGO_VERSION=1.6.5
+  - DJANGO_VERSION=1.7.0
 
 before_install:
  - sudo apt-get update > /dev/null
@@ -17,8 +18,21 @@ before_install:
 
 install:
  - pip install jsonfield
- - sudo apt-get install -y libgdal-dev libproj-dev libgeos-dev libspatialite-dev
+
+ # GDAL-fix -- packaging is miserable, no way to obtain libgdal-dev for libgdal1 when libgdal1h available
+ - sudo apt-get download -y libgdal-dev
+ - sudo dpkg-deb -x libgdal-dev*.deb /
+ - sudo ln -sf /usr/lib/libgdal.so.1 /usr/lib/libgdal.so
+ - sudo ldconfig
+ # GDAL for python... not better
+ - pip install --no-install GDAL==1.9.1
+ - pushd /home/travis/virtualenv/python2.7/build/GDAL
+ - python setup.py build_ext --include-dirs=/usr/include/gdal
+ - pip install --no-download GDAL
+ - popd
+ - sudo apt-get install -y libproj-dev libgeos-dev libspatialite-dev
  - if [[ $TRAVIS_PYTHON_VERSION == "2.7" ]]; then pip install git+git://github.com/tinio/pysqlite.git@extension-enabled#egg=pysqlite; fi
+
    # This is a dependency of our Django test script
  - pip install argparse --use-mirrors
 
