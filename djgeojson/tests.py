@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import json
+from django.http import HttpResponseBadRequest
 
 from django.test import TestCase
 from django.conf import settings
@@ -516,6 +517,58 @@ class TiledGeoJSONViewTest(TestCase):
         self.view = TiledGeoJSONLayerView(model=Route)
         self.r1 = Route.objects.create(geom=LineString((0, 1), (10, 1)))
         self.r2 = Route.objects.create(geom=LineString((0, -1), (-10, -1)))
+
+    def test_view_with_kwargs(self):
+        self.view.kwargs = {'z': 4,
+                            'x': 8,
+                            'y': 7}
+        response = self.view.render_to_response(context={})
+        geojson = json.loads(smart_text(response.content))
+        self.assertEqual(geojson['features'][0]['geometry']['coordinates'], [[0.0, 1.0], [10.0, 1.0]])
+
+    def test_view_with_kwargs_wrong_type_z(self):
+        self.view.kwargs = {'z': 'a',
+                            'x': 8,
+                            'y': 7}
+        response = self.view.render_to_response(context={})
+        self.assertTrue(type(response) is HttpResponseBadRequest)
+
+    def test_view_with_kwargs_wrong_type_x(self):
+        self.view.kwargs = {'z': 1,
+                            'x': 'a',
+                            'y': 7}
+
+        response = self.view.render_to_response(context={})
+        self.assertTrue(type(response) is HttpResponseBadRequest)
+
+    def test_view_with_kwargs_wrong_type_y(self):
+        self.view.kwargs = {'z': 4,
+                            'x': 8,
+                            'y': 'a'}
+
+        response = self.view.render_to_response(context={})
+        self.assertTrue(type(response) is HttpResponseBadRequest)
+
+    def test_view_with_kwargs_no_z(self):
+        self.view.kwargs = {'x': 8,
+                            'y': 7}
+
+        response = self.view.render_to_response(context={})
+        self.assertTrue(type(response) is HttpResponseBadRequest)
+
+    def test_view_with_kwargs_no_x(self):
+        self.view.kwargs = {'z': 8,
+                            'y': 7}
+
+        response = self.view.render_to_response(context={})
+        self.assertTrue(type(response) is HttpResponseBadRequest)
+
+    def test_view_with_kwargs_no_y(self):
+        self.view.kwargs = {'x': 8,
+                            'z': 7}
+
+        response = self.view.render_to_response(context={})
+        self.assertTrue(type(response) is HttpResponseBadRequest)
 
     def test_view_is_serialized_as_geojson(self):
         self.view.args = [4, 8, 7]
