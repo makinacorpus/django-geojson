@@ -647,7 +647,11 @@ class ModelFieldTest(TestCase):
 
     def test_models_can_have_geojson_fields(self):
         saved = Address.objects.get(id=self.address.id)
-        self.assertDictEqual(saved.geom, self.address.geom)
+        if isinstance(saved.geom, dict):
+            self.assertDictEqual(saved.geom, self.address.geom)
+        else:
+            # Django 1.8 !
+            self.assertEqual(json.loads(saved.geom.geojson), self.address.geom)
 
     def test_default_form_field_is_geojsonfield(self):
         field = self.address._meta.get_field('geom').formfield()
