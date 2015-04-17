@@ -1,8 +1,9 @@
 import os
 import sys
 import argparse
-from django.conf import settings
+
 import django
+from django.conf import settings
 
 
 class QuickDjangoTest(object):
@@ -45,6 +46,7 @@ class QuickDjangoTest(object):
             },
             INSTALLED_APPS=self.INSTALLED_APPS + self.apps,
         )
+
         if django.VERSION >= (1, 7, 0):
             # see: https://docs.djangoproject.com/en/dev/releases/1.7/#standalone-scripts
             django.setup()

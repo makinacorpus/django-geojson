@@ -5,7 +5,9 @@ CHANGELOG
 2.7.1.dev0
 ==================
 
--
+** New features **
+
+- Adding support to kwargs URLs in TiledGeoJSONLayerView (thanks George Silva)
 
 
 2.7.0 (2015-02-21)

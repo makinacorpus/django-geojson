@@ -5,6 +5,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.gzip import gzip_page
 from django.contrib.gis.geos.geometry import Polygon
 from django.contrib.gis.db.models import PointField
+from django.core.exceptions import SuspiciousOperation
 
 from .http import HttpJSONResponse
 from .serializers import Serializer as GeoJSONSerializer
@@ -40,6 +41,7 @@ class GeoJSONResponseMixin(object):
         serializer = GeoJSONSerializer()
         response = self.response_class(**response_kwargs)
         queryset = self.get_queryset()
+
         options = dict(properties=self.properties,
                        precision=self.precision,
                        simplify=self.simplify,
@@ -84,11 +86,24 @@ class TiledGeoJSONLayerView(GeoJSONLayerView):
         lat_deg = math.degrees(lat_rad)
         return (lon_deg, lat_deg)
 
+    def _parse_args(self):
+        try:
+            return [int(v) for v in (self.args[0], self.args[1], self.args[2])]
+        except (ValueError, IndexError):
+            try:
+                return [int(v) for v in (self.kwargs['z'],
+                                         self.kwargs['x'],
+                                         self.kwargs['y'])]
+            except (ValueError, TypeError, KeyError):
+                # Raise suspicious, Django will return ``400 Bad Request``.
+                error_msg = "Tile (z, x, y) parameters could not be processed."
+                raise SuspiciousOperation(error_msg)
+
     def get_queryset(self):
         """
         Inspired by Glen Roberton's django-geojson-tiles view
         """
-        self.z, self.x, self.y = map(int, self.args[:3])
+        self.z, self.x, self.y = self._parse_args()
         nw = self.tile_coord(self.x, self.y, self.z)
         se = self.tile_coord(self.x + 1, self.y + 1, self.z)
         bbox = Polygon((nw, (se[0], nw[1]),
