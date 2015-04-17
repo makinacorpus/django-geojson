@@ -7,7 +7,7 @@ CHANGELOG
 
 ** New features **
 
-- Adding support to kwargs URLs in TiledGeoJSONLayerView (thanks George Silva)
+2.8.0 (2015-04-17)
 - Support GeoJSON specification for named crs (thanks Alvin Lindstam)
 
 ** Bug fixes **
