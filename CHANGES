@@ -7,6 +7,12 @@ CHANGELOG
 
 ** New features **
 
+2.8.1 (unreleased)
+------------------
+
+- Nothing changed yet.
+
+
 2.8.0 (2015-04-17)
 - Support GeoJSON specification for named crs (thanks Alvin Lindstam)
 
