@@ -1,9 +1,11 @@
+from __future__ import unicode_literals
+
 import json
 
 from django.test import TestCase
 from django.conf import settings
 from django.core import serializers
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, SuspiciousOperation
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import LineString, Point, GeometryCollection
 from django.utils.encoding import smart_text
@@ -483,9 +485,9 @@ class ViewsTest(TestCase):
                          [[0.0, 0.0], [1.0, 1.0]])
 
     def test_view_can_control_properties(self):
-        klass = type('FullGeoJSON', (GeoJSONLayerView,),
-                     {'properties': ['name']})
-        view = klass(model=Route)
+        class FullGeoJSON(GeoJSONLayerView):
+            properties = ['name']
+        view = FullGeoJSON(model=Route)
         view.object_list = []
         response = view.render_to_response(context={})
         geojson = json.loads(smart_text(response.content))
@@ -512,8 +514,62 @@ class TileEnvelopTest(TestCase):
 class TiledGeoJSONViewTest(TestCase):
     def setUp(self):
         self.view = TiledGeoJSONLayerView(model=Route)
+        self.view.args = []
         self.r1 = Route.objects.create(geom=LineString((0, 1), (10, 1)))
         self.r2 = Route.objects.create(geom=LineString((0, -1), (-10, -1)))
+
+    def test_view_with_kwargs(self):
+        self.view.kwargs = {'z': 4,
+                            'x': 8,
+                            'y': 7}
+        response = self.view.render_to_response(context={})
+        geojson = json.loads(smart_text(response.content))
+        self.assertEqual(geojson['features'][0]['geometry']['coordinates'], [[0.0, 1.0], [10.0, 1.0]])
+
+    def test_view_with_kwargs_wrong_type_z(self):
+        self.view.kwargs = {'z': 'a',
+                            'x': 8,
+                            'y': 7}
+        self.assertRaises(SuspiciousOperation,
+                          self.view.render_to_response,
+                          context={})
+
+    def test_view_with_kwargs_wrong_type_x(self):
+        self.view.kwargs = {'z': 1,
+                            'x': 'a',
+                            'y': 7}
+        self.assertRaises(SuspiciousOperation,
+                          self.view.render_to_response,
+                          context={})
+
+    def test_view_with_kwargs_wrong_type_y(self):
+        self.view.kwargs = {'z': 4,
+                            'x': 8,
+                            'y': 'a'}
+        self.assertRaises(SuspiciousOperation,
+                          self.view.render_to_response,
+                          context={})
+
+    def test_view_with_kwargs_no_z(self):
+        self.view.kwargs = {'x': 8,
+                            'y': 7}
+        self.assertRaises(SuspiciousOperation,
+                          self.view.render_to_response,
+                          context={})
+
+    def test_view_with_kwargs_no_x(self):
+        self.view.kwargs = {'z': 8,
+                            'y': 7}
+        self.assertRaises(SuspiciousOperation,
+                          self.view.render_to_response,
+                          context={})
+
+    def test_view_with_kwargs_no_y(self):
+        self.view.kwargs = {'x': 8,
+                            'z': 7}
+        self.assertRaises(SuspiciousOperation,
+                          self.view.render_to_response,
+                          context={})
 
     def test_view_is_serialized_as_geojson(self):
         self.view.args = [4, 8, 7]
@@ -591,7 +647,11 @@ class ModelFieldTest(TestCase):
 
     def test_models_can_have_geojson_fields(self):
         saved = Address.objects.get(id=self.address.id)
-        self.assertDictEqual(saved.geom, self.address.geom)
+        if isinstance(saved.geom, dict):
+            self.assertDictEqual(saved.geom, self.address.geom)
+        else:
+            # Django 1.8 !
+            self.assertEqual(json.loads(saved.geom.geojson), self.address.geom)
 
     def test_default_form_field_is_geojsonfield(self):
         field = self.address._meta.get_field('geom').formfield()
@@ -618,13 +678,13 @@ class ModelFieldTest(TestCase):
         features = json.loads(geojson)
         self.assertEqual(
             features, {
-                u'type': u'FeatureCollection',
-                u'features': [{
-                    u'id': self.address.id,
-                    u'type': u'Feature',
-                    u'geometry': {u'type': u'Point', u'coordinates': [0, 0]},
-                    u'properties': {
-                        u'model': u'djgeojson.address'
+                'type': u'FeatureCollection',
+                'features': [{
+                    'id': self.address.id,
+                    'type': 'Feature',
+                    'geometry': {'type': 'Point', 'coordinates': [0, 0]},
+                    'properties': {
+                        'model': 'djgeojson.address'
                     }
                 }]
             })
@@ -660,12 +720,12 @@ class ModelFieldTest(TestCase):
                         "type": "proj4"
                     }
                 },
-                u'type': u'FeatureCollection',
-                u'features': [{
-                    u'id': self.address.id,
-                    u'type': u'Feature',
-                    u'geometry': {u'type': u'Point', u'coordinates': [0, 0]},
-                    u'properties': {}
+                'type': 'FeatureCollection',
+                'features': [{
+                    'id': self.address.id,
+                    'type': 'Feature',
+                    'geometry': {'type': 'Point', 'coordinates': [0, 0]},
+                    'properties': {}
                 }]
             })
 

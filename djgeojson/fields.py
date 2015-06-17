@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.forms.widgets import HiddenInput
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import (ValidationError,
@@ -34,10 +36,10 @@ class GeoJSONValidator(object):
                 "Polygon", "MultiPolygon", "GeometryCollection"
             )
             if not is_geometry:
-                err_msg = u'%s is not a valid GeoJSON geometry type' % geom_type
+                err_msg = '%s is not a valid GeoJSON geometry type' % geom_type
         else:
             if self.geom_type.lower() != geom_type.lower():
-                err_msg = u'%s does not match geometry type' % geom_type
+                err_msg = '%s does not match geometry type' % geom_type
 
         if err_msg:
             raise ValidationError(err_msg)

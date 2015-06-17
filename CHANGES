@@ -2,10 +2,24 @@
 CHANGELOG
 =========
 
-2.7.1.dev0
+2.8.1 (unreleased)
 ==================
 
--
+** Bug fixes**
+
+- Fixed detection of GEOS (thanks Kevin Cooper!)
+
+2.8.0 (2015-04-17)
+==================
+
+** New features **
+
+- Support GeoJSON specification for named crs (thanks Alvin Lindstam)
+
+** Bug fixes **
+
+- Add python 3.2 compatibility (thanks Nikolay Korotkiy, fixes #55)
+- Fix tests on Django >= 1.7 (thanks Manel Clos)
 
 
 2.7.0 (2015-02-21)
