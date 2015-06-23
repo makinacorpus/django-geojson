@@ -12,5 +12,9 @@ class GEOSGeometry(object):
         return
 
 
+class Polygon(GEOSGeometry):
+    pass
+
+
 class WKBWriter(object):
     pass

@@ -9,7 +9,7 @@ from django.core.exceptions import ImproperlyConfigured
 try:
     from django.contrib.gis.geos import GEOSGeometry
     from django.contrib.gis.db.models.fields import GeometryField
-except(ImportError, ImproperlyConfigured):
+except (ImportError, ImproperlyConfigured):
     from ..nogeos import GEOSGeometry
     from ..fields import GeometryField
 
