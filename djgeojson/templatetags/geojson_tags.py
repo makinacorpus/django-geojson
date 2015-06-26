@@ -3,6 +3,7 @@ import re
 
 from six import string_types
 
+from django.core.exceptions import ImproperlyConfigured
 from django import template
 
 try:
@@ -11,7 +12,7 @@ try:
 
     from django.contrib.gis.geos import GEOSGeometry
     from django.contrib.gis.db.models.fields import GeometryField
-except:
+except (ImportError, ImproperlyConfigured) as e:
     from ..nogeos import GEOSGeometry
     from ..fields import GeometryField
 

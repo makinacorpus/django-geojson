@@ -22,6 +22,7 @@ from django.core.serializers.python import (_get_model,
                                             Deserializer as PythonDeserializer)
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.serializers.base import SerializationError, DeserializationError
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.encoding import smart_text
 
 try:
@@ -31,7 +32,7 @@ try:
     from django.contrib.gis.geos import WKBWriter
     from django.contrib.gis.geos import GEOSGeometry
     from django.contrib.gis.db.models.fields import GeometryField
-except ImportError:
+except (ImportError, ImproperlyConfigured) as e:
     from .nogeos import WKBWriter
     from .nogeos import GEOSGeometry
     from .fields import GeometryField

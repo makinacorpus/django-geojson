@@ -1,11 +1,14 @@
 import math
 
+from django.core.exceptions import SuspiciousOperation, ImproperlyConfigured
 from django.views.generic import ListView
 from django.utils.decorators import method_decorator
 from django.views.decorators.gzip import gzip_page
-from django.contrib.gis.geos.geometry import Polygon
-from django.contrib.gis.db.models import PointField
-from django.core.exceptions import SuspiciousOperation
+try:
+    from django.contrib.gis.geos.geometry import Polygon
+    from django.contrib.gis.db.models import PointField
+except (ImportError, ImproperlyConfigured) as e:
+    pass
 
 from .http import HttpJSONResponse
 from .serializers import Serializer as GeoJSONSerializer
