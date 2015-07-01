@@ -49,7 +49,7 @@ class GeoJSONFormField(JSONFormField):
     widget = LeafletWidget if HAS_LEAFLET else HiddenInput
 
     def __init__(self, *args, **kwargs):
-        geom_type = kwargs.pop('geom_type')
+        geom_type = kwargs.pop('geom_type', 'GEOMETRY')
         kwargs.setdefault('validators', [GeoJSONValidator(geom_type)])
         super(GeoJSONFormField, self).__init__(*args, **kwargs)
 
