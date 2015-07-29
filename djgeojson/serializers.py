@@ -23,15 +23,13 @@ from django.core.serializers.python import (_get_model,
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.serializers.base import SerializationError, DeserializationError
 from django.utils.encoding import smart_text
+from django.core.exceptions import ImproperlyConfigured
 
 try:
-    from django.contrib.gis.geos.libgeos import geos_version_info
-    geos_version_info()
-
     from django.contrib.gis.geos import WKBWriter
     from django.contrib.gis.geos import GEOSGeometry
     from django.contrib.gis.db.models.fields import GeometryField
-except ImportError:
+except (ImportError, ImproperlyConfigured):
     from .nogeos import WKBWriter
     from .nogeos import GEOSGeometry
     from .fields import GeometryField
