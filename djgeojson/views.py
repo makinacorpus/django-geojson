@@ -55,7 +55,8 @@ class GeoJSONResponseMixin(object):
                        geometry_field=self.geometry_field,
                        force2d=self.force2d,
                        bbox=self.bbox,
-                       bbox_auto=self.bbox_auto)
+                       bbox_auto=self.bbox_auto,
+                       trim_to_boundary=self.trim_to_boundary)
         serializer.serialize(queryset, stream=response, ensure_ascii=False,
                              **options)
         return response
@@ -134,6 +135,5 @@ class TiledGeoJSONLayerView(GeoJSONLayerView):
                                  not isinstance(model_field, PointField))
         if self.trim_to_boundary:
             qs = qs.intersection(bbox)
-            self.geometry_field = 'intersection'
 
         return qs
