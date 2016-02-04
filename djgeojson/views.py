@@ -7,7 +7,10 @@ from django.core.exceptions import SuspiciousOperation
 from django.core.exceptions import ImproperlyConfigured
 
 try:
-    from django.contrib.gis.geos.geometry import Polygon
+    if django.VERSION >= (1, 9):
+        from django.contrib.gis.geos import Polygon
+    else:
+        from django.contrib.gis.geos.geometry import Polygon
     from django.contrib.gis.db.models import PointField
 except (ImportError, ImproperlyConfigured):
     from .fields import PointField

@@ -14,8 +14,13 @@ import logging
 
 from six import string_types, iteritems
 
+import django
+
 from django.db.models.base import Model
-from django.db.models.query import QuerySet, ValuesQuerySet
+if django.VERSION >= (1, 9):
+    from django.db.models.query import QuerySet
+else:
+    from django.db.models.query import QuerySet, ValuesQuerySet
 from django.forms.models import model_to_dict
 from django.core.serializers.python import (_get_model,
                                             Serializer as PythonSerializer,
@@ -363,14 +368,21 @@ class Serializer(PythonSerializer):
 
         self.start_serialization()
 
-        if isinstance(queryset, ValuesQuerySet):
-            self.serialize_values_queryset(queryset)
+        if django.VERSION >= (1, 9):
+            if isinstance(queryset, list):
+                self.serialize_object_list(queryset)
 
-        elif isinstance(queryset, list):
-            self.serialize_object_list(queryset)
+            elif isinstance(queryset, QuerySet):
+                self.serialize_queryset(queryset)
+        else:
+            if isinstance(queryset, ValuesQuerySet):
+                self.serialize_values_queryset(queryset)
 
-        elif isinstance(queryset, QuerySet):
-            self.serialize_queryset(queryset)
+            elif isinstance(queryset, list):
+                self.serialize_object_list(queryset)
+
+            elif isinstance(queryset, QuerySet):
+                self.serialize_queryset(queryset)
 
         self.end_serialization()
         return self.getvalue()
