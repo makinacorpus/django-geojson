@@ -7,11 +7,17 @@ from django.core.exceptions import SuspiciousOperation
 from django.core.exceptions import ImproperlyConfigured
 
 try:
-    from django.contrib.gis.geos.geometry import Polygon
+    from django.contrib.gis.geos import Polygon
+except (ImportError, ImproperlyConfigured):
+    try:
+        from django.contrib.gis.geos.geometry import Polygon
+    except:
+        from .nogeos import Polygon
+
+try:
     from django.contrib.gis.db.models import PointField
 except (ImportError, ImproperlyConfigured):
     from .fields import PointField
-    from .nogeos import Polygon
 
 from .http import HttpJSONResponse
 from .serializers import Serializer as GeoJSONSerializer
