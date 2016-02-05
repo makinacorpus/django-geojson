@@ -11,7 +11,7 @@ try:
 except (ImportError, ImproperlyConfigured):
     try:
         from django.contrib.gis.geos.geometry import Polygon
-    except:
+    except (ImportError, ImproperlyConfigured):
         from .nogeos import Polygon
 
 try:
