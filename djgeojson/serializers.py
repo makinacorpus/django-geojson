@@ -148,6 +148,7 @@ class Serializer(PythonSerializer):
         self.options.pop('properties', None)
         self.options.pop('primary_key', None)
         self.options.pop('geometry_field', None)
+        self.options.pop('trim_to_boundary', None)
         self.options.pop('use_natural_keys', None)
         self.options.pop('crs', None)
         self.options.pop('srid', None)
@@ -360,7 +361,10 @@ class Serializer(PythonSerializer):
         self.stream = options.get("stream", StringIO())
         self.primary_key = options.get("primary_key", None)
         self.properties = options.get("properties")
-        self.geometry_field = options.get("geometry_field", "geom")
+        if options.get("trim_to_boundary", None):
+            self.geometry_field = 'intersection'
+        else:
+            self.geometry_field = options.get("geometry_field", "geom")
         self.use_natural_keys = options.get("use_natural_keys", False)
         self.bbox = options.get("bbox", None)
         self.bbox_auto = options.get("bbox_auto", None)
