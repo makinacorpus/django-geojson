@@ -15,7 +15,13 @@ import logging
 from six import string_types, iteritems
 
 from django.db.models.base import Model
-from django.db.models.query import QuerySet, ValuesQuerySet
+
+try:
+    from django.db.models.query import QuerySet, ValuesQuerySet
+except ImportError:
+    from django.db.models.query import QuerySet
+    ValuesQuerySet = None
+
 from django.forms.models import model_to_dict
 from django.core.serializers.python import (_get_model,
                                             Serializer as PythonSerializer,
@@ -363,7 +369,7 @@ class Serializer(PythonSerializer):
 
         self.start_serialization()
 
-        if isinstance(queryset, ValuesQuerySet):
+        if ValuesQuerySet is not None and isinstance(queryset, ValuesQuerySet):
             self.serialize_values_queryset(queryset)
 
         elif isinstance(queryset, list):

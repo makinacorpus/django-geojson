@@ -5,7 +5,9 @@ CHANGELOG
 2.8.2 (unreleased)
 ==================
 
-- Nothing changed yet.
+** Bug fixes **
+
+- Add Django 1.9 compatibility
 
 
 2.8.1 (2015-06-17)
