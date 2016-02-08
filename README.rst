@@ -109,7 +109,7 @@ Options are :
 * **srid** : projection (*default*: 4326, for WGS84)
 * **bbox** : Allows you to set your own bounding box on feature collection level
 * **bbox_auto** : True/False (default false). Will automatically generate a bounding box on a per feature level.
-
+* **use_natural_keys** : serialize natural keys instead of primary keys (*default*: ``False``)
 
 
 Tiled GeoJSON layer view
