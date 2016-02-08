@@ -473,8 +473,9 @@ class GeoJsonTemplateTagTest(TestCase):
 class ViewsTest(TestCase):
 
     def setUp(self):
-        self.route = Route(name='green', geom="LINESTRING (0 0, 1 1)")
-        self.route.save()
+        self.route = Route.objects.create(
+            name='green', geom="LINESTRING (0 0, 1 1)")
+        Sign(label='A', route=self.route).save()
 
     def test_view_default_options(self):
         view = GeoJSONLayerView(model=Route)
@@ -492,6 +493,27 @@ class ViewsTest(TestCase):
         response = view.render_to_response(context={})
         geojson = json.loads(smart_text(response.content))
         self.assertEqual(geojson['features'][0]['properties']['name'],
+                         'green')
+
+    def test_view_foreign(self):
+        class FullGeoJSON(GeoJSONLayerView):
+            properties = ['label', 'route']
+        view = FullGeoJSON(model=Sign)
+        view.object_list = []
+        response = view.render_to_response(context={})
+        geojson = json.loads(smart_text(response.content))
+        self.assertEqual(geojson['features'][0]['properties']['route'],
+                         1)
+
+    def test_view_foreign_natural(self):
+        class FullGeoJSON(GeoJSONLayerView):
+            properties = ['label', 'route']
+            use_natural_keys = True
+        view = FullGeoJSON(model=Sign)
+        view.object_list = []
+        response = view.render_to_response(context={})
+        geojson = json.loads(smart_text(response.content))
+        self.assertEqual(geojson['features'][0]['properties']['route'],
                          'green')
 
 
