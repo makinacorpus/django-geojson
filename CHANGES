@@ -5,9 +5,14 @@ CHANGELOG
 2.8.2 (unreleased)
 ==================
 
+** New features **
+
+- handle natural keys in views (#74, thanks Achille Ash!)
+
 ** Bug fixes **
 
-- Add Django 1.9 compatibility
+- Add Django 1.9 compatibility (#69, thanks Julien Le Sech!)
+- Fix imports in view.py to work without GEOS (#62, thanks Kevin Cooper!)
 
 
 2.8.1 (2015-06-17)

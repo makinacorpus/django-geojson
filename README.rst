@@ -262,6 +262,9 @@ AUTHORS
     * @jeffkistler's author of geojson serializer at: https://gist.github.com/967274
     * Ben Welsh and Lukasz Dziedzia for `quick test script <http://datadesk.latimes.com/posts/2012/06/test-your-django-app-with-travisci/>`_
     * Florent Lebreton http://github.com/fle
+    * Julien Le Sech http://www.idreammicro.com
+    * Kevin Cooper @kevcooper
+    * Achille Ash @AchilleAsh
 
 Version 1.X:
 
