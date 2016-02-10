@@ -6,10 +6,10 @@
   (compatible with *django-leaflet* for map widgets)
 
 
-.. image:: https://pypip.in/v/django-geojson/badge.png
+.. image:: https://img.shields.io/pypi/v/django-geojson.svg
         :target: https://pypi.python.org/pypi/django-geojson
 
-.. image:: https://pypip.in/d/django-geojson/badge.png
+.. image:: https://img.shields.io/pypi/dm/django-geojson.svg
         :target: https://pypi.python.org/pypi/django-geojson
 
 .. image:: https://travis-ci.org/makinacorpus/django-geojson.png?branch=master
