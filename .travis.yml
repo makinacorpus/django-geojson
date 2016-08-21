@@ -3,6 +3,7 @@ language: python
 python:
   - 2.7
   - 3.4
+  - 3.5
 
 env:
   - DJANGO_VERSION=1.4.10
@@ -47,3 +48,13 @@ matrix:
     exclude:
         - python: 3.4
           env: DJANGO_VERSION=1.4.10
+        - python: 3.5
+          env: DJANGO_VERSION=1.4.10
+        - python: 3.5
+          env: DJANGO_VERSION=1.5.12
+        - python: 3.5
+          env: DJANGO_VERSION=1.6.11
+        - python: 3.5
+          env: DJANGO_VERSION=1.7.7
+        - python: 3.5
+          env: DJANGO_VERSION=1.8
