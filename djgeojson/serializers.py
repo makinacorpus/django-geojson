@@ -11,6 +11,9 @@ except ImportError:
     from six import StringIO  # NOQA
 import json
 import logging
+import sys
+
+from contextlib import contextmanager
 
 from six import string_types, iteritems
 
@@ -61,6 +64,90 @@ class DjangoGeoJSONEncoder(DjangoJSONEncoder):
             return json.loads(o.geojson)
         else:
             return super(DjangoGeoJSONEncoder, self).default(o)
+
+
+@contextmanager
+def json_encoder_with_precision(precision, JSONEncoderClass):
+    """
+    Context manager to set float precision during json encoding
+    """
+    needs_class_hack = (3, 5) <= sys.version_info < (3, 6)  # python 3.5 does not have json.encoder.FLOAT_REPR
+    try:
+        if precision is not None:
+            float_repr = lambda o: format(o, '.%sf' % precision)
+            if not needs_class_hack:
+                # python is not 3.5
+                original_float_repr = json.encoder.FLOAT_REPR
+                json.encoder.FLOAT_REPR = float_repr
+            else:
+                # HACK to allow usage of float precision in python 3.5
+                # Needed because python 3.5 removes the global FLOAT_REPR hack
+
+                class JSONEncoderClass(JSONEncoderClass):
+                    FLOAT_REPR = float.__repr__
+
+                    # Follows code copied from cPython Lib/json/encoder.py
+                    # The only change is that in floatstr _repr=float.__repr__ is replaced
+
+                    def iterencode(self, o, _one_shot=False):
+                        """Encode the given object and yield each string
+                        representation as available.
+
+                        For example::
+
+                            for chunk in JSONEncoder().iterencode(bigobject):
+                                mysocket.write(chunk)
+
+                        """
+                        if self.check_circular:
+                            markers = {}
+                        else:
+                            markers = None
+                        if self.ensure_ascii:
+                            _encoder = json.encoder.encode_basestring_ascii
+                        else:
+                            _encoder = json.encoder.encode_basestring
+
+                        def floatstr(o, allow_nan=self.allow_nan,
+                                _repr=float_repr, _inf=json.encoder.INFINITY, _neginf=-json.encoder.INFINITY):
+                            # Check for specials.  Note that this type of test is processor
+                            # and/or platform-specific, so do tests which don't depend on the
+                            # internals.
+
+                            if o != o:
+                                text = 'NaN'
+                            elif o == _inf:
+                                text = 'Infinity'
+                            elif o == _neginf:
+                                text = '-Infinity'
+                            else:
+                                return _repr(o)
+
+                            if not allow_nan:
+                                raise ValueError(
+                                    "Out of range float values are not JSON compliant: " +
+                                    repr(o))
+
+                            return text
+
+                        if (_one_shot and json.encoder.c_make_encoder is not None
+                                and self.indent is None):
+                            _iterencode = json.encoder.c_make_encoder(
+                                markers, self.default, _encoder, self.indent,
+                                self.key_separator, self.item_separator, self.sort_keys,
+                                self.skipkeys, self.allow_nan)
+                        else:
+                            _iterencode = json.encoder._make_iterencode(
+                                markers, self.default, _encoder, self.indent, floatstr,
+                                self.key_separator, self.item_separator, self.sort_keys,
+                                self.skipkeys, _one_shot)
+                        return _iterencode(o, 0)
+        yield JSONEncoderClass
+    finally:
+        if precision is not None:
+            if not needs_class_hack:
+                # restore FLOAT_REPR
+                json.encoder.FLOAT_REPR = original_float_repr
 
 
 class Serializer(PythonSerializer):
@@ -160,14 +247,9 @@ class Serializer(PythonSerializer):
 
         # Optional float precision control
         precision = self.options.pop('precision', None)
-        floatrepr = json.encoder.FLOAT_REPR
-        if precision is not None:
-            # Monkey patch for float precision!
-            json.encoder.FLOAT_REPR = lambda o: format(o, '.%sf' % precision)
 
-        json.dump(self.feature_collection, self.stream, cls=DjangoGeoJSONEncoder, **self.options)
-
-        json.encoder.FLOAT_REPR = floatrepr  # Restore
+        with json_encoder_with_precision(precision, DjangoGeoJSONEncoder) as cls:
+            json.dump(self.feature_collection, self.stream, cls=cls, **self.options)
 
     def _handle_geom(self, value):
         """ Geometry processing (in place), depending on options """
