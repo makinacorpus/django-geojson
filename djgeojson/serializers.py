@@ -74,7 +74,8 @@ def json_encoder_with_precision(precision, JSONEncoderClass):
     needs_class_hack = (3, 5) <= sys.version_info < (3, 6)  # python 3.5 does not have json.encoder.FLOAT_REPR
     try:
         if precision is not None:
-            float_repr = lambda o: format(o, '.%sf' % precision)
+            def float_repr(o):
+                return format(o, '.%sf' % precision)
             if not needs_class_hack:
                 # python is not 3.5
                 original_float_repr = json.encoder.FLOAT_REPR
@@ -108,8 +109,7 @@ def json_encoder_with_precision(precision, JSONEncoderClass):
                         else:
                             _encoder = json.encoder.encode_basestring
 
-                        def floatstr(o, allow_nan=self.allow_nan,
-                                _repr=float_repr, _inf=json.encoder.INFINITY, _neginf=-json.encoder.INFINITY):
+                        def floatstr(o, allow_nan=self.allow_nan, _repr=float_repr, _inf=json.encoder.INFINITY, _neginf=-json.encoder.INFINITY):
                             # Check for specials.  Note that this type of test is processor
                             # and/or platform-specific, so do tests which don't depend on the
                             # internals.
@@ -130,8 +130,7 @@ def json_encoder_with_precision(precision, JSONEncoderClass):
 
                             return text
 
-                        if (_one_shot and json.encoder.c_make_encoder is not None
-                                and self.indent is None):
+                        if (_one_shot and json.encoder.c_make_encoder is not None and self.indent is None):
                             _iterencode = json.encoder.c_make_encoder(
                                 markers, self.default, _encoder, self.indent,
                                 self.key_separator, self.item_separator, self.sort_keys,
