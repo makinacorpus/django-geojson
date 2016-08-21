@@ -24,13 +24,13 @@ install:
  - sudo apt-get install -y libgdal-dev libproj-dev libgeos-dev libspatialite-dev
  - if [[ $TRAVIS_PYTHON_VERSION == "2.7" ]]; then pip install git+git://github.com/tinio/pysqlite.git@extension-enabled#egg=pysqlite; fi
    # This is a dependency of our Django test script
- - pip install argparse --use-mirrors
+ - pip install argparse
 
  - pip install -q Django==$DJANGO_VERSION --use-mirrors
 
  - pip install coverage
 
- - pip install flake8 --use-mirrors
+ - pip install flake8
 
  - python setup.py develop
 
