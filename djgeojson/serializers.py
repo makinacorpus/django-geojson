@@ -14,6 +14,7 @@ import logging
 
 from six import string_types, iteritems
 
+import django
 from django.db.models.base import Model
 
 try:
@@ -309,8 +310,8 @@ class Serializer(PythonSerializer):
         opts = queryset.model._meta
         local_fields = opts.local_fields
         many_to_many_fields = opts.many_to_many
-        reversed_fields = [obj.field for obj in opts.get_all_related_objects()]
-        reversed_fields += [obj.field for obj in opts.get_all_related_many_to_many_objects()]
+        reversed_fields = [obj.field for obj in get_all_related_objects(opts)]
+        reversed_fields += [obj.field for obj in get_all_related_many_to_many_objects(opts)]
 
         # populate each queryset obj as a feature
         for obj in queryset:
@@ -425,3 +426,33 @@ def Deserializer(stream_or_string, **options):
     except Exception as e:
         # Map to deserializer error
         raise DeserializationError(repr(e))
+
+
+def get_all_related_objects(opts):
+    """
+    Django 1.8 changed meta api, see
+    https://docs.djangoproject.com/en/1.8/ref/models/meta/#migrating-old-meta-api
+    https://code.djangoproject.com/ticket/12663
+    https://github.com/django/django/pull/3848
+    Initially from Django REST Framework:
+    https://github.com/tomchristie/django-rest-framework/blob/3.3.2/rest_framework/compat.py
+    :param opts: Options instance
+    :return: list of relations except many-to-many ones
+    """
+    if django.VERSION < (1, 8):
+        return opts.get_all_related_objects()
+    else:
+        return [r for r in opts.related_objects if not r.field.many_to_many]
+
+
+def get_all_related_many_to_many_objects(opts):
+    """
+    Django 1.8 changed meta api, see docstr in get_all_related_objects()
+
+    :param opts: Options instance
+    :return: list of many-to-many relations
+    """
+    if django.VERSION < (1, 8):
+        return opts.get_all_related_many_to_many_objects()
+    else:
+        return [r for r in opts.related_objects if r.field.many_to_many]
