@@ -5,7 +5,9 @@ CHANGELOG
 2.10.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+** Bug fixes **
+
+- Remove deprecation warnings with Django 1.8 (#78, thanks @AchilleAsh)
 
 
 2.9.0 (2016-02-08)
