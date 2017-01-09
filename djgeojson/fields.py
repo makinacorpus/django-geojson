@@ -12,11 +12,11 @@ except:
     warnings.warn('`django-leaflet` is not available.')
     HAS_LEAFLET = False
 try:
-    from jsonfield.fields import JSONField, JSONFormField
+    from jsonfield_compat.fields import JSONField, JSONFormField
 except ImportError:
     class Missing(object):
         def __init__(self, *args, **kwargs):
-            err_msg = '`jsonfield` dependency missing. See README.'
+            err_msg = '`jsonfield-compat` dependency missing. See README.'
             raise ImproperlyConfigured(err_msg)
 
     JSONField = Missing
