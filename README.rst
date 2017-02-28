@@ -265,6 +265,7 @@ AUTHORS
     * Julien Le Sech http://www.idreammicro.com
     * Kevin Cooper @kevcooper
     * Achille Ash @AchilleAsh
+    * Yann Fouillat (alias Gagaro) <yann.fouillat@makina-corpus.com>
 
 Version 1.X:
 
