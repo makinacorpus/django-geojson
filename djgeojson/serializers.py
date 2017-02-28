@@ -11,7 +11,6 @@ except ImportError:
     from six import StringIO  # NOQA
 import json
 import logging
-import sys
 
 from contextlib import contextmanager
 
@@ -71,7 +70,7 @@ def json_encoder_with_precision(precision, JSONEncoderClass):
     """
     Context manager to set float precision during json encoding
     """
-    needs_class_hack = (3, 5) <= sys.version_info < (3, 6)  # python 3.5 does not have json.encoder.FLOAT_REPR
+    needs_class_hack = not hasattr(json.encoder, 'FLOAT_REPR')
     try:
         if precision is not None:
             def float_repr(o):
