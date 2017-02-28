@@ -20,6 +20,7 @@ setup(
     ],
     extras_require={
         'field': ['jsonfield', 'django-leaflet>=0.12'],
+        'docs': ['sphinx', 'sphinx-autobuild'],
     },
     packages=find_packages(),
     include_package_data=True,
