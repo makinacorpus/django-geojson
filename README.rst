@@ -28,7 +28,7 @@ INSTALL
     pip install django-geojson
 
 
-This package has **optional** `extra dependencies <http://pythonhosted.org/setuptools/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies>`_.
+This package has **optional** `extra dependencies <http://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies>`_.
 
 
 If you need GeoJSON fields with map widgets :
