@@ -9,7 +9,6 @@ try:
     HAS_LEAFLET = True
 except:
     import warnings
-    warnings.warn('`django-leaflet` is not available.')
     HAS_LEAFLET = False
 try:
     from jsonfield.fields import JSONField, JSONFormField
@@ -46,7 +45,12 @@ class GeoJSONValidator(object):
 
 
 class GeoJSONFormField(JSONFormField):
-    widget = LeafletWidget if HAS_LEAFLET else HiddenInput
+    widget = None
+    if HAS_LEAFLET:
+        widget = LeafletWidget
+    else:
+        widget = HiddenInput
+        warnings.warn('`django-leaflet` is not available.')
 
     def __init__(self, *args, **kwargs):
         geom_type = kwargs.pop('geom_type')
