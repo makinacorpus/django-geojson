@@ -12,6 +12,10 @@ See the `documentation <https://django-geojson.readthedocs.io/en/latest/>`_ for 
   (compatible with *django-leaflet* for map widgets)
 
 
+.. image:: https://readthedocs.org/projects/django-geojson/badge/?version=latest
+    :target: http://django-geojson.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
+
 .. image:: https://img.shields.io/pypi/v/django-geojson.svg
         :target: https://pypi.python.org/pypi/django-geojson
 
