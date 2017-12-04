@@ -3,7 +3,7 @@ pkg_resources = __import__('pkg_resources')
 try:
     distribution = pkg_resources.get_distribution('django-geojson')
     __version__ = distribution.version
-except:
+except AttributeError:
     __version__ = 'unknown'
     import warnings
     warnings.warn('No distribution found.')

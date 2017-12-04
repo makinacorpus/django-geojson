@@ -7,7 +7,7 @@ from django.core.exceptions import (ValidationError,
 try:
     from leaflet.forms.widgets import LeafletWidget
     HAS_LEAFLET = True
-except:
+except ImportError:
     import warnings
     warnings.warn('`django-leaflet` is not available.')
     HAS_LEAFLET = False
