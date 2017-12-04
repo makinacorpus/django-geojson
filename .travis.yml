@@ -7,15 +7,18 @@ python:
   - 2.7
   - 3.4
   - 3.5
+  - 3.6
 
 env:
   # - DJANGO_VERSION=1.4.10
-  - DJANGO_VERSION=1.5.12
-  - DJANGO_VERSION=1.6.11
-  - DJANGO_VERSION=1.7.7
-  - DJANGO_VERSION=1.8
-  - DJANGO_VERSION=1.9
-  - DJANGO_VERSION=1.10
+  # - DJANGO_VERSION=1.5.12
+  # - DJANGO_VERSION=1.6.11
+  # - DJANGO_VERSION=1.7.11
+  - DJANGO_VERSION=1.8.18
+  # - DJANGO_VERSION=1.9.13
+  # - DJANGO_VERSION=1.10.8
+  - DJANGO_VERSION=1.11.8
+  - DJANGO_VERSION=2.0.0
 
 before_install:
  - sudo apt-get update -y
@@ -26,12 +29,8 @@ install:
    # This is a dependency of our Django test script
  - CFLAGS=-I/usr/include/gdal pip install GDAL==1.10
 
- - pip install jsonfield
- - pip install argparse
- - pip install -q Django==$DJANGO_VERSION
- - pip install coverage
- - pip install flake8
- - pip install coveralls
+ - pip install jsonfield Django==$DJANGO_VERSION
+ - pip install coverage coveralls argparse
  - python setup.py develop
 
 before_script:
@@ -45,8 +44,16 @@ after_success:
 
 matrix:
     exclude:
+        - python: 2.7
+          env: DJANGO_VERSION=2.0
+
         - python: 3.4
           env: DJANGO_VERSION=1.4.10
+        - python: 3.4
+          env: DJANGO_VERSION=1.5.12
+        - python: 3.4
+          env: DJANGO_VERSION=1.6.11
+
         - python: 3.5
           env: DJANGO_VERSION=1.4.10
         - python: 3.5
@@ -54,6 +61,19 @@ matrix:
         - python: 3.5
           env: DJANGO_VERSION=1.6.11
         - python: 3.5
-          env: DJANGO_VERSION=1.7.7
-        - python: 3.5
-          env: DJANGO_VERSION=1.8
+          env: DJANGO_VERSION=1.7.11
+
+        - python: 3.6
+          env: DJANGO_VERSION=1.4.10
+        - python: 3.6
+          env: DJANGO_VERSION=1.5.12
+        - python: 3.6
+          env: DJANGO_VERSION=1.6.11
+        - python: 3.6
+          env: DJANGO_VERSION=1.7.11
+        - python: 3.6
+          env: DJANGO_VERSION=1.8.18
+        - python: 3.6
+          env: DJANGO_VERSION=1.9.13
+        - python: 3.6
+          env: DJANGO_VERSION=1.10.8
