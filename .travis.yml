@@ -30,7 +30,7 @@ install:
  - CFLAGS=-I/usr/include/gdal pip install GDAL==1.10
 
  - pip install jsonfield Django==$DJANGO_VERSION
- - pip install coverage coveralls argparse
+ - pip install coverage coveralls argparse flake8
  - python setup.py develop
 
 before_script:
