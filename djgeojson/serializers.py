@@ -427,7 +427,7 @@ class Serializer(PythonSerializer):
 
             for field in reversed_fields:
                 if field.serialize:
-                    field_name = field.rel.related_name or opts.object_name.lower()
+                    field_name = field.rel.related_name or (field.model._meta.object_name.lower()+'_set')
                     if self.properties is None or field_name in self.properties:
                         self.handle_reverse_field(obj, field, field_name)
             self.end_object(obj)
