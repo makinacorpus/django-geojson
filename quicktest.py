@@ -45,6 +45,7 @@ class QuickDjangoTest(object):
                 }
             },
             INSTALLED_APPS=self.INSTALLED_APPS + self.apps,
+            SPATIALITE_LIBRARY_PATH='mod_spatialite',
         )
 
         if django.VERSION >= (1, 7, 0):

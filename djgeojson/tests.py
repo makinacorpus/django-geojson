@@ -102,7 +102,7 @@ class GeoJsonDeSerializerTest(TestCase):
         self.assertEqual(objects[1].object.name, "blue")
         self.assertEqual(objects[0].object.upper_name, "GREEN")
         self.assertEqual(objects[0].object.geom,
-                         LineString((0.0, 0.0), (1.0, 1.0)))
+                         LineString((0.0, 0.0), (1.0, 1.0), srid=objects[0].object.geom.srid))
 
     def test_with_model_name_passed_as_argument(self):
         input_geojson = """
