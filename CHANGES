@@ -2,10 +2,11 @@
 CHANGELOG
 =========
 
-2.11.0 (unreleased)
+2.11.0 (2017-12-05)
 ===================
 
-- Nothing changed yet.
+- Django 2.0 support.
+- Fix setup.py encoding error.
 
 2.10.0 (2017-02-28)
 ===================
