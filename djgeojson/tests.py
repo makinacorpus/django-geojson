@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 import json
 
+import django
 from django.test import TestCase
 from django.conf import settings
 from django.core import serializers
@@ -26,10 +27,21 @@ class PictureMixin(object):
         return 'image.png'
 
 
+class Country(models.Model):
+    label = models.CharField(max_length=20)
+    geom = models.PolygonField(spatial_index=False, srid=4326)
+
+    if django.VERSION < (1, 9):
+        objects = models.GeoManager()
+
+    def natural_key(self):
+        return self.label
+
+
 class Route(PictureMixin, models.Model):
     name = models.CharField(max_length=20)
     geom = models.LineStringField(spatial_index=False, srid=4326)
-    countries = models.ManyToManyField('Country')
+    countries = models.ManyToManyField(Country)
 
     def natural_key(self):
         return self.name
@@ -38,12 +50,13 @@ class Route(PictureMixin, models.Model):
     def upper_name(self):
         return self.name.upper()
 
-    objects = models.GeoManager()
+    if django.VERSION < (1, 9):
+        objects = models.GeoManager()
 
 
 class Sign(models.Model):
     label = models.CharField(max_length=20)
-    route = models.ForeignKey(Route, related_name='signs')
+    route = models.ForeignKey(Route, related_name='signs', on_delete=models.PROTECT)
 
     def natural_key(self):
         return self.label
@@ -51,15 +64,6 @@ class Sign(models.Model):
     @property
     def geom(self):
         return self.route.geom.centroid
-
-
-class Country(models.Model):
-    label = models.CharField(max_length=20)
-    geom = models.PolygonField(spatial_index=False, srid=4326)
-    objects = models.GeoManager()
-
-    def natural_key(self):
-        return self.label
 
 
 class GeoJsonDeSerializerTest(TestCase):

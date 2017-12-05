@@ -56,6 +56,14 @@ def hasattr_lazy(obj, name):
     return name in dir(obj)
 
 
+def get_field_remote_field(field):
+    """ For Django 1.8/2.0 compatibility """
+    if django.VERSION < (1, 9):
+        return field.rel
+    else:
+        return field.remote_field
+
+
 class DjangoGeoJSONEncoder(DjangoJSONEncoder):
 
     def default(self, o):
@@ -321,17 +329,22 @@ class Serializer(PythonSerializer):
             if self.use_natural_keys and hasattr(related, 'natural_key'):
                 related = related.natural_key()
             else:
-                if field.rel.field_name == related._meta.pk.name:
+                if get_field_remote_field(field).field_name == related._meta.pk.name:
                     # Related to remote object via primary key
                     related = related._get_pk_val()
                 else:
                     # Related to remote object via other field
-                    related = smart_text(getattr(related, field.rel.field_name), strings_only=True)
+                    related = smart_text(getattr(related, get_field_remote_field(field).field_name), strings_only=True)
         self._current['properties'][field.name] = related
 
     def handle_m2m_field(self, obj, field):
-        if field.rel.through._meta.auto_created:
-            if self.use_natural_keys and hasattr(field.rel.to, 'natural_key'):
+        if get_field_remote_field(field).through._meta.auto_created:
+            remote_field = get_field_remote_field(field)
+            if django.VERSION < (1, 9):  # Django 1.8/2.0 compatibility
+                remote_model = remote_field.to
+            else:
+                remote_model = remote_field.related_model
+            if self.use_natural_keys and hasattr(remote_model, 'natural_key'):
                 def m2m_value(value):
                     return value.natural_key()
             else:
@@ -413,7 +426,7 @@ class Serializer(PythonSerializer):
                     continue
 
                 if field.serialize or field.primary_key:
-                    if field.rel is None:
+                    if get_field_remote_field(field) is None:
                         if self.properties is None or field.attname in self.properties:
                             self.handle_field(obj, field.name)
                     else:
@@ -427,7 +440,7 @@ class Serializer(PythonSerializer):
 
             for field in reversed_fields:
                 if field.serialize:
-                    field_name = field.rel.related_name or opts.object_name.lower()
+                    field_name = get_field_remote_field(field).related_name or opts.object_name.lower()
                     if self.properties is None or field_name in self.properties:
                         self.handle_reverse_field(obj, field, field_name)
             self.end_object(obj)

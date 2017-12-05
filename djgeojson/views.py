@@ -1,5 +1,11 @@
 import math
 
+import django
+
+try:
+    from django.contrib.gis.db.models.functions import Intersection
+except ImportError:
+    pass
 from django.views.generic import ListView
 from django.utils.decorators import method_decorator
 from django.views.decorators.gzip import gzip_page
@@ -142,7 +148,10 @@ class TiledGeoJSONLayerView(GeoJSONLayerView):
         self.trim_to_boundary = (self.trim_to_boundary and
                                  not isinstance(model_field, PointField))
         if self.trim_to_boundary:
-            qs = qs.intersection(bbox)
+            if django.VERSION < (1, 9):
+                qs = qs.intersection(bbox)
+            else:
+                qs = qs.annotate(intersection=Intersection(self.geometry_field, bbox))
             self.geometry_field = 'intersection'
 
         return qs
