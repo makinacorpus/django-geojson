@@ -25,7 +25,7 @@ try:
 except (ImportError, ImproperlyConfigured):
     from .fields import PointField
 
-from .http import HttpJSONResponse
+from .http import HttpGeoJSONResponse
 from .serializers import Serializer as GeoJSONSerializer
 from . import GEOJSON_DEFAULT_SRID
 
@@ -34,7 +34,7 @@ class GeoJSONResponseMixin(object):
     """
     A mixin that can be used to render a GeoJSON response.
     """
-    response_class = HttpJSONResponse
+    response_class = HttpGeoJSONResponse
     """ Select fields for properties """
     properties = []
     """ Limit float precision """

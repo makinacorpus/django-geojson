@@ -5,7 +5,7 @@ CHANGELOG
 2.12.0 (unreleased)
 ===================
 
--
+- Change media type to 'application/geo+json'
 
 2.11.0 (2017-12-05)
 ===================
