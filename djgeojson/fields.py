@@ -8,8 +8,6 @@ try:
     from leaflet.forms.widgets import LeafletWidget
     HAS_LEAFLET = True
 except ImportError:
-    import warnings
-    warnings.warn('`django-leaflet` is not available.')
     HAS_LEAFLET = False
 try:
     from jsonfield.fields import JSONField, JSONFormField
@@ -49,6 +47,9 @@ class GeoJSONFormField(JSONFormField):
     widget = LeafletWidget if HAS_LEAFLET else HiddenInput
 
     def __init__(self, *args, **kwargs):
+        if not HAS_LEAFLET:
+            import warnings
+            warnings.warn('`django-leaflet` is not available.')
         geom_type = kwargs.pop('geom_type')
         kwargs.setdefault('validators', [GeoJSONValidator(geom_type)])
         super(GeoJSONFormField, self).__init__(*args, **kwargs)
