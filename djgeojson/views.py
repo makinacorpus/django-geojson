@@ -54,6 +54,8 @@ class GeoJSONResponseMixin(object):
 
     use_natural_keys = False
 
+    with_modelname = True
+
     def render_to_response(self, context, **response_kwargs):
         """
         Returns a JSON response, transforming 'context' to make the payload.
@@ -70,7 +72,8 @@ class GeoJSONResponseMixin(object):
                        force2d=self.force2d,
                        bbox=self.bbox,
                        bbox_auto=self.bbox_auto,
-                       use_natural_keys=self.use_natural_keys)
+                       use_natural_keys=self.use_natural_keys,
+                       with_modelname=self.with_modelname)
         serializer.serialize(queryset, stream=response, ensure_ascii=False,
                              **options)
         return response
