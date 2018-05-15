@@ -6,6 +6,7 @@ CHANGELOG
 ===================
 
 - Change media type to 'application/geo+json'
+- Make with_modelname option available in views
 
 2.11.0 (2017-12-05)
 ===================
