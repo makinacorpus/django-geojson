@@ -1,11 +1,12 @@
 import math
 
 import django
+from django.core.exceptions import ImproperlyConfigured
 
 try:
     from django.contrib.gis.db.models.functions import Intersection
-except ImportError:
-    pass
+except (ImportError, ImproperlyConfigured):
+    Intersection = None
 from django.views.generic import ListView
 from django.utils.decorators import method_decorator
 from django.views.decorators.gzip import gzip_page
@@ -149,7 +150,8 @@ class TiledGeoJSONLayerView(GeoJSONLayerView):
         # Won't trim point geometries to a boundary
         model_field = qs.model._meta.get_field(self.geometry_field)
         self.trim_to_boundary = (self.trim_to_boundary and
-                                 not isinstance(model_field, PointField))
+                                 not isinstance(model_field, PointField)
+                                 and Intersection)
         if self.trim_to_boundary:
             if django.VERSION < (1, 9):
                 qs = qs.intersection(bbox)
