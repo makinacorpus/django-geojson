@@ -222,7 +222,7 @@ class Serializer(PythonSerializer):
                 self.handle_field(obj, field)
 
         # Add extra-info for deserializing
-        with_modelname = self.options.pop('with_modelname', True)
+        with_modelname = self.options.get('with_modelname', True)
         if hasattr(obj, '_meta') and with_modelname:
             self._current['properties']['model'] = smart_text(obj._meta)
 
