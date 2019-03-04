@@ -5,7 +5,7 @@ CHANGELOG
 2.13.0 (unreleased)
 ===================
 
--
+- Fix with_modelname option after first iteration
 
 2.12.0 (2018-12-05)
 ===================
