@@ -1,4 +1,4 @@
-dist: trusty
+dist: xenial
 sudo: required
 
 language: python
@@ -10,19 +10,27 @@ python:
   - 3.7
   - 3.8
 
+addons:
+  apt:
+    sources:
+    - sourceline: ppa:ubuntugis/ppa
+    packages:
+    - gdal-bin
+    - libgdal-dev
+    - libproj-dev
+    - spatialite-bin
+    - python3-dev
+    - libsqlite3-mod-spatialite
+
 env:
   - DJANGO_VERSION=2.0.13
   - DJANGO_VERSION=2.1.15
   - DJANGO_VERSION=2.2.10
   - DJANGO_VERSION=3.0.3
 
-before_install:
- - sudo apt-get update -y
- - sudo apt-get install -y libgdal-dev libproj-dev libproj-dev spatialite-bin python-dev python3-dev
-
 install:
    # This is a dependency of our Django test script
- - CFLAGS=-I/usr/include/gdal pip install GDAL==1.10
+ - CPLUS_INCLUDE_PATH=/usr/include/gdal C_INCLUDE_PATH=/usr/include/gdal CFLAGS=-I/usr/include/gdal pip install GDAL==2.2.4
 
  - pip install jsonfield Django==$DJANGO_VERSION
  - pip install coverage coveralls argparse flake8
