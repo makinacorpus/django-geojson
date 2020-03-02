@@ -4,22 +4,23 @@ sudo: required
 language: python
 
 python:
-  - 2.7
   - 3.4
   - 3.5
   - 3.6
+  - 3.7
+  - 3.8
 
 env:
-  - DJANGO_VERSION=1.11.17
-  - DJANGO_VERSION=2.0.9
-  - DJANGO_VERSION=2.1.4
+  - DJANGO_VERSION=2.0.13
+  - DJANGO_VERSION=2.1.15
+  - DJANGO_VERSION=2.2.10
+  - DJANGO_VERSION=3.0.3
 
 before_install:
  - sudo apt-get update -y
  - sudo apt-get install -y libgdal-dev libproj-dev libproj-dev spatialite-bin python-dev python3-dev
 
 install:
- - if [[ $TRAVIS_PYTHON_VERSION == "2.7" ]]; then pip install git+git://github.com/tinio/pysqlite.git@extension-enabled#egg=pysqlite; fi
    # This is a dependency of our Django test script
  - CFLAGS=-I/usr/include/gdal pip install GDAL==1.10
 
@@ -38,9 +39,16 @@ after_success:
 
 matrix:
     exclude:
-        - python: 2.7
-          env: DJANGO_VERSION=2.0.9
-        - python: 2.7
-          env: DJANGO_VERSION=2.1.4
         - python: 3.4
-          env: DJANGO_VERSION=2.1.4
+          env: DJANGO_VERSION=2.1.15
+        - python: 3.4
+          env: DJANGO_VERSION=2.2.10
+        - python: 3.4
+          env: DJANGO_VERSION=3.0.3
+        - python: 3.5
+          env: DJANGO_VERSION=3.0.3
+        - python: 3.8
+          env: DJANGO_VERSION=2.0.13
+        - python: 3.8
+          env: DJANGO_VERSION=2.1.15
+

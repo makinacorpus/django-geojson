@@ -10,7 +10,8 @@ try:
 except ImportError:
     HAS_LEAFLET = False
 try:
-    from jsonfield.fields import JSONField, JSONFormField
+    from jsonfield.fields import JSONField
+    from jsonfield.forms import JSONField as JSONFormField
 except ImportError:
     class Missing(object):
         def __init__(self, *args, **kwargs):

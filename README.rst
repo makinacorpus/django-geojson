@@ -48,6 +48,7 @@ Version 1.X:
     * Daniel Sokolowski, serializer snippet
     * ozzmo, python 2.6 compatibility
 
+
 |makinacom|_
 
 .. |makinacom| image:: http://depot.makina-corpus.org/public/logo.gif

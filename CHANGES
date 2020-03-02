@@ -2,10 +2,12 @@
 CHANGELOG
 =========
 
-2.13.0 (unreleased)
+3.0.0 (unreleased)
 ===================
 
 - Fix with_modelname option after first iteration
+- Drop Django 1.11 support
+- jsonfield 3.0 support, drop 2.x support
 
 2.12.0 (2018-12-05)
 ===================

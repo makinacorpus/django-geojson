@@ -23,6 +23,7 @@ class QuickDjangoTest(object):
         'django.contrib.contenttypes',
         'django.contrib.sessions',
         'django.contrib.admin',
+        'django.contrib.messages',
     )
 
     def __init__(self, *args, **kwargs):
@@ -45,7 +46,25 @@ class QuickDjangoTest(object):
                 }
             },
             INSTALLED_APPS=self.INSTALLED_APPS + self.apps,
-            # SPATIALITE_LIBRARY_PATH='mod_spatialite',
+            SPATIALITE_LIBRARY_PATH='mod_spatialite',
+            TEMPLATES=[
+                {
+                    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                    'DIRS': [],
+                    'APP_DIRS': True,
+                    'OPTIONS': {
+                        "context_processors": [
+                            "django.contrib.auth.context_processors.auth",
+                            "django.contrib.messages.context_processors.messages",
+                        ]
+                    },
+                },
+            ],
+            MIDDLEWARE=[
+                'django.contrib.auth.middleware.AuthenticationMiddleware',
+                'django.contrib.messages.middleware.MessageMiddleware',
+                'django.contrib.sessions.middleware.SessionMiddleware',
+            ]
         )
 
         if django.VERSION >= (1, 7, 0):
