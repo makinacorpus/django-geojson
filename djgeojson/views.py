@@ -133,6 +133,7 @@ class TiledGeoJSONLayerView(GeoJSONLayerView):
         se = self.tile_coord(self.x + 1, self.y + 1, self.z)
         bbox = Polygon((nw, (se[0], nw[1]),
                        se, (nw[0], se[1]), nw))
+        bbox.srid = self.srid
         qs = super(TiledGeoJSONLayerView, self).get_queryset()
         qs = qs.filter(**{
             '%s__intersects' % self.geometry_field: bbox
