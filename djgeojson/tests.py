@@ -661,6 +661,29 @@ class TiledGeoJSONViewTest(TestCase):
         self.assertEqual(self.view.simplify, 200)
 
 
+class FixedSridPoint(models.Model):
+
+    geom = models.PointField(srid=28992)
+
+
+class TiledGeoJSONViewFixedSridTest(TestCase):
+    def setUp(self):
+        self.view = TiledGeoJSONLayerView(model=FixedSridPoint)
+        self.view.args = []
+        self.p1 = FixedSridPoint.objects.create(geom=Point(253286, 531490))
+        self.p2 = FixedSridPoint.objects.create(geom=Point(253442, 532897))
+
+    def test_within_viewport(self):
+        self.view.args = [12, 2125, 1338]
+        response = self.view.render_to_response(context={})
+        geojson = json.loads(smart_text(response.content))
+        self.assertEqual(len(geojson['features']), 2)
+        self.assertEqual(geojson['features'][0]['geometry']['coordinates'],
+                         [6.843322039261242, 52.76181518632031])
+        self.assertEqual(geojson['features'][1]['geometry']['coordinates'],
+                         [6.846053318324978, 52.77442791046052])
+
+
 class Address(models.Model):
     geom = GeoJSONField()
 
