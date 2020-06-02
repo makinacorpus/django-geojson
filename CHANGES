@@ -5,7 +5,7 @@ CHANGELOG
 3.1.0 (unreleased)
 ==================
 
--
+- Use explicit srid in get_queryset #106
 
 3.0.0 (2020-03-02)
 ===================
