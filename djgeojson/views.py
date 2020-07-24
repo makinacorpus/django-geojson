@@ -57,6 +57,8 @@ class GeoJSONResponseMixin(object):
 
     with_modelname = True
 
+    crs_type = 'name'
+
     def render_to_response(self, context, **response_kwargs):
         """
         Returns a JSON response, transforming 'context' to make the payload.
