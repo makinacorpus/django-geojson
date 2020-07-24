@@ -74,7 +74,8 @@ class GeoJSONResponseMixin(object):
                        bbox=self.bbox,
                        bbox_auto=self.bbox_auto,
                        use_natural_keys=self.use_natural_keys,
-                       with_modelname=self.with_modelname)
+                       with_modelname=self.with_modelname,
+                       crs_type=self.crs_type)
         serializer.serialize(queryset, stream=response, ensure_ascii=False,
                              **options)
         return response

@@ -460,6 +460,7 @@ class Serializer(PythonSerializer):
         self.bbox_auto = options.get("bbox_auto", None)
         self.srid = options.get("srid", GEOJSON_DEFAULT_SRID)
         self.crs = options.get("crs", True)
+        self.crs_type = options.get("crs_type", 'name')
 
         self.start_serialization()
 
