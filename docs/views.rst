@@ -57,7 +57,7 @@ Options are :
 * **bbox_auto** : True/False (default false). Will automatically generate a bounding box on a per feature level.
 * **use_natural_keys** : serialize natural keys instead of primary keys (*default*: ``False``)
 * **with_modelname** : add the app and model name to the properties. (*default*: ``True``)
-
+* **crs_type** : add the type of crs generated, options: ``name``  and ``link`` (*default*: ``name``)
 
 Tiled GeoJSON layer view
 ------------------------
