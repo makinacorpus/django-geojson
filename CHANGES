@@ -6,6 +6,7 @@ CHANGELOG
 ==================
 
 - Use explicit srid in get_queryset #106
+- Add support for crs_type using the view options #107
 
 3.0.0 (2020-03-02)
 ===================
