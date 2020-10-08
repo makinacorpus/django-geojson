@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
+import django
 from django.forms.widgets import HiddenInput
-from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import (ValidationError,
                                     ImproperlyConfigured)
 try:
@@ -20,6 +20,12 @@ except ImportError:
 
     JSONField = Missing
     JSONFormField = Missing
+
+
+if django.VERSION >= (3, 1):
+    from django.utils.translation import gettext_lazy as _
+else:
+    from django.utils.translation import ugettext_lazy as _
 
 
 class GeoJSONValidator(object):
