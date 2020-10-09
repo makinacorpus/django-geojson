@@ -33,21 +33,20 @@ See the `documentation <https://django-geojson.readthedocs.io/en/latest/>`_ for 
 AUTHORS
 =======
 
-    * Mathieu Leplatre <mathieu.leplatre@makina-corpus.com>
-    * Glen Robertson author of django-geojson-tiles at: https://github.com/glenrobertson/django-geojson-tiles/
-    * @jeffkistler's author of geojson serializer at: https://gist.github.com/967274
-    * Ben Welsh and Lukasz Dziedzia for `quick test script <http://datadesk.latimes.com/posts/2012/06/test-your-django-app-with-travisci/>`_
-    * Florent Lebreton http://github.com/fle
-    * Julien Le Sech http://www.idreammicro.com
-    * Kevin Cooper @kevcooper
-    * Achille Ash @AchilleAsh
-    * Yann Fouillat (alias Gagaro) <yann.fouillat@makina-corpus.com>
+* Mathieu Leplatre <mathieu.leplatre@makina-corpus.com>
+* Glen Robertson author of django-geojson-tiles at: https://github.com/glenrobertson/django-geojson-tiles/
+* @jeffkistler's author of geojson serializer at: https://gist.github.com/967274
+* Ben Welsh and Lukasz Dziedzia for `quick test script <http://datadesk.latimes.com/posts/2012/06/test-your-django-app-with-travisci/>`_
+* Florent Lebreton http://github.com/fle
+* Julien Le Sech http://www.idreammicro.com
+* Kevin Cooper @kevcooper
+* Achille Ash @AchilleAsh
+* Yann Fouillat (alias Gagaro) <yann.fouillat@makina-corpus.com>
 
 Version 1.X:
 
-    * Daniel Sokolowski, serializer snippet
-    * ozzmo, python 2.6 compatibility
-
+* Daniel Sokolowski, serializer snippet
+* ozzmo, python 2.6 compatibility
 
 |makinacom|_
 
@@ -58,4 +57,4 @@ Version 1.X:
 LICENSE
 =======
 
-    * Lesser GNU Public License
+Lesser GNU Public License
