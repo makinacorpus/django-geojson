@@ -38,7 +38,7 @@ before_script:
  - flake8 --ignore=E501,W504 djgeojson
 
 script:
- - coverage run quicktest.py djgeojson
+ - python -W error::DeprecationWarning -W error::PendingDeprecationWarning -m coverage run quicktest.py djgeojson
 
 after_success:
  - coveralls
