@@ -5,16 +5,11 @@
 
     Itself, adapted from @jeffkistler's geojson serializer at: https://gist.github.com/967274
 """
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from six import StringIO  # NOQA
 import json
 import logging
+from io import StringIO  # NOQA
 
 from contextlib import contextmanager
-
-from six import string_types, iteritems
 
 import django
 from django.db.models.base import Model
@@ -196,7 +191,7 @@ class Serializer(PythonSerializer):
         primary_key = None
         if self.primary_key and hasattr(self.primary_key, '__call__'):
             primary_key = self.primary_key(obj)
-        elif self.primary_key and isinstance(self.primary_key, string_types):
+        elif self.primary_key and isinstance(self.primary_key, str):
             if isinstance(obj, Model):
                 primary_key = getattr(obj, self.primary_key)
             else:
@@ -491,7 +486,7 @@ def Deserializer(stream_or_string, **options):
         model = _get_model(model_name)
         field_names = [f.name for f in model._meta.fields]
         fields = {}
-        for k, v in iteritems(properties):
+        for k, v in properties.items():
             if k in field_names:
                 fields[k] = v
         obj = {

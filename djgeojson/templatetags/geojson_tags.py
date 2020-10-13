@@ -1,8 +1,6 @@
 import json
 import re
 
-from six import string_types
-
 from django import template
 from django.core.exceptions import ImproperlyConfigured
 
@@ -36,7 +34,7 @@ def geojsonfeature(source, params=''):
     properties = parse.get('properties', '').split(',')
     srid = parse.get('srid') or GEOJSON_DEFAULT_SRID
 
-    if source is None or isinstance(source, string_types):
+    if source is None or isinstance(source, str):
         return 'null'
 
     if isinstance(source, (GEOSGeometry, GeometryField)):
