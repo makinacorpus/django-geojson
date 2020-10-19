@@ -501,7 +501,7 @@ def Deserializer(stream_or_string, **options):
             obj['fields'][geometry_field] = shape.wkt
         return obj
 
-    if isinstance(stream_or_string, string_types):
+    if isinstance(stream_or_string, str):
         stream = StringIO(stream_or_string)
     else:
         stream = stream_or_string
