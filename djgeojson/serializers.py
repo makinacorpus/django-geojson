@@ -26,7 +26,7 @@ from django.core.serializers.python import (_get_model,
                                             Deserializer as PythonDeserializer)
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.serializers.base import SerializationError, DeserializationError
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str
 from django.core.exceptions import ImproperlyConfigured
 
 try:
@@ -219,7 +219,7 @@ class Serializer(PythonSerializer):
         # Add extra-info for deserializing
         with_modelname = self.options.get('with_modelname', True)
         if hasattr(obj, '_meta') and with_modelname:
-            self._current['properties']['model'] = smart_text(obj._meta)
+            self._current['properties']['model'] = smart_str(obj._meta)
 
         # If geometry not in model fields, may be a dynamic attribute
         if 'geometry' not in self._current:
@@ -329,7 +329,7 @@ class Serializer(PythonSerializer):
                     related = related._get_pk_val()
                 else:
                     # Related to remote object via other field
-                    related = smart_text(getattr(related, get_field_remote_field(field).field_name), strings_only=True)
+                    related = smart_str(getattr(related, get_field_remote_field(field).field_name), strings_only=True)
         self._current['properties'][field.name] = related
 
     def handle_m2m_field(self, obj, field):
@@ -344,7 +344,7 @@ class Serializer(PythonSerializer):
                     return value.natural_key()
             else:
                 def m2m_value(value):
-                    return smart_text(value._get_pk_val(), strings_only=True)
+                    return smart_str(value._get_pk_val(), strings_only=True)
             self._current['properties'][field.name] = [m2m_value(related)
                                                        for related in getattr(obj, field.name).iterator()]
 
@@ -354,7 +354,7 @@ class Serializer(PythonSerializer):
                 return value.natural_key()
         else:
             def reverse_value(value):
-                return smart_text(value._get_pk_val(), strings_only=True)
+                return smart_str(value._get_pk_val(), strings_only=True)
         values = [reverse_value(related) for related in getattr(obj, field_name).iterator()]
         self._current['properties'][field_name] = values
 

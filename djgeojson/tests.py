@@ -9,7 +9,7 @@ from django.core import serializers
 from django.core.exceptions import ValidationError, SuspiciousOperation
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import LineString, Point, GeometryCollection
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str
 
 from .templatetags.geojson_tags import geojsonfeature
 from .serializers import Serializer
@@ -485,7 +485,7 @@ class ViewsTest(TestCase):
         view = GeoJSONLayerView(model=Route)
         view.object_list = []
         response = view.render_to_response(context={})
-        geojson = json.loads(smart_text(response.content))
+        geojson = json.loads(smart_str(response.content))
         self.assertEqual(geojson['features'][0]['geometry']['coordinates'],
                          [[0.0, 0.0], [1.0, 1.0]])
 
@@ -495,7 +495,7 @@ class ViewsTest(TestCase):
         view = FullGeoJSON(model=Route)
         view.object_list = []
         response = view.render_to_response(context={})
-        geojson = json.loads(smart_text(response.content))
+        geojson = json.loads(smart_str(response.content))
         self.assertEqual(geojson['features'][0]['properties']['name'],
                          'green')
 
@@ -505,7 +505,7 @@ class ViewsTest(TestCase):
         view = FullGeoJSON(model=Sign)
         view.object_list = []
         response = view.render_to_response(context={})
-        geojson = json.loads(smart_text(response.content))
+        geojson = json.loads(smart_str(response.content))
         self.assertEqual(geojson['features'][0]['properties']['route'],
                          1)
 
@@ -516,7 +516,7 @@ class ViewsTest(TestCase):
         view = FullGeoJSON(model=Sign)
         view.object_list = []
         response = view.render_to_response(context={})
-        geojson = json.loads(smart_text(response.content))
+        geojson = json.loads(smart_str(response.content))
         self.assertEqual(geojson['features'][0]['properties']['route'],
                          'green')
 
@@ -549,7 +549,7 @@ class TiledGeoJSONViewTest(TestCase):
                             'x': 8,
                             'y': 7}
         response = self.view.render_to_response(context={})
-        geojson = json.loads(smart_text(response.content))
+        geojson = json.loads(smart_str(response.content))
         self.assertEqual(geojson['features'][0]['geometry']['coordinates'], [[0.0, 1.0], [10.0, 1.0]])
 
     def test_view_with_kwargs_wrong_type_z(self):
@@ -600,14 +600,14 @@ class TiledGeoJSONViewTest(TestCase):
     def test_view_is_serialized_as_geojson(self):
         self.view.args = [4, 8, 7]
         response = self.view.render_to_response(context={})
-        geojson = json.loads(smart_text(response.content))
+        geojson = json.loads(smart_str(response.content))
         self.assertEqual(geojson['features'][0]['geometry']['coordinates'],
                          [[0.0, 1.0], [10.0, 1.0]])
 
     def test_view_trims_to_geometries_boundaries(self):
         self.view.args = [8, 128, 127]
         response = self.view.render_to_response(context={})
-        geojson = json.loads(smart_text(response.content))
+        geojson = json.loads(smart_str(response.content))
         self.assertEqual(geojson['features'][0]['geometry']['coordinates'],
                          [[0.0, 1.0], [1.40625, 1.0]])
 
@@ -615,14 +615,14 @@ class TiledGeoJSONViewTest(TestCase):
         self.view.args = [8, 128, 127]
         self.view.trim_to_boundary = False
         response = self.view.render_to_response(context={})
-        geojson = json.loads(smart_text(response.content))
+        geojson = json.loads(smart_str(response.content))
         self.assertEqual(geojson['features'][0]['geometry']['coordinates'],
                          [[0.0, 1.0], [10.0, 1.0]])
 
     def test_tile_extent_is_provided_in_collection(self):
         self.view.args = [8, 128, 127]
         response = self.view.render_to_response(context={})
-        geojson = json.loads(smart_text(response.content))
+        geojson = json.loads(smart_str(response.content))
         self.assertEqual(geojson['bbox'],
                          [0.0, 0.0, 1.40625, 1.4061088354351565])
 
@@ -676,7 +676,7 @@ class TiledGeoJSONViewFixedSridTest(TestCase):
     def test_within_viewport(self):
         self.view.args = [12, 2125, 1338]
         response = self.view.render_to_response(context={})
-        geojson = json.loads(smart_text(response.content))
+        geojson = json.loads(smart_str(response.content))
         self.assertEqual(len(geojson['features']), 2)
         self.assertEqual(geojson['features'][0]['geometry']['coordinates'],
                          [6.843322039261242, 52.76181518632031])
