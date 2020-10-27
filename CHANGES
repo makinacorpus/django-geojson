@@ -2,9 +2,11 @@
 CHANGELOG
 =========
 
-3.1.0 (unreleased)
+3.1.0 (2020-10-27)
 ==================
 
+- Drop support for Python 2 and Django < 2.2
+- Fix warnings in Django 3.1
 - Use explicit srid in get_queryset #106
 - Add support for crs_type using the view options #107
 
