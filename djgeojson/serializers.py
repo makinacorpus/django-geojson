@@ -5,16 +5,11 @@
 
     Itself, adapted from @jeffkistler's geojson serializer at: https://gist.github.com/967274
 """
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from six import StringIO  # NOQA
 import json
 import logging
+from io import StringIO  # NOQA
 
 from contextlib import contextmanager
-
-from six import string_types, iteritems
 
 import django
 from django.db.models.base import Model
@@ -31,7 +26,7 @@ from django.core.serializers.python import (_get_model,
                                             Deserializer as PythonDeserializer)
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.serializers.base import SerializationError, DeserializationError
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str
 from django.core.exceptions import ImproperlyConfigured
 
 try:
@@ -196,7 +191,7 @@ class Serializer(PythonSerializer):
         primary_key = None
         if self.primary_key and hasattr(self.primary_key, '__call__'):
             primary_key = self.primary_key(obj)
-        elif self.primary_key and isinstance(self.primary_key, string_types):
+        elif self.primary_key and isinstance(self.primary_key, str):
             if isinstance(obj, Model):
                 primary_key = getattr(obj, self.primary_key)
             else:
@@ -224,7 +219,7 @@ class Serializer(PythonSerializer):
         # Add extra-info for deserializing
         with_modelname = self.options.get('with_modelname', True)
         if hasattr(obj, '_meta') and with_modelname:
-            self._current['properties']['model'] = smart_text(obj._meta)
+            self._current['properties']['model'] = smart_str(obj._meta)
 
         # If geometry not in model fields, may be a dynamic attribute
         if 'geometry' not in self._current:
@@ -334,7 +329,7 @@ class Serializer(PythonSerializer):
                     related = related._get_pk_val()
                 else:
                     # Related to remote object via other field
-                    related = smart_text(getattr(related, get_field_remote_field(field).field_name), strings_only=True)
+                    related = smart_str(getattr(related, get_field_remote_field(field).field_name), strings_only=True)
         self._current['properties'][field.name] = related
 
     def handle_m2m_field(self, obj, field):
@@ -349,7 +344,7 @@ class Serializer(PythonSerializer):
                     return value.natural_key()
             else:
                 def m2m_value(value):
-                    return smart_text(value._get_pk_val(), strings_only=True)
+                    return smart_str(value._get_pk_val(), strings_only=True)
             self._current['properties'][field.name] = [m2m_value(related)
                                                        for related in getattr(obj, field.name).iterator()]
 
@@ -359,7 +354,7 @@ class Serializer(PythonSerializer):
                 return value.natural_key()
         else:
             def reverse_value(value):
-                return smart_text(value._get_pk_val(), strings_only=True)
+                return smart_str(value._get_pk_val(), strings_only=True)
         values = [reverse_value(related) for related in getattr(obj, field_name).iterator()]
         self._current['properties'][field_name] = values
 
@@ -491,7 +486,7 @@ def Deserializer(stream_or_string, **options):
         model = _get_model(model_name)
         field_names = [f.name for f in model._meta.fields]
         fields = {}
-        for k, v in iteritems(properties):
+        for k, v in properties.items():
             if k in field_names:
                 fields[k] = v
         obj = {
@@ -506,7 +501,7 @@ def Deserializer(stream_or_string, **options):
             obj['fields'][geometry_field] = shape.wkt
         return obj
 
-    if isinstance(stream_or_string, string_types):
+    if isinstance(stream_or_string, str):
         stream = StringIO(stream_or_string)
     else:
         stream = stream_or_string

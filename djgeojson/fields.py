@@ -1,9 +1,10 @@
 from __future__ import unicode_literals
 
 from django.forms.widgets import HiddenInput
-from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import (ValidationError,
                                     ImproperlyConfigured)
+from django.utils.translation import gettext_lazy as _
+
 try:
     from leaflet.forms.widgets import LeafletWidget
     HAS_LEAFLET = True
