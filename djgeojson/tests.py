@@ -460,9 +460,10 @@ class GeoJsonTemplateTagTest(TestCase):
 
     def test_srid_can_be_specified(self):
         feature = json.loads(geojsonfeature(self.route1.geom, "::2154"))
-        self.assertEqual(feature['geometry']['coordinates'],
-                         [[253531.1305237495, 909838.9305578759],
-                          [406035.7627716485, 1052023.2925472297]])
+        self.assertAlmostEqual(feature['geometry']['coordinates'][0][0], 253531.1305237495)
+        self.assertAlmostEqual(feature['geometry']['coordinates'][0][1], 909838.9305578759)
+        self.assertAlmostEqual(feature['geometry']['coordinates'][1][0], 406035.7627716485)
+        self.assertAlmostEqual(feature['geometry']['coordinates'][1][1], 1052023.2925472297)
 
     def test_geom_field_name_can_be_specified(self):
         features = json.loads(geojsonfeature(self.route1, ":geom"))
@@ -678,10 +679,10 @@ class TiledGeoJSONViewFixedSridTest(TestCase):
         response = self.view.render_to_response(context={})
         geojson = json.loads(smart_str(response.content))
         self.assertEqual(len(geojson['features']), 2)
-        self.assertEqual(geojson['features'][0]['geometry']['coordinates'],
-                         [6.843322039261242, 52.76181518632031])
-        self.assertEqual(geojson['features'][1]['geometry']['coordinates'],
-                         [6.846053318324978, 52.77442791046052])
+        self.assertAlmostEqual(geojson['features'][0]['geometry']['coordinates'][0], 6.843322039261242)
+        self.assertAlmostEqual(geojson['features'][0]['geometry']['coordinates'][1], 52.76181518632031)
+        self.assertAlmostEqual(geojson['features'][1]['geometry']['coordinates'][0], 6.846053318324978)
+        self.assertAlmostEqual(geojson['features'][1]['geometry']['coordinates'][1], 52.77442791046052)
 
 
 class Address(models.Model):
