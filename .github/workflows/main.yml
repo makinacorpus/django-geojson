@@ -1,0 +1,62 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Python application
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  tests_python:
+    name: Test on Python ${{ matrix.python_version }} and Django ${{ matrix.django_version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        django_version: [ '2.2', '3.0', '3.1', '3.2' ]
+        python_version: [ '3.5', '3.6', '3.7', '3.8', '3.9' ]
+        exclude:
+          - django_version: '3.0'
+            python_version: '3.5'
+
+          - django_version: '3.1'
+            python_version: '3.5'
+
+          - django_version: '3.2'
+            python_version: '3.5'
+    env:
+      SPATIALITE_LIBRARY_PATH: 'mod_spatialite.so'
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python_version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python_version }}
+    - name: Cache pip
+      uses: actions/cache@v2
+      with:
+        # This path is specific to Ubuntu
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ matrix.django_version }}
+    - name: Install dependencies
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y libproj-dev libgeos-dev gdal-bin libgdal-dev libsqlite3-mod-spatialite
+        python -m pip install --upgrade pip
+        pip install -U flake8 coveralls argparse jsonfield
+        pip install -U Django~=${{ matrix.django_version }}.0
+    - name: Lint with flake8
+      run: |
+        flake8 --ignore=E501,W504 djgeojson
+    - name: Test
+      run: |
+        python -W error::DeprecationWarning -W error::PendingDeprecationWarning -m coverage run ./quicktest.py djgeojson
+    - name: Coverage
+      if: ${{ success() }}
+      run: |
+        coveralls

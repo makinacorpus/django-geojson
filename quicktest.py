@@ -39,14 +39,10 @@ class QuickDjangoTest(object):
                 'default': {
                     'ENGINE': 'django.contrib.gis.db.backends.spatialite',
                     'NAME': os.path.join(self.DIRNAME, 'database.db'),
-                    'USER': '',
-                    'PASSWORD': '',
-                    'HOST': '',
-                    'PORT': '',
                 }
             },
             INSTALLED_APPS=self.INSTALLED_APPS + self.apps,
-            SPATIALITE_LIBRARY_PATH='mod_spatialite',
+            SPATIALITE_LIBRARY_PATH=os.getenv('SPATIALITE_LIBRARY_PATH', 'mod_spatialite'),
             TEMPLATES=[
                 {
                     'BACKEND': 'django.template.backends.django.DjangoTemplates',
