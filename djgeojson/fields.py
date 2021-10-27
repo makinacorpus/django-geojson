@@ -13,6 +13,8 @@ except ImportError:
 try:
     from jsonfield.fields import JSONField
     from jsonfield.forms import JSONField as JSONFormField
+    from jsonfield.forms import InvalidJSONInput
+    DEFAULT_INITIAL = InvalidJSONInput("")
 except ImportError:
     class Missing(object):
         def __init__(self, *args, **kwargs):
@@ -21,6 +23,7 @@ except ImportError:
 
     JSONField = Missing
     JSONFormField = Missing
+    DEFAULT_INITIAL = None
 
 
 class GeoJSONValidator(object):
@@ -54,6 +57,7 @@ class GeoJSONFormField(JSONFormField):
             warnings.warn('`django-leaflet` is not available.')
         geom_type = kwargs.pop('geom_type')
         kwargs.setdefault('validators', [GeoJSONValidator(geom_type)])
+        kwargs.setdefault('initial', DEFAULT_INITIAL)
         super(GeoJSONFormField, self).__init__(*args, **kwargs)
 
 
