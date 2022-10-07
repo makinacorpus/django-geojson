@@ -49,8 +49,6 @@ class GeoJSONValidator(object):
 
 
 class GeoJSONFormField(JSONFormField):
-    widget = LeafletWidget if HAS_LEAFLET else HiddenInput
-
     def __init__(self, *args, **kwargs):
         if not HAS_LEAFLET:
             import warnings
@@ -59,6 +57,9 @@ class GeoJSONFormField(JSONFormField):
         kwargs.setdefault('validators', [GeoJSONValidator(geom_type)])
         kwargs.setdefault('initial', DEFAULT_INITIAL)
         super(GeoJSONFormField, self).__init__(*args, **kwargs)
+        # The super() call sets the widget to Textarea (as the JSONField is a TextField)
+        # We override this
+        self.widget = LeafletWidget if HAS_LEAFLET else HiddenInput
 
 
 class GeoJSONField(JSONField):
