@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import json
 
 import django
+from django.forms import HiddenInput
 from django.test import TestCase
 from django.conf import settings
 from django.core import serializers
@@ -706,6 +707,10 @@ class ModelFieldTest(TestCase):
     def test_default_form_field_is_geojsonfield(self):
         field = self.address._meta.get_field('geom').formfield()
         self.assertTrue(isinstance(field, GeoJSONFormField))
+
+    def test_default_form_field_widget_is_hidden(self):
+        field = self.address._meta.get_field('geom').formfield()
+        self.assertTrue(isinstance(field.widget, HiddenInput))
 
     def test_default_form_field_has_geojson_validator(self):
         field = self.address._meta.get_field('geom').formfield()
