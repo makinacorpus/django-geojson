@@ -4,7 +4,7 @@ django-geojson
 
 See the `documentation <https://django-geojson.readthedocs.io/en/latest/>`_ for more information.
 
-*django-geojson* is a set of tools to manipulate GeoJSON with Django :
+*django-geojson* is a set of tools to manipulate GeoJSON with Django >= 3.2:
 
 * (De)Serializer for (Geo)Django objects, querysets and lists
 * Base views to serve GeoJSON map layers from models

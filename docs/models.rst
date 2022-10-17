@@ -1,7 +1,7 @@
 Model and forms fields
 ======================
 
-GeoJSON fields are based on Brad Jasper's `JSONField <https://pypi.python.org/pypi/jsonfield>`_.
+GeoJSON fields are based on Django JSONField.
 See :doc:`installation` to install extra dependencies.
 
 They are useful to avoid usual GIS stacks (GEOS, GDAL, PostGIS...)

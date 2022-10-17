@@ -16,10 +16,10 @@ setup(
                      open(os.path.join(here, 'CHANGES'), encoding='utf-8').read(),
     license='LPGL, see LICENSE file.',
     install_requires=[
-        'Django>=2.2',
+        'Django>=3.2',
     ],
     extras_require={
-        'field': ['jsonfield', 'django-leaflet>=0.12'],
+        'field': ['django-leaflet>=0.12'],
         'docs': ['sphinx', 'sphinx-autobuild'],
     },
     packages=find_packages(),

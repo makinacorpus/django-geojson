@@ -1,8 +1,9 @@
 from __future__ import unicode_literals
 
+from django.db.models import JSONField
+from django.forms.fields import JSONField as JSONFormField, InvalidJSONInput
 from django.forms.widgets import HiddenInput
-from django.core.exceptions import (ValidationError,
-                                    ImproperlyConfigured)
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 try:
@@ -10,20 +11,6 @@ try:
     HAS_LEAFLET = True
 except ImportError:
     HAS_LEAFLET = False
-try:
-    from jsonfield.fields import JSONField
-    from jsonfield.forms import JSONField as JSONFormField
-    from jsonfield.forms import InvalidJSONInput
-    DEFAULT_INITIAL = InvalidJSONInput("")
-except ImportError:
-    class Missing(object):
-        def __init__(self, *args, **kwargs):
-            err_msg = '`jsonfield` dependency missing. See README.'
-            raise ImproperlyConfigured(err_msg)
-
-    JSONField = Missing
-    JSONFormField = Missing
-    DEFAULT_INITIAL = None
 
 
 class GeoJSONValidator(object):
@@ -57,7 +44,7 @@ class GeoJSONFormField(JSONFormField):
             warnings.warn('`django-leaflet` is not available.')
         geom_type = kwargs.pop('geom_type')
         kwargs.setdefault('validators', [GeoJSONValidator(geom_type)])
-        kwargs.setdefault('initial', DEFAULT_INITIAL)
+        kwargs.setdefault('initial', InvalidJSONInput(''))
         super(GeoJSONFormField, self).__init__(*args, **kwargs)
 
 
@@ -69,6 +56,7 @@ class GeoJSONField(JSONField):
 
     def formfield(self, **kwargs):
         kwargs.setdefault('geom_type', self.geom_type)
+        kwargs.setdefault('form_class', self.form_class)
         return super(GeoJSONField, self).formfield(**kwargs)
 
 

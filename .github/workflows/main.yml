@@ -40,15 +40,14 @@ jobs:
         sudo apt-get update -qq
         sudo apt-get install -y libproj-dev libgeos-dev gdal-bin libgdal-dev libsqlite3-mod-spatialite
         python -m pip install --upgrade pip
-        pip install -U flake8 coveralls argparse jsonfield
+        pip install -U flake8 coveralls argparse
         pip install -U Django~=${{ matrix.django_version }}
     - name: Lint with flake8
       run: |
         flake8 --ignore=E501,W504 djgeojson
     - name: Test Django
       run: |
-        python -m coverage run ./quicktest.py djgeojson
-#        python -W error::DeprecationWarning -W error::PendingDeprecationWarning -m coverage run ./quicktest.py djgeojson
+        python -W error::DeprecationWarning -W error::PendingDeprecationWarning -m coverage run ./quicktest.py djgeojson
     - name: Coverage
       if: ${{ success() }}
       run: |
