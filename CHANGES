@@ -2,10 +2,10 @@
 CHANGELOG
 =========
 
-3.2.2 (unreleased)
+3.3.0 (unreleased)
 ==================
 
--
+- Drop support for Python < 3.7 / Django < 3.2
 
 3.2.1 (2022-02-21)
 ==================
