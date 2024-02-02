@@ -92,8 +92,9 @@ Mainly useful to dump features in HTML output and bypass AJAX call :
 ::
 
     // Leaflet JS
-    L.geoJson({{ object_list|geojsonfeature|safe}}).addTo(map);
-
+    var raw_data = '{{ object_list|geojsonfeature|safe|escapejs }}';
+    var data = JSON.parse(raw_data);      
+    L.geoJSON(data).addTo(map);
 
 Will work either for a model, a geometry field or a queryset.
 
