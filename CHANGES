@@ -12,6 +12,7 @@ CHANGELOG
 
 - Drop support for Python < 3.7 / Django < 3.2
 - Remove jsonfield dependency in favor of django.db.models.JSONField
+	WARNING : This can break your migration. jsonfield used to create a text column for your json data when running 'makemigrations'. However, django.db.models.JSONField creates a json column using database-backend specific column types (ie jsonb on postgresql). As such your model field that used to be a text column is now a jsonb column.
 
 3.2.1 (2022-02-21)
 ==================
