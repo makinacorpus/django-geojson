@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 class GEOSGeometry(object):
     """
     A simple mock of django.contrib.gis.geos.GEOSGeometry to make

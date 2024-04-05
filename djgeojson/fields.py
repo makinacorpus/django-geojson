@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from django.db.models import JSONField
 from django.forms.fields import JSONField as JSONFormField, InvalidJSONInput
 from django.forms.widgets import HiddenInput
