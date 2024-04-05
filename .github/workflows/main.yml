@@ -1,54 +1,43 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
-
 name: Python application
 
 on: [push, pull_request]
 
 jobs:
   tests_python:
-    name: Test on Python ${{ matrix.python_version }} and Django ${{ matrix.django_version }}
+    name: Test on Python ${{ matrix.python_version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        django_version: [ '3.2', '4.0', '4.1' ]
-        python_version: [ '3.7', '3.8', '3.9', '3.10' ]
-        exclude:
-
-          - django_version: '4.0'
-            python_version: '3.7'
-
-          - django_version: '4.1'
-            python_version: '3.7'
+        python_version:
+        - '3.8'
+        - '3.9'
+        - '3.10'
+        - '3.11'
+        - '3.12'
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
+
     - name: Set up Python ${{ matrix.python_version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python_version }}
+
     - name: Cache pip
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         # This path is specific to Ubuntu
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ matrix.django_version }}
+        key: ${{ runner.os }}-pip-${{ matrix.python_version }}
+
     - name: Install dependencies
       run: |
         sudo apt-get update -qq
         sudo apt-get install -y libproj-dev libgeos-dev gdal-bin libgdal-dev libsqlite3-mod-spatialite
         python -m pip install --upgrade pip
-        pip install -U flake8 coveralls argparse
-        pip install -U Django~=${{ matrix.django_version }}
-    - name: Lint with flake8
-      run: |
-        flake8 --ignore=E501,W504 djgeojson
-    - name: Test Django
-      run: |
-        python -W error::DeprecationWarning -W error::PendingDeprecationWarning -m coverage run ./quicktest.py djgeojson
-    - name: Coverage
-      if: ${{ success() }}
-      run: |
-        coveralls --service=github
+        python -m pip install --upgrade 'tox>=4.0.0rc3'
+
+    - name: Run tox targets for ${{ matrix.python_version }}
+      run: tox run -f py$(echo ${{ matrix.python_version }} | tr -d .)

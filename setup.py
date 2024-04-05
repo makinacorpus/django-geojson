@@ -1,6 +1,7 @@
 import os
 from io import open
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -16,14 +17,14 @@ setup(
                      open(os.path.join(here, 'CHANGES'), encoding='utf-8').read(),
     license='LPGL, see LICENSE file.',
     install_requires=[
-        'Django>=3.2',
+        'Django>=4.0',
     ],
     extras_require={
         'field': ['django-leaflet>=0.12'],
         'docs': ['sphinx', 'sphinx-autobuild'],
     },
     packages=find_packages(),
-    python_requires=">=3.5",
+    python_requires=">=3.8",
     include_package_data=True,
     zip_safe=False,
     classifiers=['Topic :: Utilities',
@@ -33,9 +34,10 @@ setup(
                  'Environment :: Web Environment',
                  'Framework :: Django',
                  'Development Status :: 5 - Production/Stable',
-                 'Programming Language :: Python :: 3.5',
-                 'Programming Language :: Python :: 3.6',
-                 'Programming Language :: Python :: 3.7',
                  'Programming Language :: Python :: 3.8',
+                 'Programming Language :: Python :: 3.9',
+                 'Programming Language :: Python :: 3.10',
+                 'Programming Language :: Python :: 3.11',
+                 'Programming Language :: Python :: 3.12',
     ],
 )

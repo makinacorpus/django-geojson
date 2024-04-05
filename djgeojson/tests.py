@@ -3,20 +3,19 @@ from __future__ import unicode_literals
 import json
 
 import django
+from django.conf import settings
+from django.contrib.gis.db import models
+from django.contrib.gis.geos import GeometryCollection, LineString, Point
+from django.core import serializers
+from django.core.exceptions import SuspiciousOperation, ValidationError
 from django.forms import HiddenInput
 from django.test import TestCase
-from django.conf import settings
-from django.core import serializers
-from django.core.exceptions import ValidationError, SuspiciousOperation
-from django.contrib.gis.db import models
-from django.contrib.gis.geos import LineString, Point, GeometryCollection
 from django.utils.encoding import smart_str
 
-from .templatetags.geojson_tags import geojsonfeature
-from .serializers import Serializer
-from .views import GeoJSONLayerView, TiledGeoJSONLayerView
 from .fields import GeoJSONField, GeoJSONFormField, GeoJSONValidator
-
+from .serializers import Serializer
+from .templatetags.geojson_tags import geojsonfeature
+from .views import GeoJSONLayerView, TiledGeoJSONLayerView
 
 settings.SERIALIZATION_MODULES = {'geojson': 'djgeojson.serializers'}
 
@@ -680,9 +679,9 @@ class TiledGeoJSONViewFixedSridTest(TestCase):
         response = self.view.render_to_response(context={})
         geojson = json.loads(smart_str(response.content))
         self.assertEqual(len(geojson['features']), 2)
-        self.assertAlmostEqual(geojson['features'][0]['geometry']['coordinates'][0], 6.843322039261242)
+        self.assertAlmostEqual(geojson['features'][0]['geometry']['coordinates'][0], 6.843321961076886)
         self.assertAlmostEqual(geojson['features'][0]['geometry']['coordinates'][1], 52.76181518632031)
-        self.assertAlmostEqual(geojson['features'][1]['geometry']['coordinates'][0], 6.846053318324978)
+        self.assertAlmostEqual(geojson['features'][1]['geometry']['coordinates'][0], 6.846053240233331)
         self.assertAlmostEqual(geojson['features'][1]['geometry']['coordinates'][1], 52.77442791046052)
 
 

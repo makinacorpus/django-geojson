@@ -7,9 +7,8 @@
 """
 import json
 import logging
-from io import StringIO  # NOQA
-
 from contextlib import contextmanager
+from io import StringIO  # NOQA
 
 import django
 from django.db.models.base import Model
@@ -20,19 +19,21 @@ except ImportError:
     from django.db.models.query import QuerySet
     ValuesQuerySet = None
 
-from django.forms.models import model_to_dict
-from django.core.serializers.python import (_get_model,
-                                            Serializer as PythonSerializer,
-                                            Deserializer as PythonDeserializer)
-from django.core.serializers.json import DjangoJSONEncoder
-from django.core.serializers.base import SerializationError, DeserializationError
-from django.utils.encoding import smart_str
 from django.core.exceptions import ImproperlyConfigured
+from django.core.serializers.base import (
+    DeserializationError,
+    SerializationError,
+)
+from django.core.serializers.json import DjangoJSONEncoder
+from django.core.serializers.python import Deserializer as PythonDeserializer
+from django.core.serializers.python import Serializer as PythonSerializer
+from django.core.serializers.python import _get_model
+from django.forms.models import model_to_dict
+from django.utils.encoding import smart_str
 
 try:
-    from django.contrib.gis.geos import WKBWriter
-    from django.contrib.gis.geos import GEOSGeometry
     from django.contrib.gis.db.models.fields import GeometryField
+    from django.contrib.gis.geos import GEOSGeometry, WKBWriter
 except (ImportError, ImproperlyConfigured):
     from .nogeos import WKBWriter
     from .nogeos import GEOSGeometry
@@ -40,7 +41,6 @@ except (ImportError, ImproperlyConfigured):
 
 from . import GEOJSON_DEFAULT_SRID
 from .fields import GeoJSONField
-
 
 logger = logging.getLogger(__name__)
 

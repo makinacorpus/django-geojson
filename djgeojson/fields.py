@@ -1,9 +1,10 @@
 from __future__ import unicode_literals
 
-from django.db.models import JSONField
-from django.forms.fields import JSONField as JSONFormField, InvalidJSONInput
-from django.forms.widgets import HiddenInput
 from django.core.exceptions import ValidationError
+from django.db.models import JSONField
+from django.forms.fields import InvalidJSONInput
+from django.forms.fields import JSONField as JSONFormField
+from django.forms.widgets import HiddenInput
 from django.utils.translation import gettext_lazy as _
 
 try:

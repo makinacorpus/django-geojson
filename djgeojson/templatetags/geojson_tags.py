@@ -5,15 +5,14 @@ from django import template
 from django.core.exceptions import ImproperlyConfigured
 
 try:
-    from django.contrib.gis.geos import GEOSGeometry
     from django.contrib.gis.db.models.fields import GeometryField
+    from django.contrib.gis.geos import GEOSGeometry
 except (ImportError, ImproperlyConfigured):
     from ..nogeos import GEOSGeometry
     from ..fields import GeometryField
 
 from .. import GEOJSON_DEFAULT_SRID
-from ..serializers import Serializer, DjangoGeoJSONEncoder
-
+from ..serializers import DjangoGeoJSONEncoder, Serializer
 
 register = template.Library()
 

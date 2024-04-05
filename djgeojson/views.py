@@ -7,11 +7,10 @@ try:
     from django.contrib.gis.db.models.functions import Intersection
 except (ImportError, ImproperlyConfigured):
     Intersection = None
-from django.views.generic import ListView
+from django.core.exceptions import ImproperlyConfigured, SuspiciousOperation
 from django.utils.decorators import method_decorator
 from django.views.decorators.gzip import gzip_page
-from django.core.exceptions import SuspiciousOperation
-from django.core.exceptions import ImproperlyConfigured
+from django.views.generic import ListView
 
 try:
     from django.contrib.gis.geos import Polygon
@@ -26,9 +25,9 @@ try:
 except (ImportError, ImproperlyConfigured):
     from .fields import PointField
 
+from . import GEOJSON_DEFAULT_SRID
 from .http import HttpGeoJSONResponse
 from .serializers import Serializer as GeoJSONSerializer
-from . import GEOJSON_DEFAULT_SRID
 
 
 class GeoJSONResponseMixin(object):
