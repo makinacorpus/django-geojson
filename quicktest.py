@@ -1,6 +1,6 @@
+import argparse
 import os
 import sys
-import argparse
 
 import django
 from django.conf import settings
@@ -68,6 +68,22 @@ class QuickDjangoTest:
         )
 
         django.setup()
+
+        # Workaround for incompatibility between SQLite 3.36+ and SpatiaLite 5,
+        # as used on GitHub Actions. This change monkey patches
+        # prepare_database() to avoid a call to InitSpatialMetaDataFull(). See:
+        # https://code.djangoproject.com/ticket/32935
+        # https://groups.google.com/g/spatialite-users/c/SnNZt4AGm_o
+        from django.contrib.gis.db.backends.spatialite.base import DatabaseWrapper
+
+        def prepare_database(self):
+            super(DatabaseWrapper, self).prepare_database()
+            with self.cursor() as cursor:
+                cursor.execute("PRAGMA table_info(geometry_columns);")
+                if cursor.fetchall() == []:
+                    cursor.execute("SELECT InitSpatialMetaData(1)")
+
+        DatabaseWrapper.prepare_database = prepare_database
 
         failures = DiscoverRunner().run_tests(self.apps, verbosity=1)
         if failures:  # pragma: no cover
