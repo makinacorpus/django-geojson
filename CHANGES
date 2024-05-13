@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-4.1.0 (unreleased)
+4.1.0 (2024-05-13)
 ==================
 
 - Drop Python 3.7, Django 3.2. Support Python 3.11 and 3.12, Django 4.2 and 5.0. #123 
