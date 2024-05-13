@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # django-geojson documentation build configuration file, created by
 # sphinx-quickstart on Tue Feb 28 13:44:49 2017.
