@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from django.core.exceptions import ValidationError
 from django.db.models import JSONField
 from django.forms.fields import InvalidJSONInput
