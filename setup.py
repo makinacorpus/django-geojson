@@ -17,7 +17,7 @@ setup(
                      open(os.path.join(here, 'CHANGES'), encoding='utf-8').read(),
     license='LPGL, see LICENSE file.',
     install_requires=[
-        'Django>=4.0',
+        'Django>=4.2',
     ],
     extras_require={
         'field': ['django-leaflet>=0.12'],
@@ -34,10 +34,10 @@ setup(
                  'Environment :: Web Environment',
                  'Framework :: Django',
                  'Development Status :: 5 - Production/Stable',
-                 'Programming Language :: Python :: 3.8',
                  'Programming Language :: Python :: 3.9',
                  'Programming Language :: Python :: 3.10',
                  'Programming Language :: Python :: 3.11',
                  'Programming Language :: Python :: 3.12',
+                 'Programming Language :: Python :: 3.13',
     ],
 )

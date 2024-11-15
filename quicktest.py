@@ -74,7 +74,9 @@ class QuickDjangoTest:
         # prepare_database() to avoid a call to InitSpatialMetaDataFull(). See:
         # https://code.djangoproject.com/ticket/32935
         # https://groups.google.com/g/spatialite-users/c/SnNZt4AGm_o
-        from django.contrib.gis.db.backends.spatialite.base import DatabaseWrapper
+        from django.contrib.gis.db.backends.spatialite.base import (
+            DatabaseWrapper,
+        )
 
         def prepare_database(self):
             super(DatabaseWrapper, self).prepare_database()

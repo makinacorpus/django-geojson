@@ -5,7 +5,8 @@ CHANGELOG
 4.1.1 (unreleased)
 ==================
 
--
+- Drop Python 3.8, Django 4.0, and Django 4.1.
+- Support Python 3.13 and Django 5.1.
 
 4.1.0 (2024-05-13)
 ==================
