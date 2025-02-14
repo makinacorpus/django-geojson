@@ -27,7 +27,6 @@ from django.core.serializers.base import (
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.serializers.python import Deserializer as PythonDeserializer
 from django.core.serializers.python import Serializer as PythonSerializer
-from django.core.serializers.python import _get_model
 from django.forms.models import model_to_dict
 from django.utils.encoding import smart_str
 
@@ -41,6 +40,11 @@ except (ImportError, ImproperlyConfigured):
 
 from . import GEOJSON_DEFAULT_SRID
 from .fields import GeoJSONField
+
+if django.VERSION >= (5, 2):
+    get_model = PythonDeserializer._get_model_from_node
+else:
+    from django.core.serializers.python import _get_model as get_model
 
 logger = logging.getLogger(__name__)
 
@@ -483,7 +487,7 @@ def Deserializer(stream_or_string, **options):
         properties = dictobj['properties']
         model_name = options.get("model_name") or properties.pop('model')
         # Deserialize concrete fields only (bypass dynamic properties)
-        model = _get_model(model_name)
+        model = get_model(model_name)
         field_names = [f.name for f in model._meta.fields]
         fields = {}
         for k, v in properties.items():
