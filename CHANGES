@@ -6,7 +6,7 @@ CHANGELOG
 ==================
 
 - Drop Python 3.8, Django 4.0, and Django 4.1.
-- Support Python 3.13 and Django 5.1.
+- Support Python 3.13, Django 5.1 and Django 5.2.
 
 4.1.0 (2024-05-13)
 ==================
