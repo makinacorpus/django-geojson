@@ -7,7 +7,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 setup(
     name='django-geojson',
-    version='4.2.0',
+    version='4.2.1dev',
     author='Mathieu Leplatre',
     author_email='mathieu.leplatre@makina-corpus.com',
     url='https://github.com/makinacorpus/django-geojson',
