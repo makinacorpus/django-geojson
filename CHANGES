@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-4.1.1 (unreleased)
+4.2.0 (2025-10-03)
 ==================
 
 - Drop Python 3.8, Django 4.0, and Django 4.1.
