@@ -5,7 +5,8 @@ CHANGELOG
 4.2.1 (unreleased)
 ==================
 
--
+- Drop support for Python 3.9.
+- Support Python 3.14 and Django 6.0.
 
 4.2.0 (2025-10-03)
 ==================
